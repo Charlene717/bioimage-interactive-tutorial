@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 3: Deconvolution — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html">Fund.</a></li><li><a href="preprocessing.html">Preproc.</a></li><li><a href="deconvolution.html" class="active">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html">Class.Seg</a></li><li><a href="segmentation-dl.html">DL Seg</a></li><li><a href="foundation-models.html">FM</a></li><li><a href="tracking.html">Track.</a></li><li><a href="quantification.html">Quant.</a></li><li><a href="3d-multidim.html">3D</a></li><li><a href="high-content.html">HCS</a></li><li><a href="pathology.html">Path.</a></li><li><a href="tools.html">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 3 / 9</div>
+<h1 data-zh="去卷積 (Deconvolution)" data-en="Deconvolution">去卷積 (Deconvolution)</h1>
+<p class="subtitle" data-lang="zh">顯微鏡會用「點擴散函數 (PSF)」模糊真實樣本。去卷積在數學上反轉這個模糊，讓影像更銳利、更可量化——3D widefield 與共軛焦尤其有感。</p>
+<p class="subtitle" data-lang="en">A microscope blurs reality by its point-spread function (PSF). Deconvolution inverts that blur mathematically — sharper, more quantitative images, especially in 3D widefield and confocal.</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="觀念" data-en="CONCEPT">觀念</div>
+<h2 data-zh="一、PSF、卷積與影像形成模型" data-en="I. PSF, Convolution, and the Image Formation Model">一、PSF 與影像形成模型</h2>
+<div data-lang="zh">
+<p><strong>點擴散函數 (Point Spread Function, PSF)</strong>：一個亞解析度的光點（如小於繞射極限的螢光珠）在顯微鏡下不會仍是「一個點」，而會擴散成一個有特定形狀的模糊斑——這個斑就是 PSF。</p>
+<p>影像形成的線性模型：</p>
+<p style="text-align:center;font-family:var(--font-mono);background:var(--c-surface-alt);padding:14px;border-radius:8px;">image = sample ⊗ PSF + noise</p>
+<p>(⊗ 表示卷積)。去卷積就是已知 PSF（測量或理論），反推 <em>sample</em>。</p>
+</div>
+<div data-lang="en">
+<p>The <strong>Point Spread Function (PSF)</strong> is the image of a sub-resolution point (e.g., a sub-diffraction-limited fluorescent bead) — it appears not as a point but as a blurred spot with a characteristic shape. That spot <em>is</em> the PSF.</p>
+<p>Linear image-formation model:</p>
+<p style="text-align:center;font-family:var(--font-mono);background:var(--c-surface-alt);padding:14px;border-radius:8px;">image = sample ⊗ PSF + noise</p>
+<p>(⊗ denotes convolution). Deconvolution recovers <em>sample</em> from a known PSF (measured or theoretical).</p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>關鍵直覺：</strong>PSF 在 XY 方向通常是 Gaussian-like，但在 Z 方向是不對稱的「沙漏 / 雙錐」形狀。這也是為什麼 3D 去卷積比 2D 重要得多——3D widefield 的離焦光是訊號的主要敵人。</span>
+<span data-lang="en"><strong>Key intuition:</strong> The PSF is roughly Gaussian in XY but asymmetric ("hourglass / double cone") in Z. That is why 3D decon matters far more than 2D — in 3D widefield, out-of-focus light is the dominant enemy.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="演算法" data-en="ALGORITHMS">演算法</div>
+<h2 data-zh="二、去卷積演算法" data-en="II. Deconvolution Algorithms">二、去卷積演算法</h2>
+<table class="comp-table">
+<thead><tr>
+<th data-zh="演算法" data-en="Algorithm">演算法</th>
+<th data-zh="原理" data-en="Principle">原理</th>
+<th data-zh="優缺點" data-en="Pros / Cons">優缺點</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>Inverse filter</strong></td><td data-lang="zh">直接做 FFT 除法</td><td data-lang="zh">最快；對雜訊敏感，幾乎不堪用</td><td data-lang="en">Direct FFT division</td><td data-lang="en">Fastest; extremely noise-sensitive, rarely usable</td></tr>
+<tr><td><strong>Wiener</strong></td><td data-lang="zh">FFT 域加入雜訊功率譜正則化</td><td data-lang="zh">快、穩定；無迭代</td><td data-lang="en">FFT-domain regularization by noise power spectrum</td><td data-lang="en">Fast and stable; non-iterative</td></tr>
+<tr><td><strong>Richardson-Lucy (RL)</strong></td><td data-lang="zh">最大概似迭代；Poisson 雜訊模型</td><td data-lang="zh"><strong>事實上的標準</strong>；超過 30 iter 噪聲放大</td><td data-lang="en">Maximum-likelihood iteration with Poisson noise model</td><td data-lang="en"><strong>De facto standard</strong>; noise amplifies past ~30 iter</td></tr>
+<tr><td><strong>RL-TV</strong></td><td data-lang="zh">RL + Total Variation 正則化</td><td data-lang="zh">減少 ringing 與雜訊放大；多一參數</td><td data-lang="en">RL with Total Variation regularization</td><td data-lang="en">Reduces ringing &amp; noise amplification; extra λ</td></tr>
+<tr><td><strong>Blind deconvolution</strong></td><td data-lang="zh">同時估 PSF 與 sample</td><td data-lang="zh">無需測 PSF；不穩定，需良好初值</td><td data-lang="en">Estimate PSF &amp; sample jointly</td><td data-lang="en">No PSF measurement needed; unstable, sensitive to init</td></tr>
+<tr><td><strong>CARE (DL)</strong></td><td data-lang="zh">監督式 CNN 學 noisy/blurry→clean 對映</td><td data-lang="zh">最佳結果；需訓練配對資料</td><td data-lang="en">Supervised CNN learning noisy/blurry → clean mapping</td><td data-lang="en">Best results; requires paired training data</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="互動模擬" data-en="INTERACTIVE">互動模擬</div>
+<h2 data-zh="Richardson-Lucy 迭代次數模擬器" data-en="Richardson-Lucy Iteration Simulator">RL 迭代次數模擬器</h2>
+<div data-lang="zh"><p>觀察 RL 迭代次數對「銳化程度」與「雜訊放大」的雙刃影響。MSE 通常先下降後上升——這就是經驗法則「停在 10–30 iter」的數學基礎。</p></div>
+<div data-lang="en"><p>Watch the double-edged effect of RL iterations: sharpening vs. noise amplification. MSE typically falls then rises — the empirical basis for "stop at 10–30 iter."</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="迭代次數 (Iterations)" data-en="Iterations">迭代次數</span> <span id="valIter">15</span></label><input type="range" id="sliderIter" min="0" max="80" value="15" step="1"></div>
+<div class="sim-stats"><span class="sim-stat pass" id="statSharpness">Sharpness: —</span><span class="sim-stat fail" id="statMSE">MSE: —</span></div>
+<div class="chart-container"><canvas id="rlChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;" data-lang="zh">藍：真實訊號 | 灰：模糊+雜訊輸入 | 橘：RL 還原結果</p>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;" data-lang="en">Blue: ground truth | Grey: blurred + noisy input | Orange: RL output</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="決策" data-en="DECISIONS">決策</div>
+<h2 data-zh="三、要不要做去卷積？" data-en="III. To deconvolve or not?">三、要不要去卷積？</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="去卷積決策樹" data-en="Decon Decision Tree">去卷積決策樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>顯微術式？<span class="dt-arrow">→</span> Widefield 3D：<strong>強烈建議</strong>。共軛焦：<strong>建議</strong>。Light-sheet：<strong>強烈建議 (multi-view 融合)</strong>。STED / SIM：<strong>通常不需</strong>。</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>有 sub-resolution bead 影像可量 PSF 嗎？<span class="dt-arrow">→</span> 有 → <strong>用測量 PSF</strong>（最準）。沒有 → 用 PSFGenerator 算理論 PSF（Born-Wolf / Gibson-Lanni）</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>要做<strong>強度量化</strong>嗎？<span class="dt-arrow">→</span> 要 → 慎用！RL 不保線性，建議改用 Wiener（線性）或加 TV 正則</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>有大量訓練配對資料嗎？<span class="dt-arrow">→</span> 有 → <strong>CARE / DL decon</strong>，效果最好；沒有 → RL-TV 是黃金標準</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>Modality? <span class="dt-arrow">→</span> Widefield 3D: <strong>strongly recommended</strong>. Confocal: <strong>recommended</strong>. Light-sheet: <strong>strongly recommended for multi-view fusion</strong>. STED/SIM: usually <strong>not needed</strong>.</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Bead images for PSF measurement available? <span class="dt-arrow">→</span> Yes → <strong>use measured PSF</strong>. No → compute theoretical PSF (Born-Wolf / Gibson-Lanni) via PSFGenerator.</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>Will you <strong>quantify intensity</strong>? <span class="dt-arrow">→</span> Yes → caution! RL is not linearity-preserving; consider Wiener (linear) or RL with TV regularization.</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>Lots of paired training data? <span class="dt-arrow">→</span> Yes → <strong>CARE / DL decon</strong>, best results. No → RL-TV is the gold standard.</div></div>
+</div>
+</div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>順序很重要：</strong>在 widefield，必須<strong>先做背景減除</strong>（移除離焦光的低頻成分）再做去卷積。否則離焦光會被「銳化」成偽訊號。</span>
+<span data-lang="en"><strong>Order matters:</strong> In widefield, <strong>subtract background first</strong> (remove out-of-focus low-frequency content), then deconvolve. Otherwise the haze gets "sharpened" into pseudo-signal.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="四、去卷積實作" data-en="IV. Deconvolution Code">四、去卷積實作</h2>
+<div class="code-tabs"><div class="code-tab-btns"><button class="code-tab-btn active" onclick="switchTab(this,'py1')">Python (skimage / flowdec)</button><button class="code-tab-btn" onclick="switchTab(this,'fiji1')">Fiji (DeconvolutionLab2)</button><button class="code-tab-btn" onclick="switchTab(this,'care1')">CARE (CSBDeep)</button></div>
+<div class="code-tab-content active" id="py1"><pre><span class="kw">from</span> skimage <span class="kw">import</span> restoration, io
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+img = io.imread(<span class="str">"stack3d.tif"</span>).astype(<span class="str">"float32"</span>)
+psf = io.imread(<span class="str">"psf_measured.tif"</span>).astype(<span class="str">"float32"</span>)
+psf /= psf.sum()                                  <span class="comment"># Normalize PSF</span>
+
+<span class="comment"># Richardson-Lucy 3D (CPU, slow for big stacks)</span>
+deconv = restoration.richardson_lucy(img, psf, num_iter=<span class="num">20</span>)
+
+<span class="comment"># Wiener (linear, single shot)</span>
+deconv_w = restoration.wiener(img, psf, balance=<span class="num">0.1</span>)
+
+<span class="comment"># GPU-accelerated RL via flowdec (TensorFlow)</span>
+<span class="kw">from</span> flowdec <span class="kw">import</span> data <span class="kw">as</span> fd_data, restoration <span class="kw">as</span> fd_rest
+algo = fd_rest.RichardsonLucyDeconvolver(n_dims=<span class="num">3</span>).initialize()
+res = algo.run(fd_data.Acquisition(data=img, kernel=psf), niter=<span class="num">25</span>)
+out = res.data</pre></div>
+<div class="code-tab-content" id="fiji1"><pre><span class="comment">// Fiji + DeconvolutionLab2 plugin</span>
+<span class="comment">// 1. Install: Help &gt; Update &gt; Manage update sites &gt; DeconvolutionLab2</span>
+<span class="comment">// 2. Open image and PSF</span>
+
+run(<span class="str">"DeconvolutionLab2 Run"</span>,
+    <span class="str">"-image platform 1 -psf platform 2 -algorithm RL 25 -out stack OUTPUT.tif"</span>);
+
+<span class="comment">// Or use PSFGenerator first to make a theoretical PSF</span>
+run(<span class="str">"PSF Generator"</span>);
+<span class="comment">// → pick Born &amp; Wolf 3D, set NA, lambda, n_immersion, pixel size, Z step</span></pre></div>
+<div class="code-tab-content" id="care1"><pre><span class="comment"># CARE — content-aware restoration (DL)</span>
+<span class="kw">from</span> csbdeep.models <span class="kw">import</span> CARE
+<span class="kw">from</span> csbdeep.utils <span class="kw">import</span> normalize
+
+<span class="comment"># Load pretrained model (e.g., from BioImage Model Zoo)</span>
+model = CARE(config=<span class="kw">None</span>, name=<span class="str">"care_planaria_v1"</span>, basedir=<span class="str">"models"</span>)
+
+<span class="comment"># Predict</span>
+low_snr = normalize(noisy_img, <span class="num">1</span>, <span class="num">99.8</span>)         <span class="comment"># Percentile normalize</span>
+restored = model.predict(low_snr, axes=<span class="str">"ZYX"</span>)
+
+<span class="comment"># Train your own (need matched low-SNR / high-SNR pairs)</span>
+<span class="kw">from</span> csbdeep.models <span class="kw">import</span> Config, CARE
+<span class="kw">from</span> csbdeep.data <span class="kw">import</span> RawData, create_patches
+raw = RawData.from_folder(basepath=<span class="str">"data/"</span>, source_dirs=[<span class="str">"low"</span>], target_dir=<span class="str">"high"</span>, axes=<span class="str">"ZYX"</span>)
+X,Y,_ = create_patches(raw, patch_size=(<span class="num">16</span>,<span class="num">64</span>,<span class="num">64</span>), n_patches_per_image=<span class="num">128</span>)
+config = Config(<span class="str">"ZYX"</span>, n_channel_in=<span class="num">1</span>, n_channel_out=<span class="num">1</span>, train_epochs=<span class="num">50</span>)
+model = CARE(config, <span class="str">"my_care"</span>); model.train(X, Y)</pre></div>
+</div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">1. 你用 RL 跑了 200 iter，影像看起來「銳利但充滿斑點」。原因？</p>
+<p data-lang="en">1. You ran RL for 200 iterations and the image is "sharp but full of speckles." Why?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. PSF 估錯了</span><span data-lang="en">A. Wrong PSF</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 迭代過多放大了高頻雜訊（noise amplification）</span><span data-lang="en">B. Too many iterations amplified high-frequency noise</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 影像位元深度不夠</span><span data-lang="en">C. Insufficient bit depth</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 影像沒有正規化</span><span data-lang="en">D. Image not normalized</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">2. 哪一種顯微術式<strong>最受惠</strong>於 3D 去卷積？</p>
+<p data-lang="en">2. Which modality benefits <strong>most</strong> from 3D deconvolution?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. STED</span><span data-lang="en">A. STED</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. SMLM (STORM/PALM)</span><span data-lang="en">B. SMLM (STORM/PALM)</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Widefield 3D (off-focus 嚴重)</span><span data-lang="en">C. Widefield 3D (heavy out-of-focus haze)</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 2D phase contrast</span><span data-lang="en">D. 2D phase contrast</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">3. 在 widefield 影像上，做去卷積<strong>之前</strong>最應該做什麼？</p>
+<p data-lang="en">3. What should you do <strong>before</strong> deconvolving a widefield image?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 轉成 8-bit</span><span data-lang="en">A. Convert to 8-bit</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 背景減除（移除離焦光低頻）</span><span data-lang="en">B. Background subtraction (remove low-frequency haze)</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 直接拿去 segmentation</span><span data-lang="en">C. Send straight to segmentation</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. Gaussian smooth</span><span data-lang="en">D. Gaussian smoothing</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav">
+<a href="preprocessing.html"><span class="nav-dir" data-zh="← 上一步" data-en="← Previous">← 上一步</span><span class="nav-title" data-zh="Step 2: 預處理與去噪 (Preprocessing &amp;amp; Denoising)" data-en="Step 2: Preprocessing &amp;amp; Denoising">Step 2: 預處理與去噪 (Preprocessing &amp; Denoising)</span></a>
+<a href="registration.html"><span class="nav-dir" data-zh="下一步 →" data-en="Next →">下一步 →</span><span class="nav-title" data-zh="Step 4: 配準與拼接 (Registration &amp;amp; Stitching)" data-en="Step 4: Registration &amp;amp; Stitching">Step 4: 配準與拼接 (Registration &amp; Stitching)</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+function switchTab(b,id){const p=b.closest('.code-tabs');p.querySelectorAll('.code-tab-btn').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.code-tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');}
+
+// RL iteration simulation: simple deconv on 1D
+const N=140;
+const gt=[];
+for(let i=0;i<N;i++){let v=0;if(i>30&&i<40)v=1;if(i>60&&i<63)v=0.7;if(i>80&&i<98)v=0.9;if(i>110&&i<115)v=0.4;gt.push(v);}
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+// blur with Gaussian PSF
+function blur(x,sig){const r=Math.ceil(sig*3);const k=[];let s=0;for(let i=-r;i<=r;i++){const w=Math.exp(-i*i/(2*sig*sig));k.push(w);s+=w;}for(let i=0;i<k.length;i++)k[i]/=s;const out=new Array(x.length).fill(0);for(let i=0;i<x.length;i++){let v=0;for(let j=-r;j<=r;j++){const ix=Math.min(x.length-1,Math.max(0,i+j));v+=x[ix]*k[j+r];}out[i]=v;}return out;}
+const PSF_SIG=3.0;
+const blurred=blur(gt,PSF_SIG);
+const noisy=blurred.map(v=>v+randn()*0.04);
+// Richardson-Lucy 1D iteration
+function rl(obs,niter){let est=new Array(obs.length).fill(0.5);for(let k=0;k<niter;k++){const conv=blur(est,PSF_SIG);const ratio=obs.map((y,i)=>y/Math.max(conv[i],1e-5));const corr=blur(ratio,PSF_SIG);est=est.map((v,i)=>v*corr[i]);}return est;}
+const rlChart=new Chart(document.getElementById('rlChart'),{
+  type:'line',
+  data:{labels:Array.from({length:N},(_,i)=>i),datasets:[
+    {label:'Ground truth',data:gt,borderColor:'rgba(26,107,90,0.95)',borderWidth:2.5,pointRadius:0,tension:0.1},
+    {label:'Blurred + noisy',data:noisy,borderColor:'rgba(120,120,120,0.55)',borderWidth:1.5,pointRadius:0,borderDash:[4,3],tension:0.1},
+    {label:'RL output',data:noisy,borderColor:'rgba(212,160,60,1)',borderWidth:3,pointRadius:0,tension:0.05}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top'}},scales:{x:{ticks:{maxTicksLimit:6}},y:{title:{display:true,text:'Intensity'},min:-0.2,max:1.5}}}
+});
+function update(){
+  const n=+document.getElementById('sliderIter').value;
+  document.getElementById('valIter').textContent=n;
+  const est=rl(noisy,n);
+  rlChart.data.datasets[2].data=est;
+  let mse=0;for(let i=0;i<N;i++)mse+=(est[i]-gt[i])**2;mse/=N;
+  let sharp=0;for(let i=1;i<N;i++)sharp=Math.max(sharp,Math.abs(est[i]-est[i-1]));
+  document.getElementById('statSharpness').textContent=(I18n.get()==='zh'?'銳度 ':'Sharpness ')+sharp.toFixed(2);
+  document.getElementById('statMSE').textContent='MSE '+mse.toFixed(4);
+  rlChart.update('none');
+}
+document.getElementById('sliderIter').addEventListener('input',update);
+document.addEventListener('langchange',update);
+update();
+
+const QF={
+  zh:{q1_y:'RL 在後期迭代會把雜訊放大成「斑點」(deconvolution rings)，這是經典陷阱。',q1_n:'正確答案已標示。',q2_y:'Widefield 3D 沒有 confocal 的針孔濾離焦光，3D decon 提升最大。',q2_n:'正確答案已標示。',q3_y:'背景減除可消除低頻離焦霧，否則 decon 會把霧「銳化」為偽訊號。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'Late RL iterations amplify high-frequency noise into "deconvolution rings" — classic trap.',q1_n:'Correct answer highlighted.',q2_y:'Widefield 3D has no pinhole, so out-of-focus haze dominates; 3D decon gains the most.',q2_n:'Correct answer highlighted.',q3_y:'Background subtraction removes low-frequency haze; otherwise decon will sharpen it into pseudo-signal.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

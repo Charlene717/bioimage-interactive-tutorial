@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Bioimage Analysis 參考資料 · References</title>
+<meta name="description" content="Bioimage Analysis Interactive Tutorial 各主題的學術論文、官方文件、Best Practices 與資料庫整理。">
+<link rel="stylesheet" href="../styles.css">
+<style>
+.ref-list{list-style:none;padding:0;margin:14px 0 0}
+.ref-list li{padding:14px 16px;background:var(--c-surface-alt);border:1px solid var(--c-border-light);border-radius:var(--radius);margin-bottom:10px;font-size:.92rem;line-height:1.65}
+.ref-list li:hover{background:var(--c-surface);border-color:var(--c-border)}
+.ref-tag{display:inline-block;font-family:var(--font-mono);font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:6px;margin-right:8px;letter-spacing:.5px}
+.ref-tag.paper{background:var(--c-accent-light);color:var(--c-accent-dark)}
+.ref-tag.doc{background:#e3f2fd;color:#1565c0}
+.ref-tag.bench{background:#fff3e0;color:#e65100}
+.ref-tag.db{background:#fce4ec;color:#ad1457}
+.ref-tag.book{background:#f3e5f5;color:#6a1b9a}
+.ref-tag.bestp{background:var(--c-highlight-light);color:#a06a00;border:1px solid var(--c-highlight)}
+.ref-author{color:var(--c-ink);font-weight:600}
+.ref-title{color:var(--c-ink);font-weight:500}
+.ref-meta{color:var(--c-ink-muted);font-size:.85rem;margin-top:4px;display:block}
+.ref-list a{color:var(--c-accent);text-decoration:none;border-bottom:1px dotted var(--c-accent)}
+.ref-list a:hover{color:var(--c-accent-dark);border-bottom-style:solid}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:18px 0}
+.toc-grid a{padding:10px 14px;background:var(--c-surface);border:1px solid var(--c-border-light);border-radius:var(--radius);text-decoration:none;color:var(--c-ink);font-size:.88rem;transition:var(--transition);display:flex;align-items:center;gap:8px}
+.toc-grid a:hover{border-color:var(--c-accent);background:var(--c-accent-light);color:var(--c-accent-dark)}
+.toc-grid a .step-tag{font-family:var(--font-mono);font-size:.72rem;color:var(--c-accent);font-weight:600}
+.section-anchor{scroll-margin-top:80px}
+.errata{background:#fef3c7;border-left:4px solid #d97706;border-radius:0 var(--radius-lg) var(--radius-lg) 0;padding:18px 22px;margin:18px 0;font-size:.9rem}
+.errata h4{margin:0 0 8px;color:#92400e;font-family:var(--font-display);font-size:1.05rem}
+.errata p{color:#78350f;margin-bottom:8px}
+.errata p:last-child{margin-bottom:0}
+.errata a{color:#b45309;text-decoration:none;border-bottom:1px dotted #b45309}
+.errata a:hover{color:#78350f;border-bottom-style:solid}
+</style>
+</head>
+<body>
+
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="../index.html" class="top-nav-brand"><span>🔬</span> Bioimage 教學</a>
+  <ul class="top-nav-links">
+    <li><a href="../fundamentals.html">Fund.</a></li>
+    <li><a href="../preprocessing.html">Preproc.</a></li>
+    <li><a href="../deconvolution.html">Decon.</a></li>
+    <li><a href="../registration.html">Regist.</a></li>
+    <li><a href="../segmentation-classic.html">Class.Seg</a></li>
+    <li><a href="../segmentation-dl.html">DL Seg</a></li>
+    <li><a href="../foundation-models.html">FM</a></li>
+    <li><a href="../tracking.html">Track.</a></li>
+    <li><a href="../quantification.html">Quant.</a></li>
+    <li><a href="../3d-multidim.html">3D</a></li>
+    <li><a href="../high-content.html">HCS</a></li>
+    <li><a href="../pathology.html">Path.</a></li>
+    <li><a href="../tools.html">Tools</a></li>
+    <li><a href="index.html" class="active" style="font-weight:700" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+
+<header class="page-hero">
+<div class="step-badge" data-zh="參考資料 · REFERENCES" data-en="REFERENCES">REFERENCES</div>
+<h1 data-zh="學術論文、官方文件與資料庫來源" data-en="Papers, Official Docs &amp; Database Sources">學術論文、官方文件與資料庫來源</h1>
+<p class="subtitle" data-lang="zh">為 Bioimage Analysis Interactive Tutorial 13 個主題提供原始論文、官方文件、Best Practices 綜述與模型 / 資料庫的完整佐證。所有 DOI / arXiv 連結皆已驗證（2026 年 5 月）。</p>
+<p class="subtitle" data-lang="en">Primary papers, official docs, best-practice reviews, and model / database references for all 13 modules. All DOI / arXiv links verified (May 2026).</p>
+</header>
+
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="概覽" data-en="OVERVIEW">概覽</div>
+<h2 data-zh="如何使用這份資料？" data-en="How to use this page">如何使用這份資料？</h2>
+<p data-lang="zh">本頁針對教學中提到的每個工具、演算法、資料集，整理學術出處與官方連結。標籤含義：</p>
+<p data-lang="en">For every tool, algorithm, and dataset mentioned in the tutorial, this page lists the primary source and the official documentation. Tag legend:</p>
+<div class="card-grid cols-3">
+  <div class="card"><div class="card-icon" style="background:var(--c-accent-light)">📄</div><h4>Paper</h4><p data-lang="zh">原始論文 · 含 DOI</p><p data-lang="en">Primary research papers with DOIs</p></div>
+  <div class="card"><div class="card-icon" style="background:#e3f2fd">📘</div><h4>Doc</h4><p data-lang="zh">官方文件、tutorial、source</p><p data-lang="en">Official documentation, tutorials, and source</p></div>
+  <div class="card"><div class="card-icon" style="background:var(--c-highlight-light)">⭐</div><h4>Best Practice</h4><p data-lang="zh">系統綜述 / community 推薦</p><p data-lang="en">Systematic reviews and community recommendations</p></div>
+  <div class="card"><div class="card-icon" style="background:#fff3e0">📊</div><h4>Benchmark</h4><p data-lang="zh">方法 / 模型評比</p><p data-lang="en">Method and model comparisons</p></div>
+  <div class="card"><div class="card-icon" style="background:#fce4ec">🗄️</div><h4>Database</h4><p data-lang="zh">影像 / 模型 / 標註資料庫</p><p data-lang="en">Image, model, and annotation databases</p></div>
+  <div class="card"><div class="card-icon" style="background:#f3e5f5">📚</div><h4>Book</h4><p data-lang="zh">教材與綜合書籍</p><p data-lang="en">Textbooks and comprehensive references</p></div>
+</div>
+
+<h3 data-zh="目錄" data-en="Contents">目錄</h3>
+<div class="toc-grid">
+<a href="#s1"><span class="step-tag">Step 1</span> <span data-zh="影像基礎" data-en="Fundamentals">Fundamentals</span></a>
+<a href="#s2"><span class="step-tag">Step 2</span> <span data-zh="預處理" data-en="Preprocessing">Preprocessing</span></a>
+<a href="#s3"><span class="step-tag">Step 3</span> <span data-zh="去卷積" data-en="Deconvolution">Deconvolution</span></a>
+<a href="#s4"><span class="step-tag">Step 4</span> <span data-zh="影像配準" data-en="Registration">Registration</span></a>
+<a href="#s5"><span class="step-tag">Step 5</span> <span data-zh="傳統分割" data-en="Classical Seg">Classical Seg</span></a>
+<a href="#s6"><span class="step-tag">Step 6</span> <span data-zh="深度學習分割" data-en="DL Seg">DL Seg</span></a>
+<a href="#s7"><span class="step-tag">Step 7</span> <span data-zh="基礎模型" data-en="Foundation Models">Foundation Models</span></a>
+<a href="#s8"><span class="step-tag">Step 8</span> <span data-zh="追蹤" data-en="Tracking">Tracking</span></a>
+<a href="#s9"><span class="step-tag">Step 9</span> <span data-zh="量化分析" data-en="Quantification">Quantification</span></a>
+<a href="#s10"><span class="step-tag">Adv.</span> <span data-zh="3D / 多維" data-en="3D / Multi-Dim">3D / Multi-Dim</span></a>
+<a href="#s11"><span class="step-tag">Adv.</span> <span data-zh="高內涵篩選" data-en="High-Content">High-Content</span></a>
+<a href="#s12"><span class="step-tag">Adv.</span> <span data-zh="病理影像" data-en="Pathology">Pathology</span></a>
+<a href="#s13"><span class="step-tag">Adv.</span> <span data-zh="工具與可重現性" data-en="Tools / Reproducibility">Tools / Reproducibility</span></a>
+<a href="#sreviews"><span class="step-tag">📚</span> <span data-zh="經典綜述" data-en="Seminal Reviews">Seminal Reviews</span></a>
+<a href="#errata"><span class="step-tag">!</span> <span data-zh="教學註記與細節" data-en="Tutorial Notes & Details">教學註記與細節</span></a>
+</div>
+</section>
+
+<section class="section section-anchor" id="s1">
+<div class="section-label" data-zh="Step 1" data-en="Step 1">Step 1</div>
+<h2 data-zh="影像基礎 — 檔案格式、Metadata、顯微鏡" data-en="Image Fundamentals — File Formats, Metadata, Microscopy">Image Fundamentals — File Formats, Metadata, Microscopy</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Linkert M., Rueden C.T. <em>et al.</em></span> · <span class="ref-title">Metadata matters: access to image data in the real world (Bio-Formats).</span> J. Cell Biol. 189(5):777–782, 2010. <a href="https://doi.org/10.1083/jcb.201004104">10.1083/jcb.201004104</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Moore J. <em>et al.</em></span> · <span class="ref-title">OME-NGFF: a next-generation file format for expanding bioimaging data-access strategies.</span> Nat. Methods 18:1496–1498, 2021. <a href="https://doi.org/10.1038/s41592-021-01326-w">10.1038/s41592-021-01326-w</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Moore J. <em>et al.</em></span> · <span class="ref-title">OME-Zarr: cloud-optimized bioimaging file format with international community support.</span> Histochem. Cell Biol. 160:223–251, 2023. <a href="https://doi.org/10.1007/s00418-023-02209-1">10.1007/s00418-023-02209-1</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">OME Consortium.</span> · <span class="ref-title">Bio-Formats supported formats list.</span> <a href="https://bio-formats.readthedocs.io">bio-formats.readthedocs.io</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">Allen Institute.</span> · <span class="ref-title">bioio — universal microscopy image reader for Python.</span> <a href="https://github.com/bioio-devs/bioio">github.com/bioio-devs/bioio</a></li>
+<li><span class="ref-tag db">Database</span><span class="ref-author">EMBL-EBI.</span> · <span class="ref-title">BioImage Archive — public microscopy data repository.</span> <a href="https://www.ebi.ac.uk/bioimage-archive">ebi.ac.uk/bioimage-archive</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s2">
+<div class="section-label" data-zh="Step 2" data-en="Step 2">Step 2</div>
+<h2 data-zh="預處理與去雜訊" data-en="Preprocessing &amp; Denoising">Preprocessing &amp; Denoising</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Peng T. <em>et al.</em></span> · <span class="ref-title">A BaSiC tool for background and shading correction of optical microscopy images.</span> Nat. Commun. 8:14836, 2017. <a href="https://doi.org/10.1038/ncomms14836">10.1038/ncomms14836</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Krull A., Buchholz T.-O., Jug F.</span> · <span class="ref-title">Noise2Void — Learning Denoising from Single Noisy Images.</span> CVPR 2019: 2129–2137. <a href="https://doi.org/10.1109/CVPR.2019.00223">10.1109/CVPR.2019.00223</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Lehtinen J. <em>et al.</em></span> · <span class="ref-title">Noise2Noise: Learning Image Restoration without Clean Data.</span> ICML 2018. arXiv:<a href="https://arxiv.org/abs/1803.04189">1803.04189</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Stringer C., Pachitariu M.</span> · <span class="ref-title">Cellpose3: one-click image restoration for improved cellular segmentation.</span> Nat. Methods 22:592–599, 2025. <a href="https://doi.org/10.1038/s41592-025-02595-5">10.1038/s41592-025-02595-5</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">scikit-image.</span> · <span class="ref-title">Image filtering &amp; restoration documentation.</span> <a href="https://scikit-image.org/docs/stable/api/skimage.restoration.html">scikit-image.org</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s3">
+<div class="section-label" data-zh="Step 3" data-en="Step 3">Step 3</div>
+<h2 data-zh="去卷積" data-en="Deconvolution">Deconvolution</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Weigert M. <em>et al.</em></span> · <span class="ref-title">Content-aware image restoration: pushing the limits of fluorescence microscopy (CARE).</span> Nat. Methods 15:1090–1097, 2018. <a href="https://doi.org/10.1038/s41592-018-0216-7">10.1038/s41592-018-0216-7</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Sage D. <em>et al.</em></span> · <span class="ref-title">DeconvolutionLab2: An open-source software for deconvolution microscopy.</span> Methods 115:28–41, 2017. <a href="https://doi.org/10.1016/j.ymeth.2016.12.015">10.1016/j.ymeth.2016.12.015</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Sibarita J.-B.</span> · <span class="ref-title">Deconvolution microscopy.</span> Adv. Biochem. Engin./Biotechnol. 95:201–243, 2005. <a href="https://doi.org/10.1007/b102215">10.1007/b102215</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">Hammen Lab.</span> · <span class="ref-title">flowdec — GPU Richardson-Lucy in Python.</span> <a href="https://github.com/hammerlab/flowdec">github.com/hammerlab/flowdec</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">CSBDeep.</span> · <span class="ref-title">CARE — Python package for content-aware restoration.</span> <a href="https://github.com/CSBDeep/CSBDeep">github.com/CSBDeep</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s4">
+<div class="section-label" data-zh="Step 4" data-en="Step 4">Step 4</div>
+<h2 data-zh="影像配準與拼接" data-en="Registration &amp; Stitching">Registration &amp; Stitching</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Hörl D. <em>et al.</em></span> · <span class="ref-title">BigStitcher: reconstructing high-resolution image datasets of cleared and expanded samples.</span> Nat. Methods 16:870–874, 2019. <a href="https://doi.org/10.1038/s41592-019-0501-0">10.1038/s41592-019-0501-0</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Preibisch S., Saalfeld S., Tomancak P.</span> · <span class="ref-title">Globally optimal stitching of tiled 3D microscopic image acquisitions.</span> Bioinformatics 25:1463–1465, 2009. <a href="https://doi.org/10.1093/bioinformatics/btp184">10.1093/bioinformatics/btp184</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Avants B.B. <em>et al.</em></span> · <span class="ref-title">Symmetric diffeomorphic image registration with cross-correlation (SyN).</span> Med. Image Anal. 12(1):26–41, 2008. <a href="https://doi.org/10.1016/j.media.2007.06.004">10.1016/j.media.2007.06.004</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">ANTsX.</span> · <span class="ref-title">ANTsPyX — Python bindings to ANTs registration.</span> <a href="https://github.com/ANTsX/ANTsPy">github.com/ANTsX/ANTsPy</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">Kitware.</span> · <span class="ref-title">SimpleITK / SimpleElastix.</span> <a href="https://simpleitk.org">simpleitk.org</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s5">
+<div class="section-label" data-zh="Step 5" data-en="Step 5">Step 5</div>
+<h2 data-zh="傳統影像分割" data-en="Classical Segmentation">Classical Segmentation</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Otsu N.</span> · <span class="ref-title">A threshold selection method from gray-level histograms.</span> IEEE TSMC 9(1):62–66, 1979. <a href="https://doi.org/10.1109/TSMC.1979.4310076">10.1109/TSMC.1979.4310076</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Meyer F.</span> · <span class="ref-title">Topographic distance and watershed lines (marker-controlled watershed).</span> Signal Processing 38(1):113–125, 1994. <a href="https://doi.org/10.1016/0165-1684(94)90060-4">10.1016/0165-1684(94)90060-4</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">van der Walt S. <em>et al.</em></span> · <span class="ref-title">scikit-image: image processing in Python.</span> PeerJ 2:e453, 2014. <a href="https://doi.org/10.7717/peerj.453">10.7717/peerj.453</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">scikit-image.</span> · <span class="ref-title">Segmentation cookbook + try_all_threshold examples.</span> <a href="https://scikit-image.org/docs/stable/auto_examples/segmentation/">scikit-image.org</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">Legland D. <em>et al.</em></span> · <span class="ref-title">MorphoLibJ Fiji plugin — morphological operations &amp; marker-controlled watershed.</span> <a href="https://imagej.net/plugins/morpholibj">imagej.net/plugins/morpholibj</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s6">
+<div class="section-label" data-zh="Step 6" data-en="Step 6">Step 6</div>
+<h2 data-zh="深度學習影像分割" data-en="Deep Learning Segmentation">Deep Learning Segmentation</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Ronneberger O., Fischer P., Brox T.</span> · <span class="ref-title">U-Net: Convolutional Networks for Biomedical Image Segmentation.</span> MICCAI 2015, LNCS 9351:234–241. <a href="https://doi.org/10.1007/978-3-319-24574-4_28">10.1007/978-3-319-24574-4_28</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Stringer C., Wang T., Michaelos M., Pachitariu M.</span> · <span class="ref-title">Cellpose: a generalist algorithm for cellular segmentation.</span> Nat. Methods 18:100–106, 2021. <a href="https://doi.org/10.1038/s41592-020-01018-x">10.1038/s41592-020-01018-x</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Pachitariu M., Rariden M., Stringer C.</span> · <span class="ref-title">Cellpose-SAM: superhuman generalization for cellular segmentation.</span> bioRxiv 2025.04.28.651001. <a href="https://doi.org/10.1101/2025.04.28.651001">10.1101/2025.04.28.651001</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Schmidt U., Weigert M., Broaddus C., Myers G.</span> · <span class="ref-title">Cell Detection with Star-convex Polygons (StarDist).</span> MICCAI 2018. <a href="https://doi.org/10.1007/978-3-030-00934-2_30">10.1007/978-3-030-00934-2_30</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Weigert M. <em>et al.</em></span> · <span class="ref-title">Star-convex Polyhedra for 3D Object Detection and Segmentation in Microscopy (StarDist 3D).</span> WACV 2020. <a href="https://doi.org/10.1109/WACV45572.2020.9093435">10.1109/WACV45572.2020.9093435</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Isensee F. <em>et al.</em></span> · <span class="ref-title">nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation.</span> Nat. Methods 18:203–211, 2021. <a href="https://doi.org/10.1038/s41592-020-01008-z">10.1038/s41592-020-01008-z</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Greenwald N.F. <em>et al.</em></span> · <span class="ref-title">Whole-cell segmentation of tissue images with human-level performance (Mesmer).</span> Nat. Biotechnol. 40:555–565, 2022. <a href="https://doi.org/10.1038/s41587-021-01094-0">10.1038/s41587-021-01094-0</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Cutler K.J. <em>et al.</em></span> · <span class="ref-title">Omnipose: high-precision morphology-independent solution for bacterial cell segmentation.</span> Nat. Methods 19:1438–1448, 2022. <a href="https://doi.org/10.1038/s41592-022-01639-4">10.1038/s41592-022-01639-4</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Falk T. <em>et al.</em></span> · <span class="ref-title">U-Net: deep learning for cell counting, detection, and morphometry.</span> Nat. Methods 16:67–70, 2019. <a href="https://doi.org/10.1038/s41592-018-0261-2">10.1038/s41592-018-0261-2</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s7">
+<div class="section-label" data-zh="Step 7" data-en="Step 7">Step 7</div>
+<h2 data-zh="AI 基礎模型" data-en="AI Foundation Models">AI Foundation Models</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Kirillov A. <em>et al.</em></span> · <span class="ref-title">Segment Anything (SAM).</span> ICCV 2023: 3992–4003. arXiv:<a href="https://arxiv.org/abs/2304.02643">2304.02643</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Ravi N. <em>et al.</em></span> · <span class="ref-title">SAM 2: Segment Anything in Images and Videos.</span> arXiv:<a href="https://arxiv.org/abs/2408.00714">2408.00714</a>, 2024.</li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Archit A. <em>et al.</em></span> · <span class="ref-title">Segment Anything for Microscopy (Micro-SAM / µSAM).</span> Nat. Methods 22:579–591, 2025. <a href="https://doi.org/10.1038/s41592-024-02580-4">10.1038/s41592-024-02580-4</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Ma J. <em>et al.</em></span> · <span class="ref-title">Segment anything in medical images (MedSAM).</span> Nat. Commun. 15:654, 2024. <a href="https://doi.org/10.1038/s41467-024-44824-z">10.1038/s41467-024-44824-z</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Ma J. <em>et al.</em></span> · <span class="ref-title">MedSAM2: Segment Anything in 3D Medical Images and Videos.</span> arXiv:<a href="https://arxiv.org/abs/2504.03600">2504.03600</a>, 2025.</li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Israel U. <em>et al.</em></span> · <span class="ref-title">CellSAM: a foundation model for cell segmentation.</span> Nat. Methods, 2025. <a href="https://doi.org/10.1038/s41592-025-02879-w">10.1038/s41592-025-02879-w</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Oquab M. <em>et al.</em></span> · <span class="ref-title">DINOv2: Learning Robust Visual Features without Supervision.</span> TMLR, 2024. arXiv:<a href="https://arxiv.org/abs/2304.07193">2304.07193</a></li>
+<li><span class="ref-tag db">Database</span><span class="ref-author">BioImage.IO.</span> · <span class="ref-title">BioImage Model Zoo — cross-tool standardized models.</span> <a href="https://bioimage.io">bioimage.io</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s8">
+<div class="section-label" data-zh="Step 8" data-en="Step 8">Step 8</div>
+<h2 data-zh="細胞 / 粒子追蹤" data-en="Cell / Particle Tracking">Cell / Particle Tracking</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Tinevez J.-Y. <em>et al.</em></span> · <span class="ref-title">TrackMate: An open and extensible platform for single-particle tracking.</span> Methods 115:80–90, 2017. <a href="https://doi.org/10.1016/j.ymeth.2016.09.016">10.1016/j.ymeth.2016.09.016</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Ershov D. <em>et al.</em></span> · <span class="ref-title">TrackMate 7: integrating state-of-the-art segmentation algorithms into tracking pipelines.</span> Nat. Methods 19:829–832, 2022. <a href="https://doi.org/10.1038/s41592-022-01507-1">10.1038/s41592-022-01507-1</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Gallusser B., Weigert M.</span> · <span class="ref-title">Trackastra: Transformer-based cell tracking for live-cell microscopy.</span> ECCV 2024. <a href="https://doi.org/10.1007/978-3-031-73116-7_27">10.1007/978-3-031-73116-7_27</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Ulicna K. <em>et al.</em></span> · <span class="ref-title">Automated deep lineage tree analysis using a Bayesian single-cell tracking approach (btrack).</span> Front. Comput. Sci. 3:734559, 2021. <a href="https://doi.org/10.3389/fcomp.2021.734559">10.3389/fcomp.2021.734559</a></li>
+<li><span class="ref-tag bench">Benchmark</span><span class="ref-author">Maška M. <em>et al.</em></span> · <span class="ref-title">The Cell Tracking Challenge: 10 years of objective benchmarking.</span> Nat. Methods 20:1010–1020, 2023. <a href="https://doi.org/10.1038/s41592-023-01879-y">10.1038/s41592-023-01879-y</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Jaqaman K. <em>et al.</em></span> · <span class="ref-title">Robust single-particle tracking in live-cell time-lapse sequences (u-track / LAP).</span> Nat. Methods 5:695–702, 2008. <a href="https://doi.org/10.1038/nmeth.1237">10.1038/nmeth.1237</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s9">
+<div class="section-label" data-zh="Step 9" data-en="Step 9">Step 9</div>
+<h2 data-zh="量化分析與特徵萃取" data-en="Quantification &amp; Feature Extraction">Quantification &amp; Feature Extraction</h2>
+<ul class="ref-list">
+<li><span class="ref-tag bestp">Best Practice</span><span class="ref-author">Caicedo J.C. <em>et al.</em></span> · <span class="ref-title">Data-analysis strategies for image-based cell profiling.</span> Nat. Methods 14:849–863, 2017. <a href="https://doi.org/10.1038/nmeth.4397">10.1038/nmeth.4397</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Bolte S., Cordelières F.P.</span> · <span class="ref-title">A guided tour into subcellular colocalization analysis in light microscopy.</span> J. Microsc. 224:213–232, 2006. <a href="https://doi.org/10.1111/j.1365-2818.2006.01706.x">10.1111/j.1365-2818.2006.01706.x</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Costes S.V. <em>et al.</em></span> · <span class="ref-title">Automatic and quantitative measurement of protein-protein colocalization.</span> Biophys. J. 86:3993–4003, 2004. <a href="https://doi.org/10.1529/biophysj.103.038422">10.1529/biophysj.103.038422</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">van Griethuysen J.J.M. <em>et al.</em></span> · <span class="ref-title">Computational radiomics system to decode the radiographic phenotype (PyRadiomics).</span> Cancer Res. 77:e104–e107, 2017. <a href="https://doi.org/10.1158/0008-5472.CAN-17-0339">10.1158/0008-5472.CAN-17-0339</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">scikit-image.</span> · <span class="ref-title">regionprops / regionprops_table — per-object property extraction.</span> <a href="https://scikit-image.org/docs/stable/api/skimage.measure.html">scikit-image.org</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s10">
+<div class="section-label" data-zh="進階" data-en="Advanced">Advanced</div>
+<h2 data-zh="3D / 多維影像分析" data-en="3D / Multi-Dimensional Analysis">3D / Multi-Dimensional Analysis</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Wolny A. <em>et al.</em></span> · <span class="ref-title">Accurate and versatile 3D segmentation of plant tissues at cellular resolution (PlantSeg).</span> eLife 9:e57613, 2020. <a href="https://doi.org/10.7554/eLife.57613">10.7554/eLife.57613</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">Sofroniew N. <em>et al.</em></span> · <span class="ref-title">napari: a multi-dimensional image viewer for Python.</span> Zenodo. <a href="https://doi.org/10.5281/zenodo.3555620">10.5281/zenodo.3555620</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">Dask developers.</span> · <span class="ref-title">dask-image — chunked image processing.</span> <a href="https://image.dask.org">image.dask.org</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">MONAI Consortium.</span> · <span class="ref-title">MONAI — Medical Open Network for AI.</span> <a href="https://monai.io">monai.io</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s11">
+<div class="section-label" data-zh="進階" data-en="Advanced">Advanced</div>
+<h2 data-zh="高內涵篩選 (HCS)" data-en="High-Content Screening">High-Content Screening</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Stirling D.R. <em>et al.</em></span> · <span class="ref-title">CellProfiler 4: improvements in speed, utility and usability.</span> BMC Bioinformatics 22:433, 2021. <a href="https://doi.org/10.1186/s12859-021-04344-9">10.1186/s12859-021-04344-9</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Cimini B.A. <em>et al.</em></span> · <span class="ref-title">Cell Painting: a decade of discovery and innovation in cellular imaging.</span> Nat. Methods 22:51–61, 2024. <a href="https://doi.org/10.1038/s41592-024-02528-8">10.1038/s41592-024-02528-8</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Chandrasekaran S.N. <em>et al.</em></span> · <span class="ref-title">Three million images and morphological profiles (JUMP-CP).</span> Nat. Methods 21:1114–1121, 2024. <a href="https://doi.org/10.1038/s41592-024-02241-6">10.1038/s41592-024-02241-6</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">Broad Institute.</span> · <span class="ref-title">pycytominer — image-based profile processing.</span> <a href="https://github.com/cytomining/pycytominer">github.com/cytomining/pycytominer</a></li>
+<li><span class="ref-tag doc">Doc</span><span class="ref-author">Broad Institute.</span> · <span class="ref-title">DeepProfiler — DL embeddings for image-based profiling.</span> <a href="https://github.com/cytomining/DeepProfiler">github.com/cytomining/DeepProfiler</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s12">
+<div class="section-label" data-zh="進階" data-en="Advanced">Advanced</div>
+<h2 data-zh="數位病理 / 全玻片影像 (WSI)" data-en="Digital Pathology / WSI">Digital Pathology / WSI</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Bankhead P. <em>et al.</em></span> · <span class="ref-title">QuPath: Open source software for digital pathology image analysis.</span> Sci. Rep. 7:16878, 2017. <a href="https://doi.org/10.1038/s41598-017-17204-5">10.1038/s41598-017-17204-5</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Graham S. <em>et al.</em></span> · <span class="ref-title">Hover-Net: Simultaneous segmentation and classification of nuclei in multi-tissue histology images.</span> Med. Image Anal. 58:101563, 2019. <a href="https://doi.org/10.1016/j.media.2019.101563">10.1016/j.media.2019.101563</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Lu M.Y. <em>et al.</em></span> · <span class="ref-title">Data-efficient and weakly supervised computational pathology on whole-slide images (CLAM).</span> Nat. Biomed. Eng. 5:555–570, 2021. <a href="https://doi.org/10.1038/s41551-020-00682-w">10.1038/s41551-020-00682-w</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Pocock J. <em>et al.</em></span> · <span class="ref-title">TIAToolbox as an end-to-end library for advanced tissue image analytics.</span> Commun. Med. 2:120, 2022. <a href="https://doi.org/10.1038/s43856-022-00186-5">10.1038/s43856-022-00186-5</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Chen R.J. <em>et al.</em></span> · <span class="ref-title">Towards a general-purpose foundation model for computational pathology (UNI).</span> Nat. Med. 30:850–862, 2024. <a href="https://doi.org/10.1038/s41591-024-03141-0">10.1038/s41591-024-03141-0</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Vorontsov E. <em>et al.</em></span> · <span class="ref-title">Virchow — foundation model for clinical-grade computational pathology.</span> Nat. Med., 2024. arXiv:<a href="https://arxiv.org/abs/2309.07778">2309.07778</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Macenko M. <em>et al.</em></span> · <span class="ref-title">A method for normalizing histology slides for quantitative analysis.</span> ISBI 2009. <a href="https://doi.org/10.1109/ISBI.2009.5193250">10.1109/ISBI.2009.5193250</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Rosenthal J. <em>et al.</em></span> · <span class="ref-title">PathML: Building tools for ML and AI in cancer research.</span> Mol. Cancer Res. 20:202–206, 2022. <a href="https://doi.org/10.1158/1541-7786.MCR-21-0665">10.1158/1541-7786.MCR-21-0665</a></li>
+</ul>
+</section>
+
+<section class="section section-anchor" id="s13">
+<div class="section-label" data-zh="進階" data-en="Advanced">Advanced</div>
+<h2 data-zh="工具、可重現性與社群" data-en="Tools, Reproducibility &amp; Community">Tools, Reproducibility &amp; Community</h2>
+<ul class="ref-list">
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Schindelin J. <em>et al.</em></span> · <span class="ref-title">Fiji: an open-source platform for biological-image analysis.</span> Nat. Methods 9:676–682, 2012. <a href="https://doi.org/10.1038/nmeth.2019">10.1038/nmeth.2019</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Schneider C.A., Rasband W.S., Eliceiri K.W.</span> · <span class="ref-title">NIH Image to ImageJ: 25 years of image analysis.</span> Nat. Methods 9:671–675, 2012. <a href="https://doi.org/10.1038/nmeth.2089">10.1038/nmeth.2089</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Berg S. <em>et al.</em></span> · <span class="ref-title">ilastik: interactive machine learning for (bio)image analysis.</span> Nat. Methods 16:1226–1232, 2019. <a href="https://doi.org/10.1038/s41592-019-0582-9">10.1038/s41592-019-0582-9</a></li>
+<li><span class="ref-tag paper">Paper</span><span class="ref-author">Mölder F. <em>et al.</em></span> · <span class="ref-title">Sustainable data analysis with Snakemake.</span> F1000Res. 10:33, 2021. <a href="https://doi.org/10.12688/f1000research.29032.2">10.12688/f1000research.29032.2</a></li>
+</ul>
+</section>
+
+<!-- ===================== Errata ===================== -->
+<section class="section section-anchor" id="errata">
+<div class="section-label" data-zh="教學註記" data-en="TUTORIAL NOTES">教學註記</div>
+<h2 data-zh="📌 教學註記與細節" data-en="📌 Tutorial Notes & Details">📌 教學註記與細節</h2>
+<p data-zh="以下為 bioimage analysis 各工具常見的誤解、benchmark 結果不一致之處，以及教學中容易被忽略的細節。並非否定原工具，而是補充使用情境上的限制。" data-en="The following lists common misunderstandings, conflicting benchmark conclusions, and easily-overlooked details for bioimage analysis tools. None of these invalidate the tools — they merely scope the conditions under which the tools apply.">以下為 bioimage analysis 各工具常見的誤解、benchmark 結果不一致之處，以及教學中容易被忽略的細節。<strong>並非否定原工具，而是補充使用情境上的限制。</strong></p>
+
+<div class="errata">
+
+  <span class="errata-label" data-zh="補充說明" data-en="Notes" style="display:inline-block;background:#e0e7ff;color:#3730a3;padding:2px 10px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;margin-bottom:8px">補充說明 · Notes</span>
+  <h4 data-zh="Step 13 ImageJ vs Fiji：不是同一個東西" data-en="Step 13 ImageJ vs Fiji: they are not the same">Step 13 ImageJ vs Fiji：不是同一個東西</h4>
+</div>
+
+<div class="errata">
+  <span class="errata-label" data-zh="補充說明" data-en="Notes" style="display:inline-block;background:#e0e7ff;color:#3730a3;padding:2px 10px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;margin-bottom:8px">補充說明 · Notes</span>
+  <h4 data-zh="Step 6 Cellpose vs StarDist：模型假設不同，分割任務需配對選擇" data-en="Step 6 Cellpose vs StarDist: different model assumptions — choose by task geometry">Step 6 Cellpose vs StarDist：模型假設不同，分割任務需配對選擇</h4>
+  <p data-zh="Cellpose (Stringer 2021, Nat. Methods 18:100) 採用 flow representation，對任意形狀（包括凹形、絲狀、不規則邊緣）皆能處理，但對緊密堆積、星形凸（star-convex）的細胞核可能 over-split。StarDist (Schmidt 2018, MICCAI) 假設物件為星形凸多邊形 (star-convex polygon)，因此對 H&amp;E 細胞核、圓潤細胞分割表現極佳，但對絲狀、分支、長條形（神經元 axon、菌絲、腸上皮）會系統性失敗——這不是 bug，是模型表示能力的本質限制。" data-en="Cellpose (Stringer 2021, Nat. Methods 18:100) uses a flow representation that handles arbitrary shapes (concave, filamentous, irregular boundaries) but may over-split tightly packed star-convex nuclei. StarDist (Schmidt 2018, MICCAI) assumes objects are star-convex polygons — excellent for H&amp;E nuclei and round cells, but it systematically fails on filamentous, branching, or elongated structures (axons, hyphae, intestinal epithelia). This is not a bug; it is an intrinsic limit of the model's representational capacity.">Cellpose (Stringer 2021, Nat. Methods 18:100) 採用 flow representation，對任意形狀（包括凹形、絲狀、不規則邊緣）皆能處理，但對緊密堆積、星形凸（star-convex）的細胞核可能 over-split。StarDist (Schmidt 2018, MICCAI) 假設物件為星形凸多邊形 (star-convex polygon)，因此對 H&amp;E 細胞核、圓潤細胞分割表現極佳，但對絲狀、分支、長條形（神經元 axon、菌絲、腸上皮）會系統性失敗——這不是 bug，是模型表示能力的本質限制。</p>
+  <p data-zh="實務建議：圓核 → StarDist；任意形狀或預訓練泛化 → Cellpose / Cellpose-SAM；3D 緊密堆積核 → StarDist 3D 或 PlantSeg。先看資料的幾何特性再選模型，不要只看 leaderboard 平均分數。" data-en="Practical guidance: round nuclei → StarDist; arbitrary shapes or pretrained generalisation → Cellpose / Cellpose-SAM; tightly packed 3D nuclei → StarDist 3D or PlantSeg. Choose by data geometry, not by leaderboard averages.">實務建議：圓核 → StarDist；任意形狀或預訓練泛化 → Cellpose / Cellpose-SAM；3D 緊密堆積核 → StarDist 3D 或 PlantSeg。先看資料的幾何特性再選模型，不要只看 leaderboard 平均分數。</p>
+  <p>References: Stringer C. et al. <em>Nat. Methods</em> 18:100–106, 2021. <a href="https://doi.org/10.1038/s41592-020-01018-x">10.1038/s41592-020-01018-x</a> · Schmidt U. et al. <em>MICCAI</em> 2018. <a href="https://doi.org/10.1007/978-3-030-00934-2_30">10.1007/978-3-030-00934-2_30</a></p>
+</div>
+
+<div class="errata">
+  <span class="errata-label" data-zh="補充說明" data-en="Notes" style="display:inline-block;background:#e0e7ff;color:#3730a3;padding:2px 10px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;margin-bottom:8px">補充說明 · Notes</span>
+  <h4 data-zh="Step 3 Richardson-Lucy vs Wiener：雜訊放大與正規化選擇" data-en="Step 3 Richardson-Lucy vs Wiener: noise amplification and regularisation choices">Step 3 Richardson-Lucy vs Wiener：雜訊放大與正規化選擇</h4>
+  <p data-zh="Richardson-Lucy (RL) 為 Poisson likelihood 下的最大概似迭代算法，對 shot-noise dominated 螢光影像理論上最佳，但迭代次數過多會 over-fit 雜訊（noise amplification、ringing artifact）——典型誤用是用「收斂到視覺最銳利」當停止準則。Wiener 假設 Gaussian 雜訊 + 已知 SNR，計算一次完成、無迭代，但對 Poisson 雜訊（低光子數）會偏離最佳。" data-en="Richardson-Lucy (RL) is a maximum-likelihood iteration under Poisson statistics — theoretically optimal for shot-noise-dominated fluorescence images, but too many iterations over-fit noise (amplification, ringing). A common misuse is to stop when the image 'looks sharpest'. Wiener assumes Gaussian noise with known SNR, runs in one shot without iteration, but deviates from optimality under Poisson (low photon count).">Richardson-Lucy (RL) 為 Poisson likelihood 下的最大概似迭代算法，對 shot-noise dominated 螢光影像理論上最佳，但迭代次數過多會 over-fit 雜訊（noise amplification、ringing artifact）——典型誤用是用「收斂到視覺最銳利」當停止準則。Wiener 假設 Gaussian 雜訊 + 已知 SNR，計算一次完成、無迭代，但對 Poisson 雜訊（低光子數）會偏離最佳。</p>
+  <p data-zh="Sage et al. (2017, Methods 115:28) 在 DeconvolutionLab2 的 benchmark 顯示：低 SNR 時 RL + TV 正規化（RL-TV）表現最穩；中高 SNR 時各方法差異變小。實務上建議：(a) 永遠先估 PSF（measured 或 theoretical）；(b) 設定 early-stop（例如 25–50 iters）或加 TV/Tikhonov regularisation；(c) 比較迭代過程截圖，不要只看最後一張。CARE / Cellpose3 等 DL 方法可避免迭代問題，但需小心 hallucination。" data-en="Sage et al. (2017, Methods 115:28) benchmarked DeconvolutionLab2 and showed: at low SNR, RL with TV regularisation (RL-TV) is most robust; at higher SNR methods converge. In practice: (a) always estimate the PSF (measured or theoretical); (b) use early stopping (e.g. 25–50 iters) or add TV/Tikhonov regularisation; (c) compare snapshots across iterations, not just the final image. DL methods (CARE, Cellpose3) avoid the iteration problem but introduce hallucination risk.">Sage et al. (2017, Methods 115:28) 在 DeconvolutionLab2 的 benchmark 顯示：低 SNR 時 RL + TV 正規化（RL-TV）表現最穩；中高 SNR 時各方法差異變小。實務上建議：(a) 永遠先估 PSF（measured 或 theoretical）；(b) 設定 early-stop（例如 25–50 iters）或加 TV/Tikhonov regularisation；(c) 比較迭代過程截圖，不要只看最後一張。CARE / Cellpose3 等 DL 方法可避免迭代問題，但需小心 hallucination。</p>
+  <p>Reference: Sage D. et al. <em>Methods</em> 115:28–41, 2017. <a href="https://doi.org/10.1016/j.ymeth.2016.12.015">10.1016/j.ymeth.2016.12.015</a></p>
+</div>
+
+<div class="errata">
+  <span class="errata-label" data-zh="補充說明" data-en="Notes" style="display:inline-block;background:#e0e7ff;color:#3730a3;padding:2px 10px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;margin-bottom:8px">補充說明 · Notes</span>
+  <h4 data-zh="Step 9 共定位分析：Pearson、Manders M1/M2、Costes 隨機化檢驗" data-en="Step 9 Colocalization: Pearson, Manders M1/M2, and the Costes randomisation test">Step 9 共定位分析：Pearson、Manders M1/M2、Costes 隨機化檢驗</h4>
+  <p data-zh="共定位 (colocalization) 不是只算一個 Pearson correlation coefficient (PCC) 就交差。PCC 衡量像素強度的線性相關，受背景偏移、染色強度差異強烈影響，且方向對稱（A→B 與 B→A 相同分數）。Manders 1993 M1 / M2 分別衡量「通道 A 中與 B 重疊的比例」與「B 中與 A 重疊的比例」，非對稱、且不受強度比例影響，但對閾值選擇極度敏感。" data-en="Colocalization is not just a single Pearson coefficient (PCC). PCC measures linear pixel-intensity correlation — affected by background offset and stain-intensity differences, and is symmetric (A→B equals B→A). Manders 1993 M1/M2 measure the fraction of channel A overlapping B and vice versa — asymmetric and insensitive to intensity ratios, but extremely sensitive to threshold choice.">共定位 (colocalization) 不是只算一個 Pearson correlation coefficient (PCC) 就交差。PCC 衡量像素強度的線性相關，受背景偏移、染色強度差異強烈影響，且方向對稱（A→B 與 B→A 相同分數）。Manders 1993 M1 / M2 分別衡量「通道 A 中與 B 重疊的比例」與「B 中與 A 重疊的比例」，非對稱、且不受強度比例影響，但對閾值選擇極度敏感。</p>
+  <p data-zh="Costes et al. (2004, Biophys. J. 86:3993) 提出兩個關鍵：(a) 自動閾值方法（迭代降低閾值直到 PCC=0 of below-threshold voxels），避免主觀選 cut-off；(b) 影像區塊隨機化檢驗（block randomisation），用以判斷 PCC 是否高於「同樣紋理但無真實共定位」的虛無分布。Bolte & Cordelières (2006, J. Microsc. 224:213) 為實務經典回顧，強調必須：報告 PSF / 解析度 / Nyquist sampling / 通道對齊（chromatic aberration 校正）／背景扣除策略。常見錯誤：用同一張影像不同 ROI 算 PCC、忘記做 Costes 隨機化、把 RGB 合成圖的「黃色像素」當共定位。" data-en="Costes et al. (2004, Biophys. J. 86:3993) introduced two crucial elements: (a) an automated threshold (iteratively lower threshold until below-threshold PCC=0), removing subjective cut-offs; (b) block-randomisation testing to evaluate whether the observed PCC exceeds a null distribution from same-texture but uncolocalized images. Bolte & Cordelières (2006, J. Microsc. 224:213) is the canonical practitioner review — always report PSF / resolution / Nyquist sampling / channel alignment (chromatic aberration correction) / background-subtraction strategy. Common errors: computing PCC on the same image's different ROIs, skipping Costes randomisation, and treating yellow pixels in RGB merges as colocalization.">Costes et al. (2004, Biophys. J. 86:3993) 提出兩個關鍵：(a) 自動閾值方法（迭代降低閾值直到 PCC=0 of below-threshold voxels），避免主觀選 cut-off；(b) 影像區塊隨機化檢驗（block randomisation），用以判斷 PCC 是否高於「同樣紋理但無真實共定位」的虛無分布。Bolte &amp; Cordelières (2006, J. Microsc. 224:213) 為實務經典回顧，強調必須：報告 PSF / 解析度 / Nyquist sampling / 通道對齊（chromatic aberration 校正）／背景扣除策略。常見錯誤：用同一張影像不同 ROI 算 PCC、忘記做 Costes 隨機化、把 RGB 合成圖的「黃色像素」當共定位。</p>
+  <p>References: Costes S.V. et al. <em>Biophys. J.</em> 86:3993–4003, 2004. <a href="https://doi.org/10.1529/biophysj.103.038422">10.1529/biophysj.103.038422</a> · Bolte S., Cordelières F.P. <em>J. Microsc.</em> 224:213–232, 2006. <a href="https://doi.org/10.1111/j.1365-2818.2006.01706.x">10.1111/j.1365-2818.2006.01706.x</a></p>
+</div>
+
+<div class="errata">
+  <span class="errata-label" data-zh="補充說明" data-en="Notes" style="display:inline-block;background:#e0e7ff;color:#3730a3;padding:2px 10px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;margin-bottom:8px">補充說明 · Notes</span>
+  <h4 data-zh="Step 1 / 13 顯微鏡 QA：QUAREP-LiMi 倡議" data-en="Step 1 / 13 Microscope QA: the QUAREP-LiMi initiative">Step 1 / 13 顯微鏡 QA：QUAREP-LiMi 倡議</h4>
+  <p data-zh="影像分析結果的可重現性，前提是「儀器穩定」。Nelson G. 等人 (2021, J. Microsc. 284:56) 啟動 QUAREP-LiMi (Quality Assessment and Reproducibility for Instruments &amp; Images in Light Microscopy) 倡議，整合 BioImaging North America、Global BioImaging、Euro-BioImaging 制定 SOP，涵蓋：照明穩定性、視野照度均勻性 (flat-field)、橫向／軸向解析度、共軛焦針孔對齊、雷射功率、stage 移動精度、chromatic alignment（多色染色必查）等十餘項。" data-en="Reproducibility of image-analysis results presupposes a stable instrument. Nelson G. et al. (2021, J. Microsc. 284:56) launched QUAREP-LiMi (Quality Assessment and Reproducibility for Instruments & Images in Light Microscopy), uniting BioImaging North America, Global BioImaging, and Euro-BioImaging to standardise SOPs covering: illumination stability, field-of-view illumination uniformity (flat-field), lateral and axial resolution, confocal pinhole alignment, laser power, stage-movement accuracy, and chromatic alignment (mandatory for multi-channel work).">影像分析結果的可重現性，前提是「儀器穩定」。Nelson G. 等人 (2021, J. Microsc. 284:56) 啟動 QUAREP-LiMi (Quality Assessment and Reproducibility for Instruments &amp; Images in Light Microscopy) 倡議，整合 BioImaging North America、Global BioImaging、Euro-BioImaging 制定 SOP，涵蓋：照明穩定性、視野照度均勻性 (flat-field)、橫向／軸向解析度、共軛焦針孔對齊、雷射功率、stage 移動精度、chromatic alignment（多色染色必查）等十餘項。</p>
+  <p data-zh="實務建議：(a) 任何長期 time-lapse、HCS 或縱貫研究，每月做 QUAREP 一次；(b) 將 QC 結果寫入 OME-XML metadata；(c) 教學使用者：你看到 segmentation 結果差異，可能不是演算法，是儀器漂移或 flat-field 沒做。論文若未報告 QC，BioImage Analysts 應視為 caveat 而非否定。" data-en="Practical guidance: (a) run QUAREP monthly for any long-term time-lapse, HCS, or longitudinal study; (b) embed QC results in OME-XML metadata; (c) teach users that observed segmentation differences may stem from instrument drift or missing flat-field correction, not the algorithm. Papers that omit QC reporting should be treated by bioimage analysts as a caveat, not a disqualifier.">實務建議：(a) 任何長期 time-lapse、HCS 或縱貫研究，每月做 QUAREP 一次；(b) 將 QC 結果寫入 OME-XML metadata；(c) 教學使用者：你看到 segmentation 結果差異，可能不是演算法，是儀器漂移或 flat-field 沒做。論文若未報告 QC，BioImage Analysts 應視為 caveat 而非否定。</p>
+  <p>Reference: Nelson G. et al. <em>J. Microsc.</em> 284:56–73, 2021. <a href="https://doi.org/10.1111/jmi.13041">10.1111/jmi.13041</a></p>
+</div>
+
+<div class="errata">
+  <span class="errata-label" data-zh="補充說明" data-en="Notes" style="display:inline-block;background:#e0e7ff;color:#3730a3;padding:2px 10px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;margin-bottom:8px">補充說明 · Notes</span>
+  <h4 data-zh="Step 2 / 7 Noise2Noise / Noise2Void：hallucination 的本質限制" data-en="Step 2 / 7 Noise2Noise / Noise2Void: the hallucination caveat">Step 2 / 7 Noise2Noise / Noise2Void：hallucination 的本質限制</h4>
+  <p data-zh="Noise2Noise (Lehtinen 2018) 與 Noise2Void (Krull 2019) 是 self-supervised 去雜訊里程碑：前者只需兩張獨立雜訊觀測即可訓練，後者甚至只需單張雜訊影像（blind-spot 預測）。然而 Belthangady &amp; Royer (2019, Nat. Methods 16:1215) 的綜述明確指出：所有 DL 影像復原方法（denoising、deconvolution、super-resolution）皆可能 hallucinate——產生視覺上合理但不存在於原始資料中的結構。" data-en="Noise2Noise (Lehtinen 2018) and Noise2Void (Krull 2019) are landmark self-supervised denoisers: the former needs only two independent noisy observations, the latter just one (blind-spot prediction). However, Belthangady & Royer (2019, Nat. Methods 16:1215) explicitly warn that every DL image-restoration method (denoising, deconvolution, super-resolution) can hallucinate — producing visually plausible structures that do not exist in the raw data.">Noise2Noise (Lehtinen 2018) 與 Noise2Void (Krull 2019) 是 self-supervised 去雜訊里程碑：前者只需兩張獨立雜訊觀測即可訓練，後者甚至只需單張雜訊影像（blind-spot 預測）。然而 Belthangady &amp; Royer (2019, Nat. Methods 16:1215) 的綜述明確指出：所有 DL 影像復原方法（denoising、deconvolution、super-resolution）皆可能 hallucinate——產生視覺上合理但不存在於原始資料中的結構。</p>
+  <p data-zh="原因：模型從訓練資料中學到「強先驗」(prior)，當輸入分布偏離訓練分布時，模型會用先驗「補洞」。臨床／病理／罕見表型尤其危險。建議：(a) 永遠保留 raw 與 restored 並行；(b) 量化分析（segmentation、counting、intensity）應在 raw 或保守去雜訊 (BM3D、median) 上做，而非 DL 復原版；(c) 若用 DL 復原做下游分析，需用 hold-out test set + ground truth 驗證 detection / morphometric 指標未被引入偏差；(d) 期刊已要求並列 raw 與 restored 圖示。Noise2Void 對結構性 artifact（如固定花紋、固定背景）特別會誤判為訊號。" data-en="Cause: the model learns a strong prior from training data; when input deviates from this distribution, the model 'fills in' with the prior. Clinical, pathological, or rare-phenotype data are especially vulnerable. Recommendations: (a) always retain raw and restored side by side; (b) perform quantitative analysis (segmentation, counting, intensity) on raw or conservatively denoised (BM3D, median) data, not on DL-restored images; (c) if DL restoration feeds downstream analysis, validate detection / morphometric metrics on a hold-out test set with ground truth; (d) journals increasingly require raw-and-restored panels. Noise2Void in particular can misclassify structural artifacts (fixed patterns, fixed background) as signal.">原因：模型從訓練資料中學到「強先驗」(prior)，當輸入分布偏離訓練分布時，模型會用先驗「補洞」。臨床／病理／罕見表型尤其危險。建議：(a) 永遠保留 raw 與 restored 並行；(b) 量化分析（segmentation、counting、intensity）應在 raw 或保守去雜訊 (BM3D、median) 上做，而非 DL 復原版；(c) 若用 DL 復原做下游分析，需用 hold-out test set + ground truth 驗證 detection / morphometric 指標未被引入偏差；(d) 期刊已要求並列 raw 與 restored 圖示。Noise2Void 對結構性 artifact（如固定花紋、固定背景）特別會誤判為訊號。</p>
+  <p>Reference: Belthangady C., Royer L.A. <em>Nat. Methods</em> 16:1215–1225, 2019. <a href="https://doi.org/10.1038/s41592-019-0458-z">10.1038/s41592-019-0458-z</a></p>
+</div>
+
+<div class="errata">
+  <span class="errata-label" data-zh="補充說明" data-en="Notes" style="display:inline-block;background:#e0e7ff;color:#3730a3;padding:2px 10px;border-radius:4px;font-size:.72rem;font-weight:700;letter-spacing:.5px;margin-bottom:8px">補充說明 · Notes</span>
+  <h4 data-zh="Step 1 Bio-Formats vs OME-TIFF：library vs file format" data-en="Step 1 Bio-Formats vs OME-TIFF: library vs file format">Step 1 Bio-Formats vs OME-TIFF：library vs file format</h4>
+  <p data-zh="Bio-Formats 與 OME-TIFF 常被混為一談。Bio-Formats (Linkert 2010, J. Cell Biol. 189:777) 是一個 Java library（現有 Python bindings 如 bioio），讀寫 150+ 種專有顯微鏡格式（.czi、.lif、.nd2、.oib、.ims 等），並將 metadata 轉換為 OME-XML 標準。OME-TIFF 則是一個檔案格式：基於 TIFF + 內嵌 OME-XML 區塊作為 metadata，是 Bio-Formats 推薦的開放歸檔格式。" data-en="Bio-Formats and OME-TIFF are often conflated. Bio-Formats (Linkert 2010, J. Cell Biol. 189:777) is a Java library (with Python bindings like bioio) that reads/writes 150+ proprietary microscope formats (.czi, .lif, .nd2, .oib, .ims, etc.) and maps metadata to the OME-XML standard. OME-TIFF is a file format: TIFF with an embedded OME-XML block as metadata — Bio-Formats' recommended open-archive format.">Bio-Formats 與 OME-TIFF 常被混為一談。Bio-Formats (Linkert 2010, J. Cell Biol. 189:777) 是一個 Java library（現有 Python bindings 如 bioio），讀寫 150+ 種專有顯微鏡格式（.czi、.lif、.nd2、.oib、.ims 等），並將 metadata 轉換為 OME-XML 標準。OME-TIFF 則是一個檔案格式：基於 TIFF + 內嵌 OME-XML 區塊作為 metadata，是 Bio-Formats 推薦的開放歸檔格式。</p>
+  <p data-zh="實務注意事項：(a) OME-TIFF 受 TIFF 4GB 限制（除非 BigTIFF）；(b) 對於大型 5D+tile dataset，OME-Zarr / NGFF (Moore 2021, Nat. Methods 18:1496) 是現代雲端優化選擇；(c) 用 bfconvert 將專有格式轉 OME-TIFF 時，部分 metadata 可能 lossy（如 fluorophore 命名、acquisition timestamp）——重要實驗應同時保留 raw 專有檔；(d) Fiji 載入 .czi 速度遠慢於 OME-TIFF，HCS 流程建議預先轉檔。" data-en="Practical notes: (a) OME-TIFF inherits the TIFF 4 GB limit (unless BigTIFF); (b) for large 5D + tiled datasets, OME-Zarr / NGFF (Moore 2021, Nat. Methods 18:1496) is the modern cloud-optimized choice; (c) converting proprietary formats to OME-TIFF via bfconvert can be lossy in metadata (fluorophore naming, acquisition timestamps) — always retain raw proprietary files for important experiments; (d) loading .czi in Fiji is far slower than OME-TIFF, so HCS pipelines should pre-convert.">實務注意事項：(a) OME-TIFF 受 TIFF 4GB 限制（除非 BigTIFF）；(b) 對於大型 5D+tile dataset，OME-Zarr / NGFF (Moore 2021, Nat. Methods 18:1496) 是現代雲端優化選擇；(c) 用 bfconvert 將專有格式轉 OME-TIFF 時，部分 metadata 可能 lossy（如 fluorophore 命名、acquisition timestamp）——重要實驗應同時保留 raw 專有檔；(d) Fiji 載入 .czi 速度遠慢於 OME-TIFF，HCS 流程建議預先轉檔。</p>
+  <p>Reference: Linkert M. et al. <em>J. Cell Biol.</em> 189(5):777–782, 2010. <a href="https://doi.org/10.1083/jcb.201004104">10.1083/jcb.201004104</a></p>
+</div>
+
+</section>
+<nav class="page-nav">
+  <a href="../index.html"><span class="nav-dir" data-zh="← 教學首頁" data-en="← Tutorial home">← 教學首頁</span><span class="nav-title" data-zh="回到主教學頁" data-en="Back to tutorial hub">回到主教學頁</span></a>
+  <a href="../bioimage-quiz/index.html" target="_blank" rel="noopener"><span class="nav-dir" data-zh="互動考題 →" data-en="Interactive quiz →">互動考題 →</span><span class="nav-title" data-zh="互動式考題" data-en="Interactive Quiz">互動式考題</span></a>
+</nav>
+
+</main>
+<script src="../i18n.js"></script>
+</body>
+</html>

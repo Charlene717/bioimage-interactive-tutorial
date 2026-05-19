@@ -1,0 +1,226 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 7: AI Foundation Models — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html">Fund.</a></li><li><a href="preprocessing.html">Preproc.</a></li><li><a href="deconvolution.html">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html">Class.Seg</a></li><li><a href="segmentation-dl.html">DL Seg</a></li><li><a href="foundation-models.html" class="active">FM</a></li><li><a href="tracking.html">Track.</a></li><li><a href="quantification.html">Quant.</a></li><li><a href="3d-multidim.html">3D</a></li><li><a href="high-content.html">HCS</a></li><li><a href="pathology.html">Path.</a></li><li><a href="tools.html">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 7 / 9</div>
+<h1 data-zh="AI 基礎模型 (Foundation Models)" data-en="AI Foundation Models">AI 基礎模型</h1>
+<p class="subtitle" data-lang="zh">在數十億張自然影像上預訓練的基礎模型，能以「提示 (prompt)」方式分割顯微影像，零訓練橫跨多個術式——但原版 SAM 在生物上很少是最佳選擇。</p>
+<p class="subtitle" data-lang="en">Foundation models pretrained on billions of natural images segment microscopy via prompts — zero-shot across modalities. But raw SAM is rarely the right model for biology on its own.</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="觀念" data-en="CONCEPT">觀念</div>
+<h2 data-zh="一、什麼是「提示式分割」？" data-en="I. What is 'Promptable Segmentation'?">一、提示式分割</h2>
+<div data-lang="zh">
+<p>傳統 DL 分割：訓練好的模型輸入影像，輸出 mask，<strong>無法互動</strong>。</p>
+<p>SAM (Segment Anything Model, 2023) 開啟了新範式——用戶給<strong>提示 (prompt)</strong>：點一下、畫個 box、給張粗略 mask、甚至文字，模型即時回傳該物件的精確 mask。</p>
+<p>四種主要 prompt 類型：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Point</strong>：點擊「我要這個物件」</li>
+<li><strong>Box</strong>：拉個 bounding box</li>
+<li><strong>Mask</strong>：粗略 mask → 精細化</li>
+<li><strong>Text</strong>：「all cells」「nuclei only」（CLIP 結合）</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>Traditional DL: a trained model takes an image and outputs a mask — <strong>not interactive</strong>.</p>
+<p>SAM (Segment Anything Model, 2023) opened a new paradigm — the user provides a <strong>prompt</strong> (a point, box, rough mask, or text) and the model returns a precise mask in real time.</p>
+<p>Four main prompt types:</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Point</strong>: "I want this object"</li>
+<li><strong>Box</strong>: a bounding box</li>
+<li><strong>Mask</strong>: coarse mask → refined</li>
+<li><strong>Text</strong>: "all cells", "nuclei only" (CLIP-grounded)</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="模型生態" data-en="ECOSYSTEM">模型生態</div>
+<h2 data-zh="二、SAM 家族與生物醫學分支" data-en="II. SAM Family &amp; Biomedical Branches">二、SAM 家族與生物醫學分支</h2>
+<table class="comp-table">
+<thead><tr><th>Model</th><th data-zh="發表" data-en="Released">發表</th><th data-zh="特色與適用" data-en="Highlights / Use">特色</th></tr></thead>
+<tbody>
+<tr><td><strong>SAM (Meta)</strong></td><td>2023</td><td data-lang="zh">通用自然影像分割；ViT backbone；EM、暗螢光、密集細胞表現有限</td><td data-lang="en">General natural images; ViT backbone; weak on EM, low-contrast fluorescence, dense cells</td></tr>
+<tr><td><strong>SAM 2 (Meta)</strong></td><td>2024</td><td data-lang="zh">加入影片/時序記憶；Hiera backbone；快上 6×</td><td data-lang="en">Adds video/temporal memory; Hiera backbone; ~6× faster</td></tr>
+<tr><td><strong>Micro-SAM (µSAM)</strong></td><td>2024–2025</td><td data-lang="zh">在多元光顯微 + EM 資料 fine-tune，napari plugin 整合；<strong>顯微首選</strong></td><td data-lang="en">Fine-tuned on diverse light/EM microscopy, napari plugin; <strong>microscopy default</strong></td></tr>
+<tr><td><strong>MedSAM / MedSAM2</strong></td><td>2024 / 2025</td><td data-lang="zh">CT / MRI / X-ray + 3D / 影片；醫學影像通用 FM</td><td data-lang="en">CT/MRI/X-ray + 3D/video; medical-imaging FM</td></tr>
+<tr><td><strong>CellSAM</strong></td><td>2025</td><td data-lang="zh">細胞分割專用 SAM 變體</td><td data-lang="en">Cell-segmentation specialist SAM variant</td></tr>
+<tr><td><strong>Cellpose-SAM (= Cellpose 4)</strong></td><td>2025</td><td data-lang="zh">SAM backbone + Cellpose 梯度場 head；事實上的細胞分割 SOTA</td><td data-lang="en">SAM backbone + Cellpose gradient-field head; effectively SOTA for cells</td></tr>
+</tbody></table>
+
+<h3 data-zh="病理基礎模型（WSI 嵌入用）" data-en="Pathology FMs (WSI Embeddings)">病理基礎模型</h3>
+<table class="comp-table">
+<thead><tr><th>Model</th><th data-zh="架構 / 資料" data-en="Arch / Data">架構 / 資料</th><th data-zh="用途" data-en="Use">用途</th></tr></thead>
+<tbody>
+<tr><td><strong>UNI / UNI 2</strong></td><td>DINOv2 / 100M+ patches</td><td data-lang="zh">病理 patch embedding → 下游分類 / 檢索</td><td data-lang="en">Pathology patch embedding → downstream classification / retrieval</td></tr>
+<tr><td><strong>Virchow / Virchow 2</strong></td><td>DINOv2 / Memorial Sloan-Kettering</td><td data-lang="zh">同上，多癌種預測</td><td data-lang="en">Same; multi-cancer prediction</td></tr>
+<tr><td><strong>CONCH</strong></td><td>CLIP-style vision-language</td><td data-lang="zh">圖文對齊，可文字檢索病理影像</td><td data-lang="en">Vision-language; text-based pathology image retrieval</td></tr>
+<tr><td><strong>Prov-GigaPath</strong></td><td>Sliding-window LongNet / 1.3B params</td><td data-lang="zh">全片 (slide) 級嵌入，含 long-context</td><td data-lang="en">Whole-slide embeddings with long-context modelling</td></tr>
+<tr><td><strong>BioCLIP</strong></td><td>CLIP / 物種影像</td><td data-lang="zh">生物多樣性（物種辨識）</td><td data-lang="en">CLIP-style; biodiversity / species identification</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="工作流程" data-en="WORKFLOW">工作流程</div>
+<h2 data-zh="三、典型互動式分割流程（Micro-SAM 範例）" data-en="III. Typical Interactive Workflow (Micro-SAM)">三、互動式分割流程</h2>
+<div class="workflow">
+<div class="workflow-step" data-step="1"><h4 data-zh="開啟 napari 與 Micro-SAM plugin" data-en="Open napari + Micro-SAM plugin">開啟 napari + Micro-SAM</h4>
+<div data-lang="zh"><p><code>pip install micro-sam napari</code> → <code>napari</code> 啟動，安裝 plugin。</p></div>
+<div data-lang="en"><p><code>pip install micro-sam napari</code> → run <code>napari</code>, install the plugin.</p></div>
+</div>
+<div class="workflow-step" data-step="2"><h4 data-zh="載入影像、計算 image embedding（一次性）" data-en="Load image, compute embedding (one-time)">計算 embedding</h4>
+<div data-lang="zh"><p>選好模型（<code>vit_b_lm</code>, <code>vit_b_em</code>, <code>vit_h_lm</code>…），SAM encoder 跑一次得到嵌入向量。之後所有 prompt 都即時。</p></div>
+<div data-lang="en"><p>Pick a model (<code>vit_b_lm</code>, <code>vit_b_em</code>, <code>vit_h_lm</code>…). SAM encoder runs once to compute embeddings; all prompts thereafter are real-time.</p></div>
+</div>
+<div class="workflow-step" data-step="3"><h4 data-zh="互動模式（點 / box）" data-en="Interactive mode (points / box)">互動 prompt</h4>
+<div data-lang="zh"><p>切到 napari 的 point / box layer，點一下細胞 → 即時 mask；不夠精細可再點 negative point 排除背景。</p></div>
+<div data-lang="en"><p>Use napari's point/box layer — click a cell to get an instant mask; refine with negative points to exclude background.</p></div>
+</div>
+<div class="workflow-step" data-step="4"><h4 data-zh="自動模式 (AMG)" data-en="Automatic mode (AMG)">自動模式</h4>
+<div data-lang="zh"><p>AMG = Automatic Mask Generation：在整張影像撒點，過濾低品質結果，得到所有物件 mask。可作為其他模型的 pseudo-label。</p></div>
+<div data-lang="en"><p>AMG = Automatic Mask Generation: scatter point prompts across the image, filter low-quality outputs to get all object masks. Useful as pseudo-labels for other models.</p></div>
+</div>
+<div class="workflow-step" data-step="5"><h4 data-zh="3D / 影片 (tracking 模式)" data-en="3D / video (tracking mode)">3D / 影片</h4>
+<div data-lang="zh"><p>Micro-SAM 提供 volumetric 與 tracking 模式：在 2D 標一張，跨 z 或 t 自動追蹤連結。</p></div>
+<div data-lang="en"><p>Micro-SAM offers volumetric &amp; tracking modes: label one 2D slice, then auto-propagate across z or t.</p></div>
+</div>
+</div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>不要把 SAM 用在 3D：</strong>原版 SAM 是 2D 模型，逐切片獨立跑會造成 z 方向 ID 不一致。請改用 Micro-SAM volumetric / MedSAM2 / Cellpose 3D。</span>
+<span data-lang="en"><strong>Don't run vanilla SAM on 3D:</strong> it's a 2D model; per-slice independent runs produce inconsistent IDs across z. Use Micro-SAM volumetric / MedSAM2 / Cellpose 3D instead.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="Fine-tuning" data-en="FINE-TUNING">Fine-tuning</div>
+<h2 data-zh="四、Fine-tune 策略" data-en="IV. Fine-tuning Strategies">四、Fine-tune 策略</h2>
+<table class="comp-table">
+<thead><tr><th data-zh="策略" data-en="Strategy">策略</th><th data-zh="參數量" data-en="Params">參數量</th><th data-zh="情境" data-en="When">情境</th></tr></thead>
+<tbody>
+<tr><td><strong>Linear probe</strong></td><td data-lang="zh">凍結 backbone，僅訓練線性層</td><td data-lang="zh">資料 &lt; 1k 張、做下游分類</td><td data-lang="en">Freeze backbone, train linear head only</td><td data-lang="en">&lt; 1k labels, downstream classification</td></tr>
+<tr><td><strong>LoRA / Adapters</strong></td><td data-lang="zh">凍結 backbone，加 ~1% 可訓練參數</td><td data-lang="zh">中等資料，效率好</td><td data-lang="en">Freeze backbone, add ~1% trainable params</td><td data-lang="en">Medium data, efficient</td></tr>
+<tr><td><strong>Prompt encoder only</strong></td><td data-lang="zh">凍結 image encoder，只訓 prompt + mask decoder</td><td data-lang="zh">想保留 SAM 通用能力</td><td data-lang="en">Freeze image encoder, train prompt + mask decoder</td><td data-lang="en">Keep SAM's generalist ability</td></tr>
+<tr><td><strong>Full fine-tune</strong></td><td data-lang="zh">所有參數可訓練</td><td data-lang="zh">資料 &gt; 10k 張，且 GPU 強</td><td data-lang="en">All params trainable</td><td data-lang="en">&gt; 10k labels, strong GPU</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="五、實作範例" data-en="V. Code Examples">五、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns"><button class="code-tab-btn active" onclick="switchTab(this,'us1')">Micro-SAM</button><button class="code-tab-btn" onclick="switchTab(this,'ms1')">MedSAM2 (3D)</button><button class="code-tab-btn" onclick="switchTab(this,'uni1')">UNI WSI Embedding</button></div>
+<div class="code-tab-content active" id="us1"><pre><span class="comment"># Micro-SAM — interactive + automatic segmentation</span>
+<span class="kw">from</span> micro_sam <span class="kw">import</span> util
+<span class="kw">from</span> micro_sam.instance_segmentation <span class="kw">import</span> AutomaticMaskGenerator
+
+<span class="comment"># Pick the right model</span>
+predictor = util.get_sam_model(model_type=<span class="str">"vit_b_lm"</span>)   <span class="comment"># LM = light microscopy</span>
+<span class="comment"># Options: vit_b_lm, vit_l_lm, vit_h_lm, vit_b_em, vit_b_histopathology, ...</span>
+
+<span class="comment"># Compute embedding once (cached)</span>
+embedding = util.precompute_image_embeddings(predictor, image)
+
+<span class="comment"># 1) Interactive with point prompt</span>
+<span class="kw">from</span> micro_sam.prompt_based_segmentation <span class="kw">import</span> segment_from_points
+points = [[<span class="num">250</span>, <span class="num">300</span>], [<span class="num">200</span>, <span class="num">290</span>]]  <span class="comment"># (y, x)</span>
+labels_pt = [<span class="num">1</span>, <span class="num">1</span>]                          <span class="comment"># 1 = foreground</span>
+mask = segment_from_points(predictor, points, labels_pt, embedding)
+
+<span class="comment"># 2) Automatic: scatter prompts and get all objects</span>
+amg = AutomaticMaskGenerator(predictor)
+amg.initialize(image, embedding)
+masks = amg.generate()
+
+<span class="comment"># 3) Volumetric / tracking — see micro_sam.multi_dimensional_segmentation</span></pre></div>
+<div class="code-tab-content" id="ms1"><pre><span class="comment"># MedSAM2 — 3D / video promptable segmentation</span>
+<span class="kw">from</span> medsam2 <span class="kw">import</span> build_medsam2_predictor
+
+predictor = build_medsam2_predictor(<span class="str">"medsam2_hiera_b.pt"</span>, device=<span class="str">"cuda"</span>)
+predictor.set_image(volume_or_video)   <span class="comment"># 3D volume or T frames</span>
+
+<span class="comment"># Provide a 2D click/box on one slice → propagated through volume/time</span>
+mask3d = predictor.predict_3d(
+    point=[<span class="num">256</span>, <span class="num">256</span>], slice_idx=<span class="num">20</span>,
+    propagate=<span class="kw">True</span>
+)</pre></div>
+<div class="code-tab-content" id="uni1"><pre><span class="comment"># UNI — pathology patch embedding for downstream classification</span>
+<span class="kw">import</span> timm
+<span class="kw">import</span> torch
+<span class="kw">from</span> torchvision <span class="kw">import</span> transforms
+
+<span class="comment"># Load from HuggingFace hub (uni-pretrained ViT-L)</span>
+model = timm.create_model(<span class="str">"hf-hub:MahmoodLab/UNI"</span>, pretrained=<span class="kw">True</span>,
+                          init_values=<span class="num">1e-5</span>, dynamic_img_size=<span class="kw">True</span>)
+model.eval().cuda()
+
+tf = transforms.Compose([
+    transforms.Resize(<span class="num">224</span>), transforms.CenterCrop(<span class="num">224</span>),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[<span class="num">0.485</span>,<span class="num">0.456</span>,<span class="num">0.406</span>], std=[<span class="num">0.229</span>,<span class="num">0.224</span>,<span class="num">0.225</span>])
+])
+
+<span class="kw">with</span> torch.inference_mode():
+    feats = model(tf(patch).unsqueeze(<span class="num">0</span>).cuda())  <span class="comment"># [1, 1024]</span>
+
+<span class="comment"># Train a linear classifier on top using your labelled patches</span></pre></div>
+</div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">1. 你想互動式標注 EM 影像中的細胞。最佳選擇？</p>
+<p data-lang="en">1. You want to interactively annotate cells in EM images. Best choice?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 原版 SAM (Meta)</span><span data-lang="en">A. Vanilla SAM (Meta)</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. Micro-SAM 的 vit_b_em / vit_l_em（針對 EM 微調）</span><span data-lang="en">B. Micro-SAM's vit_b_em / vit_l_em (fine-tuned for EM)</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. UNI</span><span data-lang="en">C. UNI</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. CONCH</span><span data-lang="en">D. CONCH</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">2. 病理 WSI 基礎模型（UNI, Virchow）的<strong>輸出</strong>是什麼？</p>
+<p data-lang="en">2. What do pathology FMs (UNI, Virchow) <strong>output</strong>?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 細胞 mask</span><span data-lang="en">A. Cell masks</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 影像分類標籤</span><span data-lang="en">B. Classification labels</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 嵌入向量 (embeddings)，需搭配下游分類器使用（如 MIL / CLAM）</span><span data-lang="en">C. Embeddings — pair with a downstream classifier (MIL/CLAM)</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 染色正規化結果</span><span data-lang="en">D. Stain-normalized images</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="0">
+<p data-lang="zh">3. 對 3D 共軛焦 stack 用「逐切片獨立跑 SAM」有什麼問題？</p>
+<p data-lang="en">3. What's wrong with running SAM slice-by-slice on a 3D confocal stack?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. ID 不會跨 z 一致，同一細胞每層被當不同 ID</span><span data-lang="en">A. IDs are inconsistent across z — same cell gets a new ID on each slice</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 速度太慢</span><span data-lang="en">B. Too slow</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. SAM 不支援 fluorescence</span><span data-lang="en">C. SAM does not support fluorescence</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 沒有問題</span><span data-lang="en">D. No problem</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav">
+<a href="segmentation-dl.html"><span class="nav-dir" data-zh="← 上一步" data-en="← Previous">← 上一步</span><span class="nav-title" data-zh="Step 6: 深度學習分割 (DL Segmentation)" data-en="Step 6: Deep Learning Segmentation">Step 6: 深度學習分割 (DL Segmentation)</span></a>
+<a href="tracking.html"><span class="nav-dir" data-zh="下一步 →" data-en="Next →">下一步 →</span><span class="nav-title" data-zh="Step 8: 細胞 / 粒子追蹤 (Tracking)" data-en="Step 8: Cell / Particle Tracking">Step 8: 細胞 / 粒子追蹤 (Tracking)</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+function switchTab(b,id){const p=b.closest('.code-tabs');p.querySelectorAll('.code-tab-btn').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.code-tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');}
+const QF={
+  zh:{q1_y:'Micro-SAM 的 EM 變體已在大量 EM 資料上微調，遠勝原版 SAM。',q1_n:'正確答案已標示。',q2_y:'病理基礎模型輸出 embedding，需搭配 MIL/CLAM 等下游模組做 slide-level 預測。',q2_n:'正確答案已標示。',q3_y:'2D SAM 對每張切片獨立跑，不會延續同一物件 ID，造成 3D label 不一致。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'Micro-SAM\'s EM variant has been fine-tuned on extensive EM data and outperforms vanilla SAM.',q1_n:'Correct answer highlighted.',q2_y:'Pathology FMs output embeddings; pair with MIL/CLAM for slide-level prediction.',q2_n:'Correct answer highlighted.',q3_y:'2D SAM run independently per slice cannot maintain a consistent object ID across z.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

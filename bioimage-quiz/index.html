@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bioimage Analysis 互動考題</title>
+<style>
+:root{--bg:#f5f8fa;--card:#fff;--ink:#1a2733;--soft:#5a6b7b;--line:#e0e6eb;--primary:#1565C0;--primary-soft:#DFEAF6;--primary-dark:#0A305C;--accent:#4CAF50;--accent-soft:#E7EFE7;--green:#2f9e44;--green-soft:#d3f9d8;--red:#c92a2a;--red-soft:#ffe3e3;--yellow:#d9a700;--yellow-soft:#fff4c2;--grey-soft:#f8f9fa;--shadow:0 1px 2px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.04);--radius:10px;}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI","PingFang TC","Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;font-size:16px}
+header{background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 100%);color:#fff;padding:14px 22px;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.h-row{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+h1{font-size:18px;margin:0;font-weight:700}
+.homelink{color:#fff;text-decoration:none;font-size:13px;padding:5px 12px;border:1px solid rgba(255,255,255,.5);border-radius:999px;white-space:nowrap;cursor:pointer;background:transparent;font-family:inherit}
+.homelink:hover{background:rgba(255,255,255,.15);border-color:#fff}
+.lang-toggle{margin-left:auto;background:#fff;color:var(--primary-dark);border:0;border-radius:999px;padding:5px 12px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600}
+.lang-toggle:hover{background:var(--primary-soft)}
+.stat{color:rgba(255,255,255,.95);font-size:13px;margin-left:8px}
+.stat strong{color:#fff;font-size:17px}
+main{max-width:1280px;margin:22px auto;padding:0 18px 40px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:18px}
+.panel h2{margin:0 0 6px;font-size:16px;font-weight:600}
+.panel .desc{color:var(--soft);font-size:13px;margin-bottom:14px}
+.global-prog{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--primary-soft);border:1px solid var(--primary);border-radius:8px;margin-bottom:14px;font-size:13px;flex-wrap:wrap}
+.global-prog .gp-label{color:var(--primary);font-weight:600;min-width:90px}
+.global-prog .gp-bar{flex:1;height:8px;background:#fff;border-radius:4px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line);min-width:160px}
+.global-prog .gp-fill{height:100%;background:var(--green);transition:width .35s;width:0%}
+.gp-reset{background:#fff;border:1px solid var(--red);color:var(--red);padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
+.gp-reset:hover{background:var(--red);color:#fff}
+.cat-title{font-size:14px;font-weight:700;color:var(--primary-dark);margin:20px 0 10px;letter-spacing:.3px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+.ycard{background:var(--grey-soft);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ytitle{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ytitle .ycount{color:var(--soft);font-weight:400;font-size:12px}
+.ystatus{font-size:12px;color:var(--soft);display:flex;align-items:center;gap:4px}
+.ystatus .badge-status{padding:2px 8px;border-radius:999px;font-weight:600;font-size:11px}
+.ystatus .badge-status.ip{background:var(--yellow-soft);color:#a06a00}
+.ystatus .badge-status.done{background:var(--green-soft);color:var(--green)}
+.action-row{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;border:1px solid;transition:all .12s;flex:1;min-width:120px;justify-content:center;background:var(--primary-soft);color:var(--primary-dark);border-color:var(--primary)}
+.chip:hover{background:var(--primary);color:#fff;transform:translateY(-1px)}
+.legend{font-size:12px;color:var(--soft);margin-top:10px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.ldot{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:middle;margin-right:5px;border:1px solid var(--line)}
+.ldot.r{background:var(--primary-soft);border-color:var(--primary)}
+.ldot.ip{background:var(--yellow-soft);border-color:var(--yellow)}
+.ldot.done{background:var(--green-soft);border-color:var(--green)}
+
+/* Quiz layout */
+.layout{display:grid;grid-template-columns:300px 1fr;gap:22px;max-width:1280px;margin:18px auto;padding:0 18px}
+@media (max-width:880px){.layout{grid-template-columns:1fr;padding:0 14px}.sidebar{order:2;position:static}}
+.sidebar{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px;height:fit-content;position:sticky;top:78px}
+.grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.gbtn{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--soft);font-size:13px;cursor:pointer;font-variant-numeric:tabular-nums;font-family:inherit;padding:0}
+.gbtn:hover{border-color:var(--primary)}
+.gbtn.cur{background:var(--primary);color:#fff;border-color:var(--primary)}
+.gbtn.right{background:var(--green-soft);color:var(--green);border-color:var(--green)}
+.gbtn.wrong{background:var(--red-soft);color:var(--red);border-color:var(--red)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:middle;margin-right:4px;border:1px solid var(--line)}
+.dot.r{background:var(--green-soft);border-color:var(--green)}
+.dot.w{background:var(--red-soft);border-color:var(--red)}
+.btn{background:var(--primary);color:#fff;border:0;padding:9px 18px;border-radius:8px;cursor:pointer;font-size:14px;font-family:inherit;transition:all .12s}
+.btn:hover:not(:disabled){background:var(--primary-dark);transform:translateY(-1px)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover:not(:disabled){border-color:var(--primary);color:var(--primary);background:#fff}
+.btn.danger{background:#fff;color:var(--red);border:1px solid var(--red)}
+.btn.danger:hover:not(:disabled){background:var(--red);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.main-col{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+.qhead{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.qnum{font-size:22px;font-weight:700;color:var(--primary)}
+.qmeta{color:var(--soft);font-size:13px}
+.qtype{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.5px;border:1px solid var(--line)}
+.qtype.single{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.qtype.multi{background:#f3e8ff;color:#7c3aed;border-color:#7c3aed}
+.qtype.tf{background:#fff7e6;color:#d97706;border-color:#d97706}
+.stem{font-size:16px;white-space:pre-wrap;word-break:break-word;margin-bottom:12px}
+.opts{display:flex;flex-direction:column;gap:8px;margin:14px 0 4px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:all .12s;text-align:left;font-size:15.5px;color:var(--ink);font-family:inherit;width:100%}
+.opt:hover:not(.locked){background:var(--primary-soft);border-color:var(--primary)}
+.opt.locked{cursor:default}
+.opt.selected{background:var(--accent-soft);border-color:var(--accent)}
+.opt .label{font-weight:700;min-width:22px}
+.opt.correct{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.opt.wrong{background:var(--red-soft);border-color:var(--red);color:var(--red)}
+.submit-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.verdict{margin-top:14px;padding:12px 14px;border-radius:8px;font-size:14px;line-height:1.7}
+.verdict.right{background:var(--green-soft);color:#186b29}
+.verdict.wrong{background:var(--red-soft);color:#861818}
+.verdict h3{margin:0 0 6px;font-size:14px}
+.verdict .ans-line{font-weight:600;margin-bottom:4px}
+.nav{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.summary{padding:18px}
+.summary h2{margin:0 0 8px}
+.score{font-size:32px;font-weight:700;color:var(--primary)}
+.summary-row{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0}
+.summary-row .item{font-size:13px;color:var(--soft)}
+.summary-row .item strong{color:var(--ink);font-weight:700;font-size:18px;display:block;margin-top:2px}
+.empty{padding:40px;text-align:center;color:var(--soft)}
+.footer{color:var(--soft);font-size:12px;text-align:center;margin:18px 0 28px}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<header>
+<div class="h-row">
+  <h1 data-zh="🔬 生物影像分析 互動式考題" data-en="🔬 Bioimage Analysis Interactive Quiz">🔬 生物影像分析 互動式考題</h1>
+  <a class="homelink" href="../index.html"><span data-zh="← 返回教學首頁" data-en="← Tutorial Home">← 返回教學首頁</span></a>
+  <span class="stat" id="globalStat"></span>
+  <button class="lang-toggle" id="langToggle">EN</button>
+</div>
+</header>
+
+<!-- Index page -->
+<main id="idxPage">
+<div class="panel">
+<h2 data-zh="關於這份題庫" data-en="About this quiz">關於這份題庫</h2>
+<p class="desc" data-lang="zh">涵蓋 Bioimage Analysis 13 主題、約 130 題雙語考題（單選 / 多選 / 是非）。所有題目皆含中文與英文題幹、選項與解析；錯題會在側欄保留標記、可隨時複習。進度自動存於瀏覽器 localStorage。</p>
+<p class="desc" data-lang="en">~130 bilingual questions across 13 Bioimage Analysis topics (single-choice / multi-select / true-false). Every stem, option, and explanation is provided in both Chinese and English. Wrong answers stay marked for review. Progress auto-saved in localStorage.</p>
+
+<div class="global-prog">
+<span class="gp-label" data-zh="總進度" data-en="Total progress">總進度</span>
+<div class="gp-bar"><div class="gp-fill" id="gpFill"></div></div>
+<span id="gpText"></span>
+<button class="gp-reset" id="resetAll" data-zh="重置全部" data-en="Reset all">重置全部</button>
+</div>
+
+<div class="legend">
+<span><span class="ldot r"></span><span data-zh="尚未開始" data-en="Not started">尚未開始</span></span>
+<span><span class="ldot ip"></span><span data-zh="進行中" data-en="In progress">進行中</span></span>
+<span><span class="ldot done"></span><span data-zh="已完成" data-en="Done">已完成</span></span>
+</div>
+</div>
+
+<div id="catList"></div>
+</main>
+
+<!-- Quiz page -->
+<section class="layout hidden" id="quizPage">
+<aside class="sidebar">
+<button class="btn ghost" id="backToIdx" style="margin-bottom:10px;width:100%" data-zh="← 返回題庫列表" data-en="← Back to subjects">← 返回題庫列表</button>
+<div style="font-weight:700;margin-bottom:8px" id="sjTitle"></div>
+<div style="font-size:12px;color:var(--soft);margin-bottom:10px" id="sjStats"></div>
+<div class="grid" id="qGrid"></div>
+<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--soft)">
+<span><span class="dot r"></span><span data-zh="答對" data-en="Correct">答對</span></span>
+<span><span class="dot w"></span><span data-zh="答錯" data-en="Wrong">答錯</span></span>
+</div>
+</aside>
+<div class="main-col">
+<div class="card" id="qCard"></div>
+<div class="nav">
+<button class="btn ghost" id="prevQ" data-zh="← 上一題" data-en="← Previous">← 上一題</button>
+<button class="btn ghost" id="nextQ" data-zh="下一題 →" data-en="Next →">下一題 →</button>
+<button class="btn danger" id="resetSj" data-zh="重置本主題" data-en="Reset this subject">重置本主題</button>
+</div>
+</div>
+</section>
+
+<div class="footer">© Charlene — Bioimage Analysis Interactive Quiz</div>
+
+<script src="../i18n.js"></script>
+<script src="data.js"></script>
+<script src="i18n.js"></script>
+<script>
+const STORE_KEY='bioimage_quiz_progress_v1';
+let progress = JSON.parse(localStorage.getItem(STORE_KEY)||"{}");
+function save(){localStorage.setItem(STORE_KEY,JSON.stringify(progress));}
+
+function lang(){return (window.I18n&&window.I18n.get())||'en';}
+
+function loc(zh,en){return lang()==='zh'?zh:en;}
+function tr(map){return map[lang()]||map.zh||map.en;}
+
+const ROOT=window.QUIZ_DATA.bioimage;
+
+function pickStem(q){return lang()==='zh'?q.stem:(q.stem_en||q.stem);}
+function pickOpt(q,letter){const k=lang()==='zh'?letter:letter+'_en';return q[k]||q[letter];}
+function pickExp(q){return lang()==='zh'?q.exp:(q.exp_en||q.exp);}
+function labelSubject(cat,sj){const map=ROOT.labels_en||{};return lang()==='zh'?sj:(map[sj]||sj);}
+function labelCat(cat){const map=ROOT.labels_en||{};return lang()==='zh'?cat:(map[cat]||cat);}
+
+function renderIdx(){
+  document.getElementById('quizPage').classList.add('hidden');
+  document.getElementById('idxPage').classList.remove('hidden');
+  const wrap=document.getElementById('catList');
+  wrap.innerHTML='';
+  let totalQ=0,doneQ=0,rightQ=0;
+  Object.entries(ROOT.subjects).forEach(([cat,subjects])=>{
+    const ct=document.createElement('div');ct.className='cat-title';ct.textContent=labelCat(cat);
+    wrap.appendChild(ct);
+    const cards=document.createElement('div');cards.className='cards';
+    Object.entries(subjects).forEach(([sj,qs])=>{
+      const total=qs.length;totalQ+=total;
+      const key=cat+'||'+sj;
+      const p=progress[key]||{ans:{}};
+      const done=Object.keys(p.ans).length;
+      const right=Object.values(p.ans).filter(a=>a.correct).length;
+      doneQ+=done;rightQ+=right;
+      const c=document.createElement('div');c.className='ycard';
+      let status='';
+      if(done===0) status='';
+      else if(done<total) status=`<span class="badge-status ip">${loc('進行中','In progress')}</span> ${done}/${total}`;
+      else status=`<span class="badge-status done">${loc('已完成','Done')}</span> ${right}/${total} ${loc('正確','correct')}`;
+      c.innerHTML=`
+        <div class="ytitle">${labelSubject(cat,sj)}<span class="ycount">(${total} ${loc('題','q')})</span></div>
+        <div class="ystatus">${status||loc('尚未開始','Not started')}</div>
+        <div class="action-row">
+          <button class="chip" data-cat="${cat}" data-sj="${sj}">${done>0?loc('繼續練習','Continue'):loc('開始練習','Start')}</button>
+        </div>`;
+      cards.appendChild(c);
+    });
+    wrap.appendChild(cards);
+  });
+  wrap.querySelectorAll('button.chip').forEach(b=>{
+    b.addEventListener('click',()=>openSubject(b.dataset.cat,b.dataset.sj));
+  });
+  const pct=totalQ?Math.round(doneQ/totalQ*100):0;
+  document.getElementById('gpFill').style.width=pct+'%';
+  document.getElementById('gpText').textContent=`${doneQ}/${totalQ} (${pct}%) · ${loc('正確','correct')}: ${rightQ}`;
+  document.getElementById('globalStat').innerHTML=`<strong>${rightQ}</strong>/${totalQ} ${loc('正確','correct')}`;
+}
+
+let cur={cat:null,sj:null,qs:[],idx:0};
+function openSubject(cat,sj){
+  cur.cat=cat;cur.sj=sj;cur.qs=ROOT.subjects[cat][sj];cur.idx=0;
+  const key=cat+'||'+sj;
+  if(!progress[key])progress[key]={ans:{}};
+  // resume to first unanswered
+  for(let i=0;i<cur.qs.length;i++){if(!progress[key].ans[i]){cur.idx=i;break;}}
+  document.getElementById('idxPage').classList.add('hidden');
+  document.getElementById('quizPage').classList.remove('hidden');
+  document.getElementById('sjTitle').textContent=labelSubject(cat,sj);
+  renderGrid();renderQ();
+}
+
+function renderGrid(){
+  const g=document.getElementById('qGrid');g.innerHTML='';
+  const key=cur.cat+'||'+cur.sj;const p=progress[key];
+  for(let i=0;i<cur.qs.length;i++){
+    const b=document.createElement('button');b.className='gbtn';b.textContent=i+1;
+    if(i===cur.idx)b.classList.add('cur');
+    const a=p.ans[i];
+    if(a){b.classList.add(a.correct?'right':'wrong');}
+    b.addEventListener('click',()=>{cur.idx=i;renderQ();renderGrid();});
+    g.appendChild(b);
+  }
+  const done=Object.keys(p.ans).length;
+  const right=Object.values(p.ans).filter(a=>a.correct).length;
+  document.getElementById('sjStats').textContent=`${done}/${cur.qs.length} ${loc('已作答','answered')} · ${right} ${loc('正確','correct')}`;
+}
+
+function letters(q){if(q.type==='tf')return ['T','F'];return ['A','B','C','D'];}
+function isCorrect(q,sel){
+  if(q.type==='multi'){const set=new Set(q.ans);if(sel.length!==set.size)return false;return sel.every(s=>set.has(s));}
+  return sel[0]===q.ans;
+}
+
+function renderQ(){
+  const c=document.getElementById('qCard');
+  if(!cur.qs.length){c.innerHTML='<div class="empty">'+loc('此主題尚無題目','No questions yet')+'</div>';return;}
+  const q=cur.qs[cur.idx];const idx=cur.idx;
+  const key=cur.cat+'||'+cur.sj;const p=progress[key];
+  const ans=p.ans[idx];
+  const tType={single:loc('單選','Single'),multi:loc('多選','Multi'),tf:loc('是非','T/F')};
+  const ls=letters(q);
+  let optsHTML='';
+  const selected=new Set(ans?ans.sel:[]);
+  ls.forEach(L=>{
+    const text=q.type==='tf'?(L==='T'?loc('正確 True','True'):loc('錯誤 False','False')):pickOpt(q,L);
+    let cls='opt';
+    if(ans){cls+=' locked';
+      if(q.type==='multi'){if(q.ans.includes(L))cls+=' correct';else if(selected.has(L))cls+=' wrong';}
+      else{if(L===q.ans)cls+=' correct';else if(selected.has(L))cls+=' wrong';}
+    } else if(selected.has(L))cls+=' selected';
+    optsHTML+=`<button class="${cls}" data-l="${L}"><span class="label">${L}.</span><span class="otext">${text}</span></button>`;
+  });
+  const submitHTML=ans?'':`<div class="submit-row"><button class="btn" id="submitBtn">${loc('送出','Submit')}</button>${q.type==='multi'?`<span class="qmeta">${loc('可多選','Multi-select')}</span>`:''}</div>`;
+  let verdict='';
+  if(ans){
+    const ok=ans.correct;
+    const ansLine=(q.type==='multi'?q.ans.join(', '):q.ans);
+    verdict=`<div class="verdict ${ok?'right':'wrong'}">
+      <h3>${ok?'✅ '+loc('答對！','Correct!'):'❌ '+loc('答錯','Wrong')}</h3>
+      <div class="ans-line">${loc('正解：','Answer: ')}${ansLine}</div>
+      <div>${pickExp(q)||''}</div></div>`;
+  }
+  c.innerHTML=`
+    <div class="qhead">
+      <span class="qnum">Q${idx+1}</span>
+      <span class="qtype ${q.type}">${tType[q.type]}</span>
+      <span class="qmeta">${idx+1}/${cur.qs.length}</span>
+    </div>
+    <div class="stem">${pickStem(q)}</div>
+    <div class="opts">${optsHTML}</div>
+    ${submitHTML}
+    ${verdict}`;
+
+  // handlers
+  c.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(ans)return;
+      const L=btn.dataset.l;
+      if(q.type==='multi'){if(selected.has(L))selected.delete(L);else selected.add(L);renderSel();}
+      else{selected.clear();selected.add(L);renderSel();}
+    });
+  });
+  function renderSel(){
+    c.querySelectorAll('.opt').forEach(o=>{o.classList.remove('selected');if(selected.has(o.dataset.l))o.classList.add('selected');});
+  }
+  const sb=document.getElementById('submitBtn');
+  if(sb)sb.addEventListener('click',()=>{
+    if(selected.size===0){alert(loc('請先選擇答案','Please pick an answer first'));return;}
+    const sel=[...selected].sort();
+    const ok=isCorrect(q,sel);
+    p.ans[idx]={sel,correct:ok,t:Date.now()};
+    save();renderQ();renderGrid();
+    document.getElementById('globalStat').dispatchEvent(new Event('refresh'));
+  });
+}
+
+document.getElementById('prevQ').addEventListener('click',()=>{if(cur.idx>0){cur.idx--;renderQ();renderGrid();}});
+document.getElementById('nextQ').addEventListener('click',()=>{if(cur.idx<cur.qs.length-1){cur.idx++;renderQ();renderGrid();}});
+document.getElementById('backToIdx').addEventListener('click',renderIdx);
+document.getElementById('resetSj').addEventListener('click',()=>{
+  if(!confirm(loc('確定要重置本主題進度？','Reset this subject?')))return;
+  const key=cur.cat+'||'+cur.sj;progress[key]={ans:{}};save();cur.idx=0;renderQ();renderGrid();
+});
+document.getElementById('resetAll').addEventListener('click',()=>{
+  if(!confirm(loc('確定要重置所有進度？','Reset ALL progress?')))return;
+  progress={};save();renderIdx();
+});
+
+// Language toggle
+document.getElementById('langToggle').addEventListener('click',()=>{
+  if(window.I18n)window.I18n.toggle();
+});
+document.addEventListener('langchange',()=>{
+  document.getElementById('langToggle').textContent=lang()==='zh'?'EN':'中文';
+  if(!document.getElementById('quizPage').classList.contains('hidden')){
+    document.getElementById('sjTitle').textContent=labelSubject(cur.cat,cur.sj);
+    renderQ();renderGrid();
+  } else renderIdx();
+});
+
+// init
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('langToggle').textContent=lang()==='zh'?'EN':'中文';
+  renderIdx();
+});
+</script>
+</body>
+</html>

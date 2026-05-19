@@ -1,0 +1,302 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 2: Preprocessing &amp; Denoising — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html">Fund.</a></li><li><a href="preprocessing.html" class="active">Preproc.</a></li><li><a href="deconvolution.html">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html">Class.Seg</a></li><li><a href="segmentation-dl.html">DL Seg</a></li><li><a href="foundation-models.html">FM</a></li><li><a href="tracking.html">Track.</a></li><li><a href="quantification.html">Quant.</a></li><li><a href="3d-multidim.html">3D</a></li><li><a href="high-content.html">HCS</a></li><li><a href="pathology.html">Path.</a></li><li><a href="tools.html">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 2 / 9</div>
+<h1 data-zh="預處理與去噪 (Preprocessing &amp; Denoising)" data-en="Preprocessing &amp; Denoising">預處理與去噪</h1>
+<p class="subtitle" data-lang="zh">活細胞與低光顯微鏡為避免光毒性，必然光子受限——結果就是雜訊與不均勻照明。好的去噪 / 平場校正，往往決定下游分割是看到真細胞還是雜點。</p>
+<p class="subtitle" data-lang="en">Live-cell and low-light microscopy is photon-starved by necessity. Good denoising and shading correction often decide whether the segmenter sees real cells or speckle.</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="概覽" data-en="OVERVIEW">概覽</div>
+<h2 data-zh="為什麼預處理重要？" data-en="Why does preprocessing matter?">為什麼預處理重要？</h2>
+<div data-lang="zh">
+<p>顯微影像的雜訊主要來自三類：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Poisson (shot) noise</strong>：光子計數的統計波動，在低光時佔主導</li>
+<li><strong>Gaussian read noise</strong>：相機讀出電路的熱雜訊</li>
+<li><strong>Fixed-pattern / dark current</strong>：固定的相機缺陷</li>
+</ul>
+<p>另一類更隱蔽的問題是<strong>不均勻照明</strong>（vignetting）：邊角的亮度比中心低，導致同一塊組織不同位置量出來的細胞「強度不同」。如果不校正，下游 marker 量化會變成「位置決定強度」的偽結果。</p>
+</div>
+<div data-lang="en">
+<p>Microscopy noise has three main sources:</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Poisson (shot) noise</strong> — photon-counting statistics, dominant in low light</li>
+<li><strong>Gaussian read noise</strong> — thermal noise in the camera readout</li>
+<li><strong>Fixed-pattern / dark current</strong> — persistent camera defects</li>
+</ul>
+<p>A subtler problem is <strong>uneven illumination</strong> (vignetting): corners are dimmer than the centre, so the same tissue measured at different positions gives different intensities. Uncorrected, downstream marker quantification becomes a "position determines intensity" artefact.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="去噪方法" data-en="DENOISING">去噪方法</div>
+<h2 data-zh="一、經典去噪濾波器" data-en="I. Classical Denoising Filters">一、經典去噪濾波器</h2>
+<div class="card-grid cols-3">
+<div class="card"><div class="card-icon">🌫️</div><h4>Gaussian</h4>
+<div data-lang="zh"><p>線性低通濾波，平均鄰域。<strong>適合</strong>：shot noise + 已稍亮的影像。<strong>缺點</strong>：模糊邊緣。<br><code>scipy.ndimage.gaussian_filter</code></p></div>
+<div data-lang="en"><p>Linear low-pass filter, averages a neighbourhood. <strong>Best for</strong>: shot noise on bright images. <strong>Downside</strong>: blurs edges.<br><code>scipy.ndimage.gaussian_filter</code></p></div>
+</div>
+<div class="card"><div class="card-icon">🧂</div><h4>Median</h4>
+<div data-lang="zh"><p>非線性、保邊緣。<strong>適合</strong>：salt-and-pepper、hot pixels。<strong>缺點</strong>：對細小結構過度平滑。<br><code>skimage.filters.median</code></p></div>
+<div data-lang="en"><p>Non-linear, edge-preserving. <strong>Best for</strong>: salt-and-pepper, hot pixels. <strong>Downside</strong>: over-smooths thin structures.<br><code>skimage.filters.median</code></p></div>
+</div>
+<div class="card"><div class="card-icon">🪞</div><h4>Bilateral / NLM</h4>
+<div data-lang="zh"><p>結合空間距離與灰階距離。<strong>保留邊緣</strong>且去高斯雜訊。<strong>缺點</strong>：慢。<br><code>skimage.restoration.denoise_nl_means</code></p></div>
+<div data-lang="en"><p>Combines spatial + intensity distance. <strong>Preserves edges</strong> while denoising. <strong>Downside</strong>: slow.<br><code>skimage.restoration.denoise_nl_means</code></p></div>
+</div>
+<div class="card"><div class="card-icon">🌀</div><h4>BM3D</h4>
+<div data-lang="zh"><p>塊匹配 3D 變換。<strong>最強的傳統方法</strong>，PSNR 接近 DL。<strong>缺點</strong>：慢，參數多。<br><code>bm3d</code> (PyPI)</p></div>
+<div data-lang="en"><p>Block-matching 3D transform. <strong>Strongest classical method</strong> — PSNR approaches DL. <strong>Downside</strong>: slow, many parameters.<br><code>bm3d</code> (PyPI)</p></div>
+</div>
+<div class="card"><div class="card-icon">🤖</div><h4>Noise2Void</h4>
+<div data-lang="zh"><p>自監督 DL：<strong>不需 clean ground truth</strong>，只需 noisy 影像本身。假設像素獨立雜訊。<br><code>n2v</code> (CSBDeep)</p></div>
+<div data-lang="en"><p>Self-supervised DL — <strong>no clean ground truth needed</strong>, learns from noisy data alone. Assumes pixel-independent noise.<br><code>n2v</code> (CSBDeep)</p></div>
+</div>
+<div class="card"><div class="card-icon">⚡</div><h4>Cellpose 3</h4>
+<div data-lang="zh"><p>2025 推出的一鍵還原：denoise / deblur / upsample 三合一，內建多種 noise model。<br><code>cellpose.denoise</code></p></div>
+<div data-lang="en"><p>2025 release — one-click restoration combining denoise/deblur/upsample with multiple noise models.<br><code>cellpose.denoise</code></p></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="互動模擬" data-en="INTERACTIVE">互動模擬</div>
+<h2 data-zh="濾波器強度模擬器" data-en="Filter Strength Simulator">濾波器強度模擬器</h2>
+<div data-lang="zh"><p>拖動下方滑桿，觀察 Gaussian sigma 增加時，<strong>雜訊抑制</strong>與<strong>邊緣模糊</strong>之間的 trade-off。實線是 ground-truth 訊號，散點是加噪後的觀測，粗線是濾波結果。</p></div>
+<div data-lang="en"><p>Drag the slider to see the trade-off between <strong>noise suppression</strong> and <strong>edge blurring</strong> as Gaussian sigma increases. Solid line = ground truth, dots = noisy observation, thick line = filtered result.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="Gaussian σ" data-en="Gaussian σ">Gaussian σ</span> <span id="valSigma">1.5</span></label><input type="range" id="sliderSigma" min="0.1" max="6" value="1.5" step="0.1"></div>
+<div class="slider-group"><label><span data-zh="雜訊強度 (Noise level)" data-en="Noise level">雜訊強度</span> <span id="valNoise">0.30</span></label><input type="range" id="sliderNoise" min="0.05" max="0.7" value="0.30" step="0.01"></div>
+<div class="sim-stats"><span class="sim-stat pass" id="statSNR">SNR: —</span><span class="sim-stat" style="background:#fdf3dd;color:#a06a00" id="statEdge">Edge sharpness: —</span></div>
+<div class="chart-container"><canvas id="filterChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;" data-lang="zh">X：影像位置（沿一條剖面） | Y：強度</p>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;" data-lang="en">X: position along a profile | Y: intensity</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="背景與平場校正" data-en="BACKGROUND &amp; FLAT-FIELD">背景與平場校正</div>
+<h2 data-zh="二、背景減除與平場校正" data-en="II. Background Subtraction &amp; Flat-Field Correction">二、背景減除與平場校正</h2>
+<div data-lang="zh">
+<p><strong>Rolling Ball</strong>（Sternberg 1983）：想像在影像「3D 表面」下滾一顆球，球心軌跡就是背景。半徑通常設為「最大前景物件直徑的 1.5 倍」。</p>
+<p><strong>BaSiC</strong>（Peng 2017）：從多張影像中估出平場 (flatfield) 與暗場 (darkfield)，特別適合 tile scan 與 HCS（每張影像看到的物體分佈不同，BaSiC 能反推照明場）。</p>
+</div>
+<div data-lang="en">
+<p><strong>Rolling Ball</strong> (Sternberg 1983): imagine rolling a ball under the "3D surface" of the image — the ball-centre trajectory is the background. Set the radius to ~1.5× the largest foreground object.</p>
+<p><strong>BaSiC</strong> (Peng 2017): estimates flatfield + darkfield from a collection of images, ideal for tile scans and HCS where every image sees a different object distribution.</p>
+</div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>Rolling ball 半徑陷阱：</strong>太小會侵蝕真實訊號（細胞被當成背景的一部分減掉）；太大則保留不均背景。請先試 1.5× 最大物件直徑，再根據結果調整。</span>
+<span data-lang="en"><strong>Rolling-ball radius pitfall:</strong> Too small erodes real signal (cells treated as background and subtracted); too large leaves uneven background. Start at 1.5× the largest object diameter, then adjust.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="決策引導" data-en="DECISION GUIDE">決策引導</div>
+<h2 data-zh="三、預處理流程決策" data-en="III. Preprocessing Pipeline Decisions">三、預處理流程決策</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="預處理選擇決策樹" data-en="Preprocessing Decision Tree">預處理選擇決策樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>是否要做<strong>量化</strong>（量強度、共定位）？<span class="dt-arrow">→</span> 是 → 不要任意濾波！只做能被審稿人接受的步驟（背景減除 + 平場校正）</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>背景明顯不均（tile scan、HCS、組織切片）？<span class="dt-arrow">→</span> 是 → <strong>BaSiC</strong> 平場校正</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>背景看似均勻但有<strong>緩慢梯度</strong>？<span class="dt-arrow">→</span> 是 → <strong>Rolling Ball</strong>（半徑 = 1.5× 物件直徑）</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>影像 SNR 太低，分割看不清細胞？<span class="dt-arrow">→</span> 是 → 先試 <strong>Cellpose 3 denoise</strong>（一鍵），不行再 <strong>N2V</strong> fine-tune</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>只是 hot pixels / 椒鹽？<span class="dt-arrow">→</span> 是 → <strong>3×3 median</strong> 就夠了，別動用 DL</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>Will you <strong>quantify</strong> (intensity, colocalization)? <span class="dt-arrow">→</span> Yes → Don't filter casually. Use only reviewer-defensible steps (background subtraction + flat-field).</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Background obviously uneven (tile scan, HCS, tissue section)? <span class="dt-arrow">→</span> Yes → <strong>BaSiC</strong> flat-field correction</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>Background mostly uniform but slow <strong>gradient</strong>? <span class="dt-arrow">→</span> Yes → <strong>Rolling Ball</strong> (radius = 1.5× object diameter)</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>SNR too low to see cells for segmentation? <span class="dt-arrow">→</span> Yes → Try <strong>Cellpose 3 denoise</strong> first; if not enough, fine-tune <strong>N2V</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>Just hot pixels / salt-and-pepper? <span class="dt-arrow">→</span> Yes → <strong>3×3 median</strong> is enough; don't reach for DL</div></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="四、預處理實作" data-en="IV. Preprocessing Code">四、預處理實作</h2>
+<div class="code-tabs"><div class="code-tab-btns"><button class="code-tab-btn active" onclick="switchTab(this,'py1')">Python (scikit-image / N2V)</button><button class="code-tab-btn" onclick="switchTab(this,'fiji1')">Fiji</button><button class="code-tab-btn" onclick="switchTab(this,'cp1')">Cellpose 3</button></div>
+<div class="code-tab-content active" id="py1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> skimage <span class="kw">import</span> io, filters, restoration, morphology
+
+img = io.imread(<span class="str">"cells.tif"</span>).astype(<span class="str">"float32"</span>)
+
+<span class="comment"># 1) Median for hot pixels</span>
+img_m = filters.median(img, morphology.disk(<span class="num">2</span>))
+
+<span class="comment"># 2) Rolling-ball background subtraction</span>
+bg = restoration.rolling_ball(img_m, radius=<span class="num">50</span>)
+img_bg = img_m - bg
+
+<span class="comment"># 3) Non-local means for Gaussian noise (edge-preserving)</span>
+sigma_est = np.mean(restoration.estimate_sigma(img_bg))
+img_nlm = restoration.denoise_nl_means(img_bg, h=<span class="num">1.15</span>*sigma_est, fast_mode=<span class="kw">True</span>)
+
+<span class="comment"># 4) BaSiC flat-field correction (multi-image)</span>
+<span class="kw">from</span> basicpy <span class="kw">import</span> BaSiC
+basic = BaSiC(smoothness_flatfield=<span class="num">1.0</span>)
+basic.fit(stack)                              <span class="comment"># stack: list of tile images</span>
+corrected = basic.transform(stack)
+
+<span class="comment"># 5) Noise2Void — self-supervised, no clean GT</span>
+<span class="kw">from</span> n2v.models <span class="kw">import</span> N2V, N2VConfig
+config = N2VConfig(noisy_stack, unet_kern_size=<span class="num">3</span>, train_epochs=<span class="num">50</span>)
+model = N2V(config, <span class="str">"my_n2v_model"</span>, basedir=<span class="str">"models"</span>)
+model.train(noisy_stack, noisy_stack)         <span class="comment"># input == target intentionally</span>
+denoised = model.predict(noisy_stack, axes=<span class="str">"YX"</span>)</pre></div>
+<div class="code-tab-content" id="fiji1"><pre><span class="comment">// Fiji macro: rolling-ball background + median</span>
+run(<span class="str">"Bio-Formats Importer"</span>, <span class="str">"open=[/path/cells.tif]"</span>);
+
+<span class="comment">// Median filter for hot pixels</span>
+run(<span class="str">"Median..."</span>, <span class="str">"radius=2"</span>);
+
+<span class="comment">// Rolling-ball background subtraction</span>
+run(<span class="str">"Subtract Background..."</span>, <span class="str">"rolling=50"</span>);
+
+<span class="comment">// BaSiC plugin (install from update site &quot;BaSiC&quot;)</span>
+run(<span class="str">"BaSiC "</span>, <span class="str">"processing_stack=cells flat-field=None dark-field=None shading_estimation=[Estimate shading profiles] shading_model=[Estimate flat-field only (ignore dark-field)] setting_regularisationparametes=Automatic temporal_drift=Ignore correction_options=[Compute shading and correct images] lambda_flat=0.50 lambda_dark=0.50"</span>);</pre></div>
+<div class="code-tab-content" id="cp1"><pre><span class="comment"># Cellpose 3 — one-click denoise / deblur / upsample</span>
+<span class="kw">from</span> cellpose <span class="kw">import</span> denoise
+
+<span class="comment"># model_type: 'denoise_cyto3' | 'deblur_cyto3' | 'upsample_cyto3'</span>
+dn = denoise.DenoiseModel(model_type=<span class="str">"denoise_cyto3"</span>, gpu=<span class="kw">True</span>)
+restored = dn.eval(noisy_img, channels=[<span class="num">0</span>,<span class="num">0</span>])
+
+<span class="comment"># Or do it as part of segmentation in one call</span>
+<span class="kw">from</span> cellpose <span class="kw">import</span> models
+mdl = models.CellposeDenoiseModel(gpu=<span class="kw">True</span>,
+    model_type=<span class="str">"cyto3"</span>, restore_type=<span class="str">"denoise_cyto3"</span>)
+masks, flows, styles, restored_img = mdl.eval(noisy_img, diameter=<span class="num">30</span>)</pre></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="陷阱" data-en="PITFALLS">陷阱</div>
+<h2 data-zh="五、常見錯誤與陷阱" data-en="V. Common Mistakes &amp; Pitfalls">五、常見錯誤與陷阱</h2>
+<div class="callout danger"><span class="callout-icon">🚫</span><div>
+<span data-lang="zh"><strong>不要在量化分析前任意濾波。</strong>Gaussian 濾波會降低訊號峰值、改變共定位係數，論文審稿時很容易被質疑。要做的話，<strong>記錄所有參數</strong>並一致套用到對照組。</span>
+<span data-lang="en"><strong>Never filter casually before quantification.</strong> Gaussian filtering lowers signal peaks, biases colocalization coefficients, and is a frequent reviewer target. If you must, <strong>document every parameter</strong> and apply identically to controls.</span>
+</div></div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>Noise2Void 的隱含假設：</strong>像素間雜訊獨立。對於結構化雜訊（直線 artifact、固定花紋）會失效，請改用 Structured N2V 或 Noise2Self。</span>
+<span data-lang="en"><strong>N2V hidden assumption:</strong> noise must be pixel-independent. Fails on structured noise (line artefacts, fixed patterns) — use Structured N2V or Noise2Self instead.</span>
+</div></div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>最佳實踐順序：</strong>(1) 暗場校正（如有 dark frame）<br>(2) 平場校正 (BaSiC)<br>(3) Hot pixel 修正（小 median）<br>(4) 視 SNR 決定是否需 DL denoise<br>(5) 量化分析（記得用未濾波的影像或一致濾波的影像）</span>
+<span data-lang="en"><strong>Recommended order:</strong> (1) Dark-frame subtraction (if available)<br>(2) Flat-field correction (BaSiC)<br>(3) Hot-pixel fix (small median)<br>(4) DL denoise only if SNR demands it<br>(5) Quantify on unfiltered or consistently filtered images</span>
+</div></div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">1. 你的影像有大量「孤立白點」(hot pixels)。最快、最不破壞訊號的處理方式？</p>
+<p data-lang="en">1. Your image has many isolated bright spots (hot pixels). Fastest and least destructive fix?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. Gaussian filter σ=5</span><span data-lang="en">A. Gaussian filter σ=5</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 小半徑的 median filter (radius 1–2)</span><span data-lang="en">B. Small-radius median filter (radius 1–2)</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Rolling-ball 背景減除</span><span data-lang="en">C. Rolling-ball background subtraction</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. Noise2Void DL 模型</span><span data-lang="en">D. Noise2Void DL model</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">2. 你做 96-well plate HCS，每張影像中央亮、邊角暗（vignetting）。最佳處理工具？</p>
+<p data-lang="en">2. You do 96-well plate HCS — each image is bright in the centre, dim at corners (vignetting). Best tool?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 對每張影像獨立做 Gaussian 平滑</span><span data-lang="en">A. Gaussian-smooth each image independently</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. Rolling-ball，半徑設成全影像大小</span><span data-lang="en">B. Rolling-ball with radius set to whole-image size</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. BaSiC 平場校正（用整批影像聯合估計）</span><span data-lang="en">C. BaSiC flat-field correction (jointly estimated across the batch)</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 直接用原圖，HCS 不需校正</span><span data-lang="en">D. Use raw images — HCS doesn't need correction</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">3. Noise2Void 失敗（denoise 後仍見 stripe 雜訊）的最可能原因？</p>
+<p data-lang="en">3. Most likely reason N2V fails (stripes remain after denoising)?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 訓練 epoch 太少</span><span data-lang="en">A. Too few training epochs</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. N2V 假設雜訊像素獨立，stripe 屬於結構化雜訊，違反前提</span><span data-lang="en">B. N2V assumes pixel-independent noise; stripes are structured noise, violating the assumption</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 影像太大</span><span data-lang="en">C. Image too large</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 沒有 GPU</span><span data-lang="en">D. No GPU</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav">
+<a href="fundamentals.html"><span class="nav-dir" data-zh="← 上一步" data-en="← Previous">← 上一步</span><span class="nav-title" data-zh="Step 1: 影像基礎 (Image Fundamentals)" data-en="Step 1: Image Fundamentals">Step 1: 影像基礎 (Image Fundamentals)</span></a>
+<a href="deconvolution.html"><span class="nav-dir" data-zh="下一步 →" data-en="Next →">下一步 →</span><span class="nav-title" data-zh="Step 3: 去卷積 (Deconvolution)" data-en="Step 3: Deconvolution">Step 3: 去卷積 (Deconvolution)</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+function switchTab(b,id){const p=b.closest('.code-tabs');p.querySelectorAll('.code-tab-btn').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.code-tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');}
+
+// Gaussian filter simulator
+const N=120;
+const gt=[];
+for(let i=0;i<N;i++){let v=0;if(i>20&&i<35)v=1;if(i>50&&i<55)v=0.6;if(i>70&&i<95)v=0.85;gt.push(v);}
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function gaussianBlur(arr,sig){
+  const r=Math.max(1,Math.ceil(sig*3));const k=[];let s=0;
+  for(let i=-r;i<=r;i++){const w=Math.exp(-i*i/(2*sig*sig));k.push(w);s+=w;}
+  for(let i=0;i<k.length;i++)k[i]/=s;
+  const out=new Array(arr.length).fill(0);
+  for(let i=0;i<arr.length;i++){let v=0;for(let j=-r;j<=r;j++){const ix=Math.min(arr.length-1,Math.max(0,i+j));v+=arr[ix]*k[j+r];}out[i]=v;}
+  return out;
+}
+let noisy=gt.map(v=>v+randn()*0.3);
+const fchart=new Chart(document.getElementById('filterChart'),{
+  type:'line',
+  data:{labels:Array.from({length:N},(_,i)=>i),datasets:[
+    {label:'Ground truth',data:gt,borderColor:'rgba(26,107,90,0.95)',borderWidth:2.5,pointRadius:0,fill:false,tension:0.1},
+    {label:'Noisy',data:noisy,borderColor:'rgba(192,57,43,0.45)',borderWidth:1,pointRadius:1.5,pointBackgroundColor:'rgba(192,57,43,0.6)',showLine:false},
+    {label:'Filtered',data:noisy,borderColor:'rgba(212,160,60,1)',borderWidth:3,pointRadius:0,fill:false,tension:0.2}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top'}},scales:{x:{ticks:{maxTicksLimit:6}},y:{title:{display:true,text:'Intensity'},min:-1,max:2}}}
+});
+function regenNoise(){
+  const lvl=+document.getElementById('sliderNoise').value;
+  noisy=gt.map(v=>v+randn()*lvl);
+}
+function update(){
+  const sig=+document.getElementById('sliderSigma').value;
+  const lvl=+document.getElementById('sliderNoise').value;
+  document.getElementById('valSigma').textContent=sig.toFixed(1);
+  document.getElementById('valNoise').textContent=lvl.toFixed(2);
+  const filt=gaussianBlur(noisy,sig);
+  fchart.data.datasets[1].data=noisy;
+  fchart.data.datasets[2].data=filt;
+  // simple metrics
+  let mse=0;for(let i=0;i<N;i++)mse+=(filt[i]-gt[i])**2;mse/=N;
+  const snr=(10*Math.log10(1/Math.max(mse,1e-6))).toFixed(1);
+  // edge sharpness: max gradient
+  let g=0;for(let i=1;i<N;i++)g=Math.max(g,Math.abs(filt[i]-filt[i-1]));
+  document.getElementById('statSNR').textContent='SNR ≈ '+snr+' dB';
+  document.getElementById('statEdge').textContent=(I18n.get()==='zh'?'邊緣銳度 ':'Edge sharpness ')+g.toFixed(2);
+  fchart.update('none');
+}
+document.getElementById('sliderSigma').addEventListener('input',update);
+document.getElementById('sliderNoise').addEventListener('input',()=>{regenNoise();update();});
+document.addEventListener('langchange',update);
+update();
+
+const QF={
+  zh:{q1_y:'小半徑 median filter 對 hot pixel 最有效，且幾乎不影響其他訊號。',q1_n:'正確答案已標示。',q2_y:'BaSiC 利用多張影像聯合估出 flatfield，正是設計給 tile-scan 與 HCS 使用。',q2_n:'正確答案已標示。',q3_y:'N2V 的核心假設是像素間雜訊獨立，stripe 違反此前提。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'A small-radius median filter is the most effective fix for hot pixels with minimal collateral damage.',q1_n:'Correct answer highlighted.',q2_y:'BaSiC jointly estimates flatfield across the batch — exactly designed for tile-scan and HCS.',q2_n:'Correct answer highlighted.',q3_y:'N2V assumes pixel-independent noise; stripes are structured and violate that.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Advanced: Tools Comparison — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html">Fund.</a></li><li><a href="preprocessing.html">Preproc.</a></li><li><a href="deconvolution.html">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html">Class.Seg</a></li><li><a href="segmentation-dl.html">DL Seg</a></li><li><a href="foundation-models.html">FM</a></li><li><a href="tracking.html">Track.</a></li><li><a href="quantification.html">Quant.</a></li><li><a href="3d-multidim.html">3D</a></li><li><a href="high-content.html">HCS</a></li><li><a href="pathology.html">Path.</a></li><li><a href="tools.html" class="active">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">ADVANCED</div>
+<h1 data-zh="工具比較與整合 (Tools Comparison)" data-en="Tools Comparison &amp; Integration">工具比較與整合</h1>
+<p class="subtitle" data-lang="zh">選對工具 + 把它們可重現地串起來——這是一半的功夫。同一個生物問題可以用 Fiji macro、CellProfiler、napari + Python notebook、Snakemake on cluster 解決。沒有放諸四海皆準的「最佳」。</p>
+<p class="subtitle" data-lang="en">Choosing the right tool and wiring them together reproducibly is half the battle. The same biology can live in a Fiji macro, a CellProfiler pipeline, a napari + Python notebook, or a Snakemake-orchestrated workflow. None is universally best.</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="工具地圖" data-en="MAP">工具地圖</div>
+<h2 data-zh="一、五大工具角色定位" data-en="I. Five Tool Roles">一、五大工具角色</h2>
+<table class="comp-table">
+<thead><tr><th>Tool</th><th data-zh="角色定位" data-en="Role">角色</th><th data-zh="最強之處" data-en="Strength">最強之處</th></tr></thead>
+<tbody>
+<tr><td><strong>Fiji / ImageJ</strong></td><td data-lang="zh">互動式 GUI + macro/Jython/Groovy</td><td data-lang="zh">最普及；plugin 生態最大；生物學家入門首選</td><td data-lang="en">Interactive GUI + macro/Jython/Groovy</td><td data-lang="en">Most ubiquitous; biggest plugin ecosystem; biologists' default</td></tr>
+<tr><td><strong>napari</strong></td><td data-lang="zh">Python 原生 N-D viewer</td><td data-lang="zh">最佳於 ML 整合；plugin 易寫；現代 Python 生態核心</td><td data-lang="en">Python-native N-D viewer</td><td data-lang="en">Best for ML integration; easy plugin authoring; modern Python core</td></tr>
+<tr><td><strong>CellProfiler</strong></td><td data-lang="zh">宣告式 pipeline / HCS</td><td data-lang="zh">無需寫碼，plate-scale 批次</td><td data-lang="en">Declarative pipelines / HCS</td><td data-lang="en">No-code, plate-scale batch</td></tr>
+<tr><td><strong>QuPath</strong></td><td data-lang="zh">WSI / 數位病理</td><td data-lang="zh">病理首選；Groovy 腳本</td><td data-lang="en">WSI / digital pathology</td><td data-lang="en">Pathology workhorse; Groovy scripting</td></tr>
+<tr><td><strong>ilastik</strong></td><td data-lang="zh">互動式 ML (Random Forest)</td><td data-lang="zh">少標註、像素分類、追蹤工作流</td><td data-lang="en">Interactive ML (Random Forest)</td><td data-lang="en">Sparse-annotation pixel classification &amp; tracking</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="何時離開 Fiji" data-en="WHEN TO LEAVE FIJI">何時離開 Fiji</div>
+<h2 data-zh="二、何時該從 Fiji macro 轉到 Python？" data-en="II. When to Leave Fiji for Python?">二、何時離開 Fiji？</h2>
+<div data-lang="zh">
+<p>Fiji 完美的場景：單一影像互動探索、quick prototyping、教學示範、給生物學家用。<br>當以下任一項出現時，就該轉向 Python (napari + scikit-image + Cellpose + …)：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li>需要<strong>版本控制</strong>（git）與 PR review</li>
+<li>需要<strong>叢集 / 雲端</strong>並行處理</li>
+<li>需要<strong>深度學習</strong>（雖 deepImageJ 存在，但訓練仍是 Python）</li>
+<li>需要與<strong>非影像資料</strong>（單細胞表達、臨床 metadata）整合分析</li>
+<li>需要<strong>可重現的 environment</strong>（conda lockfile / Docker）</li>
+<li>需要寫<strong>單元測試</strong></li>
+</ul>
+</div>
+<div data-lang="en">
+<p>Fiji's sweet spot: single-image interactive exploration, quick prototyping, teaching, handing off to biologists.<br>Switch to Python (napari + scikit-image + Cellpose + …) when any of these appear:</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li>You need <strong>version control</strong> (git) and PR review</li>
+<li>You need <strong>cluster / cloud</strong> parallelization</li>
+<li>You need <strong>deep learning</strong> (deepImageJ exists but training still lives in Python)</li>
+<li>You need to integrate with <strong>non-image data</strong> (single-cell expression, clinical metadata)</li>
+<li>You need a <strong>reproducible environment</strong> (conda lockfile / Docker)</li>
+<li>You need <strong>unit tests</strong></li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="可重現工作流" data-en="REPRODUCIBILITY">可重現工作流</div>
+<h2 data-zh="三、Reproducibility：可重現工作流" data-en="III. Reproducibility: Reproducible Workflows">三、可重現工作流</h2>
+<div data-lang="zh">
+<p>「論文發表後三年，誰能重跑你的分析？」這是 reproducibility 黃金準則。</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>環境</strong>：<code>environment.yml</code>（conda）/ <code>pyproject.toml</code> / <code>uv.lock</code>，或 Docker / Apptainer image</li>
+<li><strong>工作流引擎</strong>：<code>Snakemake</code>（Python 路徑模式）、<code>Nextflow</code>（叢集 / 雲端友善）、<code>CWL</code></li>
+<li><strong>資料管理</strong>：DVC、bioimage 的 OME-Zarr + BIDS-Microscopy</li>
+<li><strong>分享</strong>：BioImage Archive、IDR、BioImage Model Zoo、Zenodo (持久 DOI)</li>
+<li><strong>標準</strong>：BAND (cloud bioimage desktop)、image.sc 論壇</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>"Three years after publication, can someone re-run your analysis?" — the gold standard of reproducibility.</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Environment</strong>: <code>environment.yml</code> (conda), <code>pyproject.toml</code>, <code>uv.lock</code>, or Docker / Apptainer</li>
+<li><strong>Workflow engines</strong>: <code>Snakemake</code> (Python-path style), <code>Nextflow</code> (cluster/cloud-friendly), <code>CWL</code></li>
+<li><strong>Data management</strong>: DVC, plus OME-Zarr + BIDS-Microscopy</li>
+<li><strong>Sharing</strong>: BioImage Archive, IDR, BioImage Model Zoo, Zenodo (persistent DOI)</li>
+<li><strong>Standards</strong>: BAND (cloud bioimage desktop), image.sc forum</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="決策樹" data-en="DECISIONS">決策樹</div>
+<h2 data-zh="四、「我該用哪個工具？」決策樹" data-en="IV. 'Which tool should I use?' Decision Tree">四、決策樹</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="工具選擇樹" data-en="Tool selection tree">工具選擇樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>單張影像 quick check / 跟生物學家展示？<span class="dt-arrow">→</span> <strong>Fiji</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>plate-scale HCS / Cell Painting？<span class="dt-arrow">→</span> <strong>CellProfiler 4 + pycytominer</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>WSI / 數位病理？<span class="dt-arrow">→</span> <strong>QuPath</strong>（GUI/標註）<strong> + TIA Toolbox</strong>（自動化）</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>3D / 多通道、要 ML 整合？<span class="dt-arrow">→</span> <strong>napari + Cellpose / StarDist / Micro-SAM</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>稀疏標註想做像素分類 / pretrain？<span class="dt-arrow">→</span> <strong>ilastik</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>需 cluster / 雲端、論文級可重現？<span class="dt-arrow">→</span> <strong>Snakemake / Nextflow + conda + container</strong></div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>Quick single-image check / demoing to biologists? <span class="dt-arrow">→</span> <strong>Fiji</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Plate-scale HCS / Cell Painting? <span class="dt-arrow">→</span> <strong>CellProfiler 4 + pycytominer</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>WSI / digital pathology? <span class="dt-arrow">→</span> <strong>QuPath</strong> (GUI / annotation) + <strong>TIA Toolbox</strong> (automation)</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>3D / multi-channel, want ML integration? <span class="dt-arrow">→</span> <strong>napari + Cellpose / StarDist / Micro-SAM</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>Sparse labels for pixel classification? <span class="dt-arrow">→</span> <strong>ilastik</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>Cluster / cloud, paper-level reproducibility? <span class="dt-arrow">→</span> <strong>Snakemake / Nextflow + conda + container</strong></div></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="社群" data-en="COMMUNITY">社群</div>
+<h2 data-zh="五、社群與資源" data-en="V. Community &amp; Resources">五、社群與資源</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>💬 <span data-zh="論壇 / 學會" data-en="Forums / Networks">論壇 / 學會</span></h4>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>image.sc</strong>：bioimage 工具的<strong>共同問答區</strong>（Fiji / napari / CellProfiler / QuPath 工程師都在）</li>
+<li><strong>NEUBIAS</strong>：歐洲 bioimage analyst 學會，課程與訓練資源</li>
+<li><strong>Global BioImaging</strong>：跨洲 bioimage 基礎設施聯盟</li>
+</ul>
+</div>
+<div class="card"><h4>📦 <span data-zh="模型與資料分享" data-en="Models &amp; Data Sharing">模型與資料分享</span></h4>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>BioImage Model Zoo</strong>：跨工具 (Fiji, ilastik, deepImageJ, QuPath, ZeroCostDL4Mic) 共用模型格式</li>
+<li><strong>BAND</strong>：雲端啟動 bioimage 桌面，免安裝</li>
+<li><strong>BioImage Archive (BIA)</strong>：EMBL-EBI 公開影像資料庫</li>
+<li><strong>Image Data Resource (IDR)</strong>：策展過的高品質公開資料集</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">1. 一個沒寫過 Python 的生物實驗室要做 96-well 化合物篩選。最務實的工具組合？</p>
+<p data-lang="en">1. A non-Python biology lab needs to run a 96-well compound screen. Pragmatic tool stack?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. PyTorch + Cellpose</span><span data-lang="en">A. PyTorch + Cellpose</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. Fiji 探索 + CellProfiler pipeline + QuPath 標註（皆 GUI）</span><span data-lang="en">B. Fiji exploration + CellProfiler pipeline + QuPath annotation (all GUI)</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 純 napari Python notebook</span><span data-lang="en">C. Pure napari Python notebook</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 直接買商業軟體</span><span data-lang="en">D. Just buy commercial software</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="0">
+<p data-lang="zh">2. 想把模型在 Fiji、ilastik、QuPath 都能用，最好的做法？</p>
+<p data-lang="en">2. To make a model usable in Fiji, ilastik, and QuPath — what's best?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 上傳到 BioImage Model Zoo，遵循跨工具 spec</span><span data-lang="en">A. Upload to BioImage Model Zoo following the cross-tool spec</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 各別重訓三次</span><span data-lang="en">B. Retrain three times</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 只發 PyTorch checkpoint</span><span data-lang="en">C. Just publish PyTorch checkpoint</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 不可能跨工具</span><span data-lang="en">D. Cross-tool is impossible</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">3. 「論文 reproducibility」最完整的做法？</p>
+<p data-lang="en">3. Most thorough approach to paper-level reproducibility?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 上傳 PowerPoint flowchart</span><span data-lang="en">A. Upload a PowerPoint flowchart</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 只放 Jupyter notebook</span><span data-lang="en">B. Notebook only</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Snakemake / Nextflow pipeline + conda lock + Docker image + 範例資料 + Zenodo DOI</span><span data-lang="en">C. Snakemake/Nextflow pipeline + conda lock + Docker image + example data + Zenodo DOI</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 把所有指令寫進 README 即可</span><span data-lang="en">D. Just list commands in README</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav">
+<a href="pathology.html"><span class="nav-dir" data-zh="← 上一步" data-en="← Previous">← 上一步</span><span class="nav-title" data-zh="數位病理 (Digital Pathology)" data-en="Digital Pathology">數位病理 (Digital Pathology)</span></a>
+<a href="references/index.html"><span class="nav-dir" data-zh="參考資料 →" data-en="References →">參考資料 →</span><span class="nav-title" data-zh="參考資料" data-en="References">參考資料</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+const QF={
+  zh:{q1_y:'GUI 工具組合最務實，CellProfiler 是 HCS 無碼方案的代表。',q1_n:'正確答案已標示。',q2_y:'BioImage Model Zoo 就是為跨工具模型共享而生。',q2_n:'正確答案已標示。',q3_y:'真正完整的可重現性需要工作流引擎 + 鎖死環境 + 容器 + 範例資料 + 持久 DOI。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'A GUI stack is the pragmatic choice; CellProfiler is the canonical no-code HCS tool.',q1_n:'Correct answer highlighted.',q2_y:'The BioImage Model Zoo exists precisely for cross-tool model sharing.',q2_n:'Correct answer highlighted.',q3_y:'True reproducibility needs a workflow engine + locked env + container + example data + persistent DOI.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

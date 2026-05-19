@@ -1,0 +1,223 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Advanced: 3D &amp; Multi-Dimensional — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html">Fund.</a></li><li><a href="preprocessing.html">Preproc.</a></li><li><a href="deconvolution.html">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html">Class.Seg</a></li><li><a href="segmentation-dl.html">DL Seg</a></li><li><a href="foundation-models.html">FM</a></li><li><a href="tracking.html">Track.</a></li><li><a href="quantification.html">Quant.</a></li><li><a href="3d-multidim.html" class="active">3D</a></li><li><a href="high-content.html">HCS</a></li><li><a href="pathology.html">Path.</a></li><li><a href="tools.html">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">ADVANCED</div>
+<h1 data-zh="3D 與多維分析 (3D / Multi-Dim)" data-en="3D &amp; Multi-Dimensional Analysis">3D 與多維分析</h1>
+<p class="subtitle" data-lang="zh">真實生物大多是 3D、多通道、有時間維度。3D 分割、各向異性處理、N-D 互動式檢視器、大資料流式運算——是 organoid、發育、light-sheet 工作流的基本門檻。</p>
+<p class="subtitle" data-lang="en">Most biology is 3D, multi-channel, and time-resolved. 3D segmentation, anisotropy handling, N-D viewers, and out-of-core computation are baseline for organoid, developmental, and light-sheet workflows.</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="各向異性" data-en="ANISOTROPY">各向異性</div>
+<h2 data-zh="一、各向異性體素 (Anisotropic Voxels)" data-en="I. Anisotropic Voxels">一、各向異性體素</h2>
+<div data-lang="zh">
+<p>典型共軛焦：XY = 0.21 µm、Z = 1.0 µm。這意味<strong>一個體素在 Z 方向比 XY 大 5 倍</strong>。</p>
+<p>後果：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li>3D 距離計算 / 球度 / 表面積<strong>必須乘上 voxel size</strong></li>
+<li>3D 分割若不告訴模型 anisotropy，cell 在 Z 軸會被誤判得「過短或過長」</li>
+<li>視覺化必須開「scale = (z, y, x)」才能看到正確的細胞比例</li>
+</ul>
+<p><strong>兩種處理策略</strong>：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li>(A) <strong>傳給演算法 anisotropy</strong>（Cellpose 的 <code>anisotropy=5.0</code>）</li>
+<li>(B) <strong>resample 到 isotropic</strong>（用 zoom / scipy zoom），memory 換正確性</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>Typical confocal: XY = 0.21 µm, Z = 1.0 µm — a voxel is <strong>5× larger in Z than XY</strong>.</p>
+<p>Consequences:</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li>3D distance / sphericity / surface area <strong>must be scaled by voxel size</strong></li>
+<li>3D segmentation will mis-judge cell length in Z without anisotropy info</li>
+<li>Visualization must use "scale = (z, y, x)" to show correct proportions</li>
+</ul>
+<p><strong>Two strategies:</strong></p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li>(A) <strong>Pass anisotropy</strong> to the algorithm (Cellpose's <code>anisotropy=5.0</code>)</li>
+<li>(B) <strong>Resample to isotropic</strong> (zoom / scipy zoom) — trades memory for correctness</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="3D 分割" data-en="3D SEGMENTATION">3D 分割</div>
+<h2 data-zh="二、3D 分割：真正 3D vs. 切片+拼接" data-en="II. 3D Segmentation: True 3D vs. Per-slice + Stitch">二、3D 分割策略</h2>
+<table class="comp-table">
+<thead><tr><th data-zh="策略" data-en="Strategy">策略</th><th data-zh="作法" data-en="How">作法</th><th data-zh="優缺" data-en="Pros / Cons">優缺</th></tr></thead>
+<tbody>
+<tr><td><strong>真正 3D</strong></td><td data-lang="zh">3D CNN 一次處理整 stack</td><td data-lang="zh">最準（密集組織）；最耗記憶體</td><td data-lang="en">3D CNN processes whole stack</td><td data-lang="en">Most accurate (dense tissue); memory-heavy</td></tr>
+<tr><td><strong>2D + Stitch (IoU 跨 z)</strong></td><td data-lang="zh">每片 2D 分割，跨 z 用 IoU 連同物件</td><td data-lang="zh">快；稀疏物件足夠；Cellpose <code>stitch_threshold</code></td><td data-lang="en">2D per slice, link by IoU across z</td><td data-lang="en">Fast; enough for sparse objects; Cellpose stitch_threshold</td></tr>
+<tr><td><strong>2.5D</strong></td><td data-lang="zh">輸入 3 鄰片，輸出中片 mask</td><td data-lang="zh">折衷；nnU-Net 預設選項之一</td><td data-lang="en">Input 3 neighbour slices, output middle</td><td data-lang="en">Compromise; nnU-Net offers this</td></tr>
+</tbody></table>
+<h3 data-zh="主流 3D 模型" data-en="Mainstream 3D Models">主流 3D 模型</h3>
+<ul style="margin:0 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Cellpose 3D</strong>：<code>do_3D=True</code>、<code>anisotropy=5.0</code>。一鍵啟動。</li>
+<li><strong>StarDist 3D</strong>：star-convex 多面體，圓核 3D 首選。</li>
+<li><strong>PlantSeg</strong>：植物 / 動物組織 3D 細胞邊界分割，CNN + graph partitioning。</li>
+<li><strong>nnU-Net 3D_fullres</strong>：自配置 3D U-Net；醫學影像 benchmark 標配。</li>
+<li><strong>Micro-SAM 3D</strong>：互動式 3D 分割，標一層即可向上下傳播。</li>
+</ul>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="大資料" data-en="BIG DATA">大資料</div>
+<h2 data-zh="三、處理 TB 級資料：dask / zarr / N5" data-en="III. Handling TB-Scale Data">三、處理大資料</h2>
+<div data-lang="zh">
+<p>Light-sheet 一次實驗常產生數百 GB 到 TB。一般 <code>imread</code> 整檔讀入 RAM 直接 OOM。解法是<strong>分塊存取與惰性運算</strong>。</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>OME-Zarr</strong>：多解析度金字塔的雲端原生格式（NGFF 標準），分塊 chunked。</li>
+<li><strong>N5 / HDF5</strong>：BigDataViewer 慣用，分塊隨機存取。</li>
+<li><strong>dask</strong> / <strong>dask-image</strong>：把陣列操作延後執行，scheduler 自動切塊與並行。</li>
+<li><strong>BigDataViewer / BigStitcher / mobie</strong>：TB 級互動視覺化。</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>A single light-sheet run often produces hundreds of GB to TB. Plain <code>imread</code> OOMs. Solution: <strong>chunked storage + lazy computation</strong>.</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>OME-Zarr</strong>: cloud-native pyramidal format (NGFF), chunked.</li>
+<li><strong>N5 / HDF5</strong>: BigDataViewer's preferred chunked storage.</li>
+<li><strong>dask</strong> / <strong>dask-image</strong>: defer execution; scheduler chunks + parallelizes automatically.</li>
+<li><strong>BigDataViewer / BigStitcher / mobie</strong>: TB-scale interactive visualization.</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="napari" data-en="NAPARI">napari</div>
+<h2 data-zh="四、napari：Python 原生 N-D viewer" data-en="IV. napari: Python-Native N-D Viewer">四、napari</h2>
+<div data-lang="zh">
+<p>napari 是現代 Python bioimage 生態的<strong>互動中樞</strong>，原生支援 5D 影像、label layer、points / shapes / vectors / tracks / surfaces。豐富的 plugin 生態：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><code>napari-cellpose</code>、<code>napari-stardist</code>：分割</li>
+<li><code>micro-sam</code>：互動式提示分割</li>
+<li><code>napari-bigstitcher</code>：拼接</li>
+<li><code>btrack</code> / <code>napari-arboretum</code>：追蹤與譜系</li>
+<li><code>napari-clemreg</code>、<code>napari-bigwarp</code>：配準</li>
+<li><code>napari-skimage-regionprops</code>：互動量化</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>napari is the modern Python bioimage <strong>interactive hub</strong> — native 5D images, label/points/shapes/vectors/tracks/surfaces layers. Rich plugin ecosystem:</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><code>napari-cellpose</code>, <code>napari-stardist</code>: segmentation</li>
+<li><code>micro-sam</code>: interactive promptable segmentation</li>
+<li><code>napari-bigstitcher</code>: stitching</li>
+<li><code>btrack</code> / <code>napari-arboretum</code>: tracking and lineage</li>
+<li><code>napari-clemreg</code>, <code>napari-bigwarp</code>: registration</li>
+<li><code>napari-skimage-regionprops</code>: interactive quantification</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="五、實作" data-en="V. Code">五、實作</h2>
+<div class="code-tabs"><div class="code-tab-btns"><button class="code-tab-btn active" onclick="switchTab(this,'cp3')">Cellpose 3D</button><button class="code-tab-btn" onclick="switchTab(this,'nap1')">napari + dask</button><button class="code-tab-btn" onclick="switchTab(this,'zarr1')">OME-Zarr</button></div>
+<div class="code-tab-content active" id="cp3"><pre><span class="comment"># Cellpose 3D — passing anisotropy</span>
+<span class="kw">from</span> cellpose <span class="kw">import</span> models
+mdl = models.Cellpose(gpu=<span class="kw">True</span>, model_type=<span class="str">"cyto3"</span>)
+masks, _, _, _ = mdl.eval(
+    stack,                    <span class="comment"># [Z, Y, X] or [Z, Y, X, C]</span>
+    diameter=<span class="num">30</span>,              <span class="comment"># in XY pixels</span>
+    do_3D=<span class="kw">True</span>,              <span class="comment"># true 3D</span>
+    anisotropy=<span class="num">5.0</span>,           <span class="comment"># Z is 5x XY voxel size</span>
+    channels=[<span class="num">0</span>, <span class="num">0</span>]
+)
+
+<span class="comment"># Alternative: 2D + stitch (faster, sparse cells)</span>
+masks2, _, _, _ = mdl.eval(stack, diameter=<span class="num">30</span>, do_3D=<span class="kw">False</span>,
+                           stitch_threshold=<span class="num">0.4</span>)</pre></div>
+<div class="code-tab-content" id="nap1"><pre><span class="comment"># napari viewer + dask for large stacks</span>
+<span class="kw">import</span> napari, dask.array <span class="kw">as</span> da
+<span class="kw">from</span> dask_image.imread <span class="kw">import</span> imread
+
+<span class="comment"># Lazy loading — no memory pressure</span>
+stack = imread(<span class="str">"slices/*.tif"</span>)        <span class="comment"># dask array</span>
+labels = imread(<span class="str">"masks/*.tif"</span>)
+
+viewer = napari.Viewer()
+viewer.add_image(stack, scale=(<span class="num">5</span>, <span class="num">1</span>, <span class="num">1</span>),   <span class="comment"># (z, y, x) anisotropy</span>
+                 contrast_limits=[<span class="num">100</span>, <span class="num">4000</span>])
+viewer.add_labels(labels, scale=(<span class="num">5</span>, <span class="num">1</span>, <span class="num">1</span>))
+
+<span class="comment"># Interactively segment one slice with cellpose-napari plugin</span>
+napari.run()</pre></div>
+<div class="code-tab-content" id="zarr1"><pre><span class="comment"># Convert big TIFF to OME-Zarr (chunked pyramidal)</span>
+<span class="kw">import</span> tifffile, zarr
+<span class="kw">from</span> ome_zarr.writer <span class="kw">import</span> write_image
+<span class="kw">from</span> ome_zarr.io <span class="kw">import</span> parse_url
+
+img = tifffile.memmap(<span class="str">"huge.tif"</span>)               <span class="comment"># memmap = lazy</span>
+store = parse_url(<span class="str">"out.ome.zarr"</span>, mode=<span class="str">"w"</span>).store
+root = zarr.group(store=store)
+write_image(image=img, group=root, axes=<span class="str">"tczyx"</span>,
+            storage_options={<span class="str">"chunks"</span>: (<span class="num">1</span>,<span class="num">1</span>,<span class="num">64</span>,<span class="num">512</span>,<span class="num">512</span>)},
+            scaler=<span class="kw">None</span>)
+
+<span class="comment"># Read back lazily</span>
+g = zarr.open(<span class="str">"out.ome.zarr"</span>, mode=<span class="str">"r"</span>)
+arr = g[<span class="num">0</span>]                                  <span class="comment"># highest-resolution level</span>
+chunk = arr[<span class="num">0</span>, <span class="num">0</span>, <span class="num">10</span>:<span class="num">12</span>, <span class="num">100</span>:<span class="num">200</span>, <span class="num">100</span>:<span class="num">200</span>]   <span class="comment"># tiny read</span></pre></div>
+</div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. 共軛焦資料 XY = 0.21 µm，Z = 1.0 µm。Cellpose 3D 該怎麼設？</p>
+<p data-lang="en">1. Confocal data with XY = 0.21 µm, Z = 1.0 µm. How to configure Cellpose 3D?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 不需設，cellpose 自動</span><span data-lang="en">A. No setting needed</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. anisotropy=0.2</span><span data-lang="en">B. anisotropy=0.2</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. anisotropy ≈ 1.0/0.21 ≈ 4.76（或先 resample 到 isotropic）</span><span data-lang="en">C. anisotropy ≈ 1.0/0.21 ≈ 4.76 (or resample to isotropic first)</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 把 stack 轉 2D 拼接</span><span data-lang="en">D. Flatten to 2D</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">2. 你的 light-sheet 資料是 800 GB。最該採用？</p>
+<p data-lang="en">2. Your light-sheet dataset is 800 GB. Best approach?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 用 <code>tifffile.imread</code> 整檔載入</span><span data-lang="en">A. Use <code>tifffile.imread</code> to load all</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 轉成 OME-Zarr / N5，搭配 dask 惰性處理</span><span data-lang="en">B. Convert to OME-Zarr / N5 and process lazily with dask</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 強制升級到 1 TB RAM</span><span data-lang="en">C. Buy 1 TB RAM</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 把 16-bit 改 8-bit 縮一半</span><span data-lang="en">D. Down-convert to 8-bit</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="0">
+<p data-lang="zh">3. 對<strong>密集相黏</strong>的 3D 組織，下列何者最合理？</p>
+<p data-lang="en">3. For <strong>densely packed 3D tissue</strong>, what's most appropriate?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 真正 3D 分割（如 Cellpose 3D do_3D=True / StarDist 3D）</span><span data-lang="en">A. True 3D segmentation (Cellpose 3D do_3D=True / StarDist 3D)</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 2D 逐片不拼接</span><span data-lang="en">B. 2D per slice with no stitching</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 直接 Otsu</span><span data-lang="en">C. Otsu only</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 把 Z 軸壓平再分割</span><span data-lang="en">D. Flatten Z then segment</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav">
+<a href="quantification.html"><span class="nav-dir" data-zh="← 上一步" data-en="← Previous">← 上一步</span><span class="nav-title" data-zh="Step 9: 量化與特徵 (Quantification &amp;amp; Features)" data-en="Step 9: Quantification &amp;amp; Features">Step 9: 量化與特徵 (Quantification &amp; Features)</span></a>
+<a href="high-content.html"><span class="nav-dir" data-zh="下一步 →" data-en="Next →">下一步 →</span><span class="nav-title" data-zh="高內涵分析 (High-Content Screening)" data-en="High-Content Screening">高內涵分析 (High-Content Screening)</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+function switchTab(b,id){const p=b.closest('.code-tabs');p.querySelectorAll('.code-tab-btn').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.code-tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');}
+const QF={
+  zh:{q1_y:'anisotropy = Z spacing / XY spacing，務必傳給模型或先 resample。',q1_n:'正確答案已標示。',q2_y:'OME-Zarr/N5 + dask 是處理 TB 級資料的事實標準。',q2_n:'正確答案已標示。',q3_y:'密集 3D 組織只有真正 3D 模型能解決 z 方向的歧義。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'anisotropy = Z spacing / XY spacing — pass it to the model or resample.',q1_n:'Correct answer highlighted.',q2_y:'OME-Zarr/N5 + dask is the de facto solution for TB-scale data.',q2_n:'Correct answer highlighted.',q3_y:'Only true 3D models can resolve Z-axis ambiguity in dense tissue.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

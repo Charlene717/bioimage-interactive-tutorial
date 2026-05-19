@@ -1,0 +1,219 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 9: Quantification &amp; Features — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html">Fund.</a></li><li><a href="preprocessing.html">Preproc.</a></li><li><a href="deconvolution.html">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html">Class.Seg</a></li><li><a href="segmentation-dl.html">DL Seg</a></li><li><a href="foundation-models.html">FM</a></li><li><a href="tracking.html">Track.</a></li><li><a href="quantification.html" class="active">Quant.</a></li><li><a href="3d-multidim.html">3D</a></li><li><a href="high-content.html">HCS</a></li><li><a href="pathology.html">Path.</a></li><li><a href="tools.html">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 9 / 9</div>
+<h1 data-zh="量化與特徵 (Quantification &amp; Features)" data-en="Quantification &amp; Features">量化與特徵</h1>
+<p class="subtitle" data-lang="zh">分割不是終點，量化才是。把每個物件變成一個「影像表型向量」——強度、形態、共定位、紋理——這就是 Cell Painting、表型分群、統計檢定的原料。</p>
+<p class="subtitle" data-lang="en">Segmentation isn't the goal — quantification is. Each object becomes an "image phenotype vector" (intensity, morphology, colocalization, texture) — the raw material for Cell Painting, phenotyping, and statistics.</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="特徵家族" data-en="FEATURES">特徵家族</div>
+<h2 data-zh="一、特徵家族總覽" data-en="I. Feature Families Overview">一、特徵家族</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>💡 <span data-zh="強度特徵 (Intensity)" data-en="Intensity">強度特徵</span></h4>
+<div data-lang="zh"><p>mean / median / std / CV / p10–p90 / integrated density。<strong>注意</strong>：要不要扣背景？背景如何定義（cell-free region、邊緣 ring、global）？</p></div>
+<div data-lang="en"><p>mean / median / std / CV / percentiles / integrated density. <strong>Caveats</strong>: subtract background? How is background defined (cell-free region, edge ring, global)?</p></div>
+</div>
+<div class="card"><h4>🔷 <span data-zh="形態特徵 (Morphology)" data-en="Morphology">形態特徵</span></h4>
+<div data-lang="zh"><p>area / perimeter / eccentricity / solidity / Feret diameter / major-minor axis / Zernike moments。3D 加 surface area / volume / sphericity。</p></div>
+<div data-lang="en"><p>area / perimeter / eccentricity / solidity / Feret diameter / axis lengths / Zernike moments. 3D adds surface area, volume, sphericity.</p></div>
+</div>
+<div class="card"><h4>🎨 <span data-zh="紋理 (Texture)" data-en="Texture">紋理</span></h4>
+<div data-lang="zh"><p>Haralick GLCM (contrast/correlation/energy/homogeneity)、LBP、Gabor、Granularity、wavelet。對亮度級數量化（如 32 級）很敏感。</p></div>
+<div data-lang="en"><p>Haralick GLCM (contrast/correlation/energy/homogeneity), LBP, Gabor, Granularity, wavelet. Highly sensitive to grey-level quantization (e.g., 32 levels).</p></div>
+</div>
+<div class="card"><h4>🤝 <span data-zh="共定位 (Colocalization)" data-en="Colocalization">共定位</span></h4>
+<div data-lang="zh"><p>Pearson r、Manders M1/M2、Costes 隨機化檢定、object-based colocalization。背景未扣除會嚴重扭曲 Pearson r。</p></div>
+<div data-lang="en"><p>Pearson r, Manders M1/M2, Costes randomization, object-based colocalization. Pearson is heavily biased by uncorrected background.</p></div>
+</div>
+<div class="card"><h4>🌐 <span data-zh="空間統計 (Spatial)" data-en="Spatial">空間統計</span></h4>
+<div data-lang="zh"><p>nearest-neighbour 距離、Ripley's K、density、neighbourhood composition。多重染色組織、spatial omics 必備。</p></div>
+<div data-lang="en"><p>Nearest-neighbour distance, Ripley's K, density, neighbourhood composition. Essential for multiplexed tissue / spatial omics.</p></div>
+</div>
+<div class="card"><h4>🧬 <span data-zh="Radiomics" data-en="Radiomics">Radiomics</span></h4>
+<div data-lang="zh"><p>PyRadiomics 提供 IBSI 標準特徵：shape、first-order、GLCM、GLRLM、GLSZM、NGTDM、wavelet。臨床 / 醫學影像常用。</p></div>
+<div data-lang="en"><p>PyRadiomics provides IBSI-standard features: shape, first-order, GLCM, GLRLM, GLSZM, NGTDM, wavelet. Common in clinical / medical imaging.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="共定位深探" data-en="COLOCALIZATION">共定位深探</div>
+<h2 data-zh="二、共定位分析的常見坑" data-en="II. Common Colocalization Pitfalls">二、共定位陷阱</h2>
+<div data-lang="zh">
+<p>共定位看似「兩通道一起亮多少」，但細節決定論文是否可信。</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Pearson r 對線性偏移敏感</strong>：兩通道同步背景升高，r 不變；獨自背景升一個，r 大降——所以必須做<strong>背景減除</strong>。</li>
+<li><strong>Manders 需閾值</strong>：M1 = (有 ch2 信號的 ch1 強度) / (全 ch1 強度)。閾值選不對結果飄移嚴重 → 用 <strong>Costes 自動閾值</strong>。</li>
+<li><strong>Costes 隨機化檢定</strong>：把一個通道區塊化隨機洗牌，看 r 在隨機分佈中的位置。p &lt; 0.05 才算<strong>顯著高於隨機</strong>共定位。</li>
+<li><strong>Object-based</strong>：對胞器級結構（粒線體、囊泡），先分割再算「重疊比例」比像素級更合理。</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>Colocalization looks like "how much do two channels co-light?" but the details decide whether the paper is trustworthy.</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Pearson r is sensitive to linear offset</strong>: simultaneous background rise leaves r unchanged; rise in just one channel drops r dramatically → <strong>background-subtract first</strong>.</li>
+<li><strong>Manders requires a threshold</strong>: M1 = (ch1 intensity where ch2 is positive) / (total ch1). Bad threshold → unstable result → use <strong>Costes auto-threshold</strong>.</li>
+<li><strong>Costes randomization</strong>: shuffle blocks of one channel and see where r sits in the null distribution. Only p &lt; 0.05 vs. random counts as significant.</li>
+<li><strong>Object-based</strong>: for organelle-level structures (mitochondria, vesicles), segment first then compute fractional overlap — more meaningful than pixel-level metrics.</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="決策" data-en="DECISIONS">決策</div>
+<h2 data-zh="三、特徵選擇與正規化" data-en="III. Feature Selection &amp; Normalization">三、特徵選擇與正規化</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="特徵流程決策樹" data-en="Feature Pipeline Tree">特徵流程</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>有多少 sample 條件、多少細胞？<span class="dt-arrow">→</span> 細胞 &lt; 100 → 直接做 boxplot；&gt; 1000 → UMAP + cluster</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>跨 plate / batch？<span class="dt-arrow">→</span> 每 plate 做 z-score / robust z 正規化（per-well median 不是全域 mean）</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>特徵之間高度相關？<span class="dt-arrow">→</span> 用 <strong>pycytominer feature_select</strong> 過濾相關性 &gt; 0.95、變異過小的特徵</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>要做 DL embedding 比較？<span class="dt-arrow">→</span> 用 <strong>DeepProfiler</strong> 或 UNI 取 embedding，再做下游</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>How many conditions / cells? <span class="dt-arrow">→</span> &lt; 100 cells → boxplots; &gt; 1000 → UMAP + clustering</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Across plates / batches? <span class="dt-arrow">→</span> Per-plate z-score / robust z (per-well median, not global mean)</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>Highly correlated features? <span class="dt-arrow">→</span> <strong>pycytominer feature_select</strong> to drop r &gt; 0.95 and near-zero-variance features</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>Want DL embedding comparison? <span class="dt-arrow">→</span> <strong>DeepProfiler</strong> or UNI embeddings, then downstream</div></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="四、實作" data-en="IV. Code">四、實作</h2>
+<div class="code-tabs"><div class="code-tab-btns"><button class="code-tab-btn active" onclick="switchTab(this,'py1')">scikit-image regionprops</button><button class="code-tab-btn" onclick="switchTab(this,'co1')">Colocalization</button><button class="code-tab-btn" onclick="switchTab(this,'pr1')">PyRadiomics</button></div>
+<div class="code-tab-content active" id="py1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np, pandas <span class="kw">as</span> pd
+<span class="kw">from</span> skimage <span class="kw">import</span> measure
+<span class="kw">from</span> skimage.feature <span class="kw">import</span> graycomatrix, graycoprops
+
+<span class="comment"># labels: instance segmentation; img: intensity</span>
+props = measure.regionprops_table(labels, intensity_image=img,
+    properties=(<span class="str">"label"</span>,<span class="str">"area"</span>,<span class="str">"perimeter"</span>,<span class="str">"eccentricity"</span>,
+                <span class="str">"solidity"</span>,<span class="str">"mean_intensity"</span>,<span class="str">"intensity_max"</span>,
+                <span class="str">"centroid"</span>,<span class="str">"axis_major_length"</span>,<span class="str">"axis_minor_length"</span>))
+df = pd.DataFrame(props)
+
+<span class="comment"># Per-cell Haralick texture (loop over labels)</span>
+<span class="kw">def</span> haralick_per_obj(img, labels, levels=<span class="num">32</span>):
+    img_q = (img.astype(<span class="str">"float32"</span>)/img.max()*(levels-<span class="num">1</span>)).astype(<span class="str">"uint8"</span>)
+    feats = []
+    <span class="kw">for</span> lbl <span class="kw">in</span> np.unique(labels)[<span class="num">1</span>:]:
+        ys, xs = np.where(labels==lbl)
+        if len(ys)<<span class="num">10</span>: continue
+        patch = img_q[ys.min():ys.max()+<span class="num">1</span>, xs.min():xs.max()+<span class="num">1</span>]
+        glcm = graycomatrix(patch, [<span class="num">1</span>], [<span class="num">0</span>,np.pi/<span class="num">4</span>,np.pi/<span class="num">2</span>], levels=levels, symmetric=<span class="kw">True</span>, normed=<span class="kw">True</span>)
+        feats.append({<span class="str">"label"</span>:lbl,
+            <span class="str">"contrast"</span>:graycoprops(glcm,<span class="str">"contrast"</span>).mean(),
+            <span class="str">"homog"</span>:graycoprops(glcm,<span class="str">"homogeneity"</span>).mean(),
+            <span class="str">"correlation"</span>:graycoprops(glcm,<span class="str">"correlation"</span>).mean()})
+    <span class="kw">return</span> pd.DataFrame(feats)</pre></div>
+<div class="code-tab-content" id="co1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> pearsonr
+
+<span class="comment"># Background subtract first!</span>
+ch1 = ch1 - np.percentile(ch1, <span class="num">5</span>)
+ch2 = ch2 - np.percentile(ch2, <span class="num">5</span>)
+ch1 = np.clip(ch1, <span class="num">0</span>, <span class="kw">None</span>); ch2 = np.clip(ch2, <span class="num">0</span>, <span class="kw">None</span>)
+
+<span class="comment"># Pearson</span>
+r, p = pearsonr(ch1.ravel(), ch2.ravel())
+
+<span class="comment"># Manders with Costes auto-threshold</span>
+<span class="kw">def</span> costes_thresholds(c1, c2):
+    flat1, flat2 = c1.ravel(), c2.ravel()
+    <span class="comment"># Orthogonal regression line through origin</span>
+    a = np.cov(flat1, flat2)[<span class="num">0</span>,<span class="num">1</span>] / np.var(flat1)
+    b = flat2.mean() - a*flat1.mean()
+    <span class="comment"># Iterate down until Pearson on (T1,T2) area drops to ~0</span>
+    T1 = flat1.max()
+    <span class="kw">while</span> T1 &gt; <span class="num">0</span>:
+        T2 = a*T1 + b
+        mask = (flat1 &lt; T1) | (flat2 &lt; T2)
+        if mask.sum() &lt; <span class="num">100</span>: break
+        rr, _ = pearsonr(flat1[mask], flat2[mask])
+        <span class="kw">if</span> rr &lt;= <span class="num">0.01</span>: <span class="kw">break</span>
+        T1 -= <span class="num">1</span>
+    <span class="kw">return</span> T1, T2
+
+T1, T2 = costes_thresholds(ch1, ch2)
+fg1 = ch1 &gt; T1; fg2 = ch2 &gt; T2
+M1 = ch1[fg2].sum() / ch1.sum()    <span class="comment"># ch1 in ch2+ region / total ch1</span>
+M2 = ch2[fg1].sum() / ch2.sum()</pre></div>
+<div class="code-tab-content" id="pr1"><pre><span class="comment"># PyRadiomics — IBSI-standard radiomic features</span>
+<span class="kw">from</span> radiomics <span class="kw">import</span> featureextractor
+<span class="kw">import</span> SimpleITK <span class="kw">as</span> sitk
+
+extractor = featureextractor.RadiomicsFeatureExtractor()
+extractor.enableFeatureClassByName(<span class="str">"glcm"</span>)
+extractor.enableFeatureClassByName(<span class="str">"glrlm"</span>)
+extractor.enableFeatureClassByName(<span class="str">"shape"</span>)
+
+img = sitk.GetImageFromArray(image_np)
+msk = sitk.GetImageFromArray(label_np.astype(<span class="str">"uint8"</span>))
+features = extractor.execute(img, msk)
+<span class="comment"># features is a dict: {'original_glcm_Contrast': 0.34, ...}</span></pre></div>
+</div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">1. 你用 Pearson 算共定位但結果很「漂亮」(r=0.95)。檢視時發現兩通道<strong>背景都偏高</strong>。最該檢查？</p>
+<p data-lang="en">1. You compute Pearson colocalization and get a "great" r=0.95. Both channels have noticeable background. What to check?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 換成 Manders</span><span data-lang="en">A. Switch to Manders</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 先扣背景再算；或用 Costes 隨機化檢定看是否顯著高於隨機</span><span data-lang="en">B. Subtract background first; or use Costes randomization to test vs. random</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. r=0.95 已經很好，不用再做</span><span data-lang="en">C. r=0.95 is great, no need</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 用更高 NA 物鏡重拍</span><span data-lang="en">D. Re-image with higher NA</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">2. <code>regionprops</code> 的 <code>centroid</code> 回傳什麼順序？</p>
+<p data-lang="en">2. What order does <code>regionprops</code> return <code>centroid</code> in?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. (x, y)</span><span data-lang="en">A. (x, y)</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. (col, row)</span><span data-lang="en">B. (col, row)</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. (row, col)，也就是 (y, x)</span><span data-lang="en">C. (row, col) — i.e., (y, x)</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 視 numpy 設定而定</span><span data-lang="en">D. Depends on numpy</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">3. Haralick texture 跨樣本不可比的主因？</p>
+<p data-lang="en">3. Why are Haralick texture values often non-comparable across samples?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 細胞大小不同</span><span data-lang="en">A. Cell size varies</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 灰階級數量化 (levels) 沒有統一</span><span data-lang="en">B. Grey-level quantization (levels) is inconsistent</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 沒有 GPU</span><span data-lang="en">C. No GPU</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 影像太亮</span><span data-lang="en">D. Image too bright</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav">
+<a href="tracking.html"><span class="nav-dir" data-zh="← 上一步" data-en="← Previous">← 上一步</span><span class="nav-title" data-zh="Step 8: 細胞 / 粒子追蹤 (Tracking)" data-en="Step 8: Cell / Particle Tracking">Step 8: 細胞 / 粒子追蹤 (Tracking)</span></a>
+<a href="3d-multidim.html"><span class="nav-dir" data-zh="下一步 →" data-en="Next →">下一步 →</span><span class="nav-title" data-zh="3D 與多維分析 (3D / Multi-Dim)" data-en="3D &amp;amp; Multi-Dimensional Analysis">3D 與多維分析 (3D / Multi-Dim)</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+function switchTab(b,id){const p=b.closest('.code-tabs');p.querySelectorAll('.code-tab-btn').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.code-tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');}
+const QF={
+  zh:{q1_y:'Pearson 會被背景偏移嚴重扭曲，正規流程是先扣背景並用 Costes 隨機化檢定。',q1_n:'正確答案已標示。',q2_y:'scikit-image 的座標約定是 (row, col) = (y, x)，常踩坑。',q2_n:'正確答案已標示。',q3_y:'Haralick GLCM 對量化的灰階級數高度敏感，不一致會讓樣本無法比較。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'Pearson is heavily biased by background offset; the canonical fix is subtraction + Costes randomization.',q1_n:'Correct answer highlighted.',q2_y:'scikit-image uses (row, col) = (y, x) — a perennial trap.',q2_n:'Correct answer highlighted.',q3_y:'Haralick GLCM depends strongly on grey-level quantization; inconsistency breaks cross-sample comparability.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

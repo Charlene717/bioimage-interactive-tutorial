@@ -1,0 +1,295 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 5: Classical Segmentation — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html">Fund.</a></li><li><a href="preprocessing.html">Preproc.</a></li><li><a href="deconvolution.html">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html" class="active">Class.Seg</a></li><li><a href="segmentation-dl.html">DL Seg</a></li><li><a href="foundation-models.html">FM</a></li><li><a href="tracking.html">Track.</a></li><li><a href="quantification.html">Quant.</a></li><li><a href="3d-multidim.html">3D</a></li><li><a href="high-content.html">HCS</a></li><li><a href="pathology.html">Path.</a></li><li><a href="tools.html">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 5 / 9</div>
+<h1 data-zh="傳統分割 (Classical Segmentation)" data-en="Classical Segmentation">傳統分割</h1>
+<p class="subtitle" data-lang="zh">在掏出 GPU 前，先試試 1980 年代的演算法——許多任務（亮核暗背景、明顯分離的細胞）用閾值 + 形態學 + watershed 就能解決，而且穩定可重現。</p>
+<p class="subtitle" data-lang="en">Before reaching for a GPU, try the 1980s algorithms — many tasks (bright nuclei on dark background, well-separated cells) are solved exactly by thresholding + morphology + watershed, with full reproducibility.</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="閾值" data-en="THRESHOLDING">閾值</div>
+<h2 data-zh="一、閾值法 (Thresholding)" data-en="I. Thresholding">一、閾值法</h2>
+<div data-lang="zh">
+<p>把灰階影像變成二值前景 / 背景，是最基本的分割。重點是<strong>怎麼自動決定那條線</strong>。</p>
+</div>
+<div data-lang="en">
+<p>Convert grayscale to foreground/background — the most basic segmentation. The key question is <strong>how to choose that line automatically</strong>.</p>
+</div>
+<table class="comp-table">
+<thead><tr><th data-zh="方法" data-en="Method">方法</th><th data-zh="原理" data-en="Principle">原理</th><th data-zh="適用" data-en="Best For">適用</th></tr></thead>
+<tbody>
+<tr><td><strong>Otsu</strong></td><td data-lang="zh">最大化類間變異</td><td data-lang="zh">雙峰直方圖，是預設首選</td><td data-lang="en">Maximize between-class variance</td><td data-lang="en">Bimodal histograms — default choice</td></tr>
+<tr><td><strong>Li / cross-entropy</strong></td><td data-lang="zh">最小化交叉熵</td><td data-lang="zh">非對稱分佈、低訊雜比</td><td data-lang="en">Minimize cross-entropy</td><td data-lang="en">Asymmetric distributions, low SNR</td></tr>
+<tr><td><strong>Triangle</strong></td><td data-lang="zh">幾何法、找最遠點</td><td data-lang="zh">前景遠小於背景時</td><td data-lang="en">Geometric — find the most distant point</td><td data-lang="en">When foreground &lt;&lt; background</td></tr>
+<tr><td><strong>Yen / Isodata / Mean</strong></td><td data-lang="zh">不同準則的最佳化</td><td data-lang="zh">先用 <code>try_all_threshold</code> 比一遍</td><td data-lang="en">Various optimization criteria</td><td data-lang="en">Use <code>try_all_threshold</code> to compare</td></tr>
+<tr><td><strong>Adaptive (Sauvola/Niblack)</strong></td><td data-lang="zh">局部閾值，每個像素一個值</td><td data-lang="zh">照明不均，無法做平場校正時</td><td data-lang="en">Local threshold, per-pixel</td><td data-lang="en">Uneven illumination when flat-field unavailable</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="互動模擬" data-en="INTERACTIVE">互動模擬</div>
+<h2 data-zh="閾值對直方圖切割模擬" data-en="Threshold Histogram Slicing Simulator">閾值切割模擬</h2>
+<div data-lang="zh"><p>觀察影像直方圖（雙峰分佈：背景 + 前景）與 Otsu / Li / Triangle 各自挑出的閾值位置。改變雜訊強度看看誰最穩。</p></div>
+<div data-lang="en"><p>See where Otsu / Li / Triangle each place the threshold on a bimodal histogram (background + foreground). Crank up noise to see which is most robust.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="前景比例 (Foreground fraction)" data-en="Foreground fraction">前景比例</span> <span id="valFG">0.30</span></label><input type="range" id="sliderFG" min="0.05" max="0.6" value="0.30" step="0.01"></div>
+<div class="slider-group"><label><span data-zh="峰之間距離 (Class separation)" data-en="Class separation">峰距離</span> <span id="valSep">3.0</span></label><input type="range" id="sliderSep" min="1.0" max="6.0" value="3.0" step="0.1"></div>
+<div class="sim-stats"><span class="sim-stat pass" id="statOtsu">Otsu: —</span><span class="sim-stat" style="background:#fdf3dd;color:#a06a00" id="statLi">Li: —</span><span class="sim-stat" style="background:#e3f2fd;color:#1565c0" id="statTri">Triangle: —</span></div>
+<div class="chart-container"><canvas id="histChart"></canvas></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="形態學" data-en="MORPHOLOGY">形態學</div>
+<h2 data-zh="二、形態學運算" data-en="II. Morphological Operations">二、形態學運算</h2>
+<div data-lang="zh">
+<p>在二值或灰階影像上做的局部鄰域運算，是<strong>清理閾值結果</strong>的核心工具。</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Erosion 侵蝕</strong>：縮小前景、斷開細小連接</li>
+<li><strong>Dilation 膨脹</strong>：擴大前景、填洞</li>
+<li><strong>Opening</strong> = erosion + dilation：去掉小亮點（雜訊）</li>
+<li><strong>Closing</strong> = dilation + erosion：填補小洞、連接斷裂物件</li>
+<li><strong>Top-hat / Bottom-hat</strong>：突顯小亮 / 小暗結構（如 spot detection、puncta）</li>
+<li><strong>Reconstruction</strong>：保留與 marker 連通的整個前景，常用於 hole filling</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>Local neighbourhood operations on binary or grayscale images — the workhorse for <strong>cleaning up thresholded masks</strong>.</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Erosion</strong>: shrinks foreground, breaks thin connections</li>
+<li><strong>Dilation</strong>: enlarges foreground, fills holes</li>
+<li><strong>Opening</strong> = erosion + dilation: removes small bright specks</li>
+<li><strong>Closing</strong> = dilation + erosion: fills small holes, joins broken objects</li>
+<li><strong>Top-hat / Bottom-hat</strong>: highlights small bright/dark structures (spot detection, puncta)</li>
+<li><strong>Reconstruction</strong>: keeps connected regions seeded by markers — used for hole filling</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="Watershed" data-en="WATERSHED">Watershed</div>
+<h2 data-zh="三、Watershed 分離相黏物件" data-en="III. Watershed for Touching Objects">三、Watershed 分離相黏物件</h2>
+<div data-lang="zh">
+<p>把灰階影像想成地形（亮 = 高、暗 = 低），淹水的時候，<strong>不同集水盆地的邊界</strong>就是分割線。對相黏細胞 / 核非常有用。</p>
+<p><strong>實作步驟</strong>（marker-controlled watershed）：</p>
+</div>
+<div data-lang="en">
+<p>Treat the grayscale image as terrain (bright = high, dark = low). As water rises, <strong>boundaries between catchment basins</strong> become segmentation lines — invaluable for touching cells/nuclei.</p>
+<p><strong>Practical workflow</strong> (marker-controlled watershed):</p>
+</div>
+<div class="workflow">
+<div class="workflow-step" data-step="1"><h4 data-zh="閾值得到 mask" data-en="Threshold to a mask">閾值得到 mask</h4></div>
+<div class="workflow-step" data-step="2"><h4 data-zh="距離變換 (distance transform)" data-en="Distance transform">距離變換</h4>
+<div data-lang="zh"><p>每個前景像素的值 = 到最近背景的距離。細胞中心會是局部最大值。</p></div>
+<div data-lang="en"><p>Each foreground pixel = distance to nearest background. Cell centres become local maxima.</p></div>
+</div>
+<div class="workflow-step" data-step="3"><h4 data-zh="找 markers (local maxima)" data-en="Find markers (local maxima)">找 markers</h4>
+<div data-lang="zh"><p>用 <code>peak_local_max</code> 找出每個物件的 marker。<strong>min_distance</strong> 是關鍵：太小 → 過分割，太大 → 漏分割。</p></div>
+<div data-lang="en"><p>Use <code>peak_local_max</code> to pick one marker per object. <strong>min_distance</strong> is the key knob: too small → over-segmentation, too large → under-segmentation.</p></div>
+</div>
+<div class="workflow-step" data-step="4"><h4 data-zh="跑 watershed" data-en="Run watershed">跑 watershed</h4>
+<div data-lang="zh"><p>從 markers 灌水，每個 marker 的水域就是一個 cell。</p></div>
+<div data-lang="en"><p>Flood from markers; each basin = one cell.</p></div>
+</div>
+</div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>Watershed 經典陷阱：過分割</strong>（一個細胞被切成多塊）。解法：(1) 先 Gaussian smooth 距離變換；(2) 用 h-minima 去除淺局部最大值；(3) 後處理時合併小於閾值的相鄰區。</span>
+<span data-lang="en"><strong>Classic pitfall: over-segmentation</strong> (one cell sliced into many). Fixes: (1) Gaussian-smooth the distance map; (2) suppress shallow maxima via h-minima; (3) post-merge adjacent tiny regions.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="四、完整 pipeline 實作" data-en="IV. Complete Pipeline Code">四、完整 pipeline</h2>
+<div class="code-tabs"><div class="code-tab-btns"><button class="code-tab-btn active" onclick="switchTab(this,'py1')">Python (scikit-image)</button><button class="code-tab-btn" onclick="switchTab(this,'fiji1')">Fiji (MorphoLibJ)</button></div>
+<div class="code-tab-content active" id="py1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> skimage <span class="kw">import</span> io, filters, morphology, measure, segmentation
+<span class="kw">from</span> scipy <span class="kw">import</span> ndimage <span class="kw">as</span> ndi
+
+img = io.imread(<span class="str">"nuclei.tif"</span>).astype(<span class="str">"float32"</span>)
+
+<span class="comment"># 1) Pick a threshold</span>
+filters.try_all_threshold(img)                  <span class="comment"># Visual comparison</span>
+t = filters.threshold_otsu(img)
+mask = img &gt; t
+
+<span class="comment"># 2) Morphological cleanup</span>
+mask = morphology.opening(mask, morphology.disk(<span class="num">2</span>))    <span class="comment"># remove specks</span>
+mask = ndi.binary_fill_holes(mask)                              <span class="comment"># fill holes</span>
+mask = morphology.remove_small_objects(mask, min_size=<span class="num">100</span>)
+
+<span class="comment"># 3) Distance transform + markers</span>
+dist = ndi.distance_transform_edt(mask)
+local_max = morphology.local_maxima(filters.gaussian(dist, <span class="num">2</span>))
+markers, _ = ndi.label(local_max)
+
+<span class="comment"># 4) Watershed</span>
+labels = segmentation.watershed(-dist, markers, mask=mask)
+
+<span class="comment"># 5) Measure</span>
+table = measure.regionprops_table(labels, intensity_image=img,
+    properties=[<span class="str">"label"</span>,<span class="str">"area"</span>,<span class="str">"eccentricity"</span>,<span class="str">"mean_intensity"</span>,<span class="str">"centroid"</span>])
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+df = pd.DataFrame(table)
+<span class="func">print</span>(df.head())</pre></div>
+<div class="code-tab-content" id="fiji1"><pre><span class="comment">// Fiji classical nucleus segmentation</span>
+run(<span class="str">"Bio-Formats Importer"</span>, <span class="str">"open=[/path/nuclei.tif]"</span>);
+
+<span class="comment">// 1) Smooth and threshold</span>
+run(<span class="str">"Gaussian Blur..."</span>, <span class="str">"sigma=1"</span>);
+setAutoThreshold(<span class="str">"Otsu dark"</span>);
+run(<span class="str">"Convert to Mask"</span>);
+
+<span class="comment">// 2) Morphological cleanup (built-in)</span>
+run(<span class="str">"Open"</span>);
+run(<span class="str">"Fill Holes"</span>);
+
+<span class="comment">// 3) Watershed (MorphoLibJ has better one)</span>
+run(<span class="str">"Watershed"</span>);                              <span class="comment">// quick built-in</span>
+<span class="comment">// Or: Plugins &gt; MorphoLibJ &gt; Marker-controlled watershed</span>
+
+<span class="comment">// 4) Measure</span>
+run(<span class="str">"Set Measurements..."</span>, <span class="str">"area mean centroid display redirect=None decimal=3"</span>);
+run(<span class="str">"Analyze Particles..."</span>, <span class="str">"size=100-Infinity show=[Count Masks] display"</span>);</pre></div>
+</div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. Otsu 閾值法失敗（把背景當前景）最常見的原因？</p>
+<p data-lang="en">1. Most common reason Otsu fails (treats background as foreground)?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 影像太大</span><span data-lang="en">A. Image too large</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 沒做去噪</span><span data-lang="en">B. Didn't denoise</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 前景比例極小（&lt;5%），直方圖近似單峰，Otsu 假設失效</span><span data-lang="en">C. Foreground is very small (&lt;5%), histogram is near-unimodal, Otsu assumption breaks</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 16-bit 影像</span><span data-lang="en">D. 16-bit images</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">2. 你用 watershed 後發現一個細胞被切成 3 塊。最佳修正？</p>
+<p data-lang="en">2. Your watershed cuts one cell into 3 pieces. Best fix?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 降低 Otsu 閾值</span><span data-lang="en">A. Lower Otsu threshold</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 平滑距離變換或加大 <code>min_distance</code>，減少假性 markers</span><span data-lang="en">B. Smooth the distance map or increase <code>min_distance</code> — fewer spurious markers</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 換成 Li 閾值</span><span data-lang="en">C. Switch to Li threshold</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 直接放棄改用 DL</span><span data-lang="en">D. Give up and use DL</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="0">
+<p data-lang="zh">3. 形態學「opening」運算的作用？</p>
+<p data-lang="en">3. What does morphological "opening" do?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 先 erosion 再 dilation——移除小亮點 (噪點)</span><span data-lang="en">A. Erosion then dilation — removes small bright specks (noise)</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 填滿黑洞</span><span data-lang="en">B. Fills black holes</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 增加對比</span><span data-lang="en">C. Increases contrast</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 計算距離變換</span><span data-lang="en">D. Computes distance transform</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav">
+<a href="registration.html"><span class="nav-dir" data-zh="← 上一步" data-en="← Previous">← 上一步</span><span class="nav-title" data-zh="Step 4: 配準與拼接 (Registration &amp;amp; Stitching)" data-en="Step 4: Registration &amp;amp; Stitching">Step 4: 配準與拼接 (Registration &amp; Stitching)</span></a>
+<a href="segmentation-dl.html"><span class="nav-dir" data-zh="下一步 →" data-en="Next →">下一步 →</span><span class="nav-title" data-zh="Step 6: 深度學習分割 (DL Segmentation)" data-en="Step 6: Deep Learning Segmentation">Step 6: 深度學習分割 (DL Segmentation)</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+function switchTab(b,id){const p=b.closest('.code-tabs');p.querySelectorAll('.code-tab-btn').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.code-tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');}
+
+// Histogram simulator
+function gen(fg,sep){
+  const arr=new Array(256).fill(0);
+  // bg around 0.3, fg around 0.3+sep*0.12
+  const NPIX=8000;
+  function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+  for(let i=0;i<NPIX;i++){
+    const isFG=Math.random()<fg;
+    const mu=isFG?(80+sep*30):60;
+    const sig=isFG?14:10;
+    const v=Math.max(0,Math.min(255,Math.round(mu+randn()*sig)));
+    arr[v]++;
+  }
+  return arr;
+}
+function otsu(h){
+  const tot=h.reduce((a,b)=>a+b,0);let best=0,bestV=-1;
+  let sumT=0;for(let i=0;i<256;i++)sumT+=i*h[i];
+  let wB=0,sumB=0;
+  for(let t=0;t<256;t++){
+    wB+=h[t];if(wB===0)continue;
+    const wF=tot-wB;if(wF===0)break;
+    sumB+=t*h[t];
+    const mB=sumB/wB,mF=(sumT-sumB)/wF;
+    const v=wB*wF*(mB-mF)*(mB-mF);
+    if(v>bestV){bestV=v;best=t;}
+  }
+  return best;
+}
+function li(h){
+  // cross-entropy
+  let t=128;for(let it=0;it<60;it++){
+    let n0=0,s0=0,n1=0,s1=0;
+    for(let i=0;i<=t;i++){n0+=h[i];s0+=i*h[i];}
+    for(let i=t+1;i<256;i++){n1+=h[i];s1+=i*h[i];}
+    if(n0===0||n1===0)break;
+    const m0=s0/n0,m1=s1/n1;
+    if(m0<=0||m1<=0)break;
+    const tnew=Math.round((m1-m0)/(Math.log(m1)-Math.log(m0)));
+    if(tnew===t)break;t=tnew;
+  }
+  return t;
+}
+function triangle(h){
+  let maxI=0,maxV=0;for(let i=0;i<256;i++)if(h[i]>maxV){maxV=h[i];maxI=i;}
+  let bmI=255;for(let i=255;i>=0;i--)if(h[i]>0){bmI=i;break;}
+  let best=0,bestD=-1;
+  for(let i=maxI;i<=bmI;i++){
+    const num=Math.abs((maxV-0)*(maxI-i)-(maxI-bmI)*(maxV-h[i]));
+    if(num>bestD){bestD=num;best=i;}
+  }
+  return best;
+}
+const labels=Array.from({length:256},(_,i)=>i);
+const ch=new Chart(document.getElementById('histChart'),{
+  type:'bar',data:{labels,datasets:[{label:'Histogram',data:[],backgroundColor:'rgba(26,107,90,0.65)',barThickness:1.5}]},
+  options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},annotation:{}},scales:{x:{title:{display:true,text:'Intensity (0-255)'},ticks:{maxTicksLimit:8}},y:{title:{display:true,text:'Count'}}}}
+});
+function update(){
+  const fg=+document.getElementById('sliderFG').value;
+  const sep=+document.getElementById('sliderSep').value;
+  document.getElementById('valFG').textContent=fg.toFixed(2);
+  document.getElementById('valSep').textContent=sep.toFixed(1);
+  const h=gen(fg,sep);
+  ch.data.datasets[0].data=h;
+  const tO=otsu(h),tL=li(h),tT=triangle(h);
+  document.getElementById('statOtsu').textContent='Otsu: '+tO;
+  document.getElementById('statLi').textContent='Li: '+tL;
+  document.getElementById('statTri').textContent='Triangle: '+tT;
+  // background bars by colour
+  ch.data.datasets[0].backgroundColor=h.map((_,i)=>i<tO?'rgba(120,120,120,0.4)':'rgba(26,107,90,0.7)');
+  ch.update('none');
+}
+['sliderFG','sliderSep'].forEach(id=>document.getElementById(id).addEventListener('input',update));
+document.addEventListener('langchange',update);
+update();
+
+const QF={
+  zh:{q1_y:'Otsu 假設雙峰分佈，前景比例極小時直方圖近似單峰，閾值會落錯位置。',q1_n:'正確答案已標示。',q2_y:'過分割來自過多 markers——平滑距離圖、加大 min_distance 是最有效的修法。',q2_n:'正確答案已標示。',q3_y:'Opening 的標準作用就是移除小亮點 (噪訊)。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'Otsu assumes a bimodal histogram; tiny foreground fraction makes it nearly unimodal and the threshold drifts.',q1_n:'Correct answer highlighted.',q2_y:'Over-segmentation comes from too many markers — smoothing the distance map and increasing min_distance are the canonical fixes.',q2_n:'Correct answer highlighted.',q3_y:'Opening removes small bright specks; that is its textbook role.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

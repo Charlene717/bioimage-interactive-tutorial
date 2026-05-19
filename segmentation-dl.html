@@ -1,0 +1,229 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 6: Deep Learning Segmentation — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html">Fund.</a></li><li><a href="preprocessing.html">Preproc.</a></li><li><a href="deconvolution.html">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html">Class.Seg</a></li><li><a href="segmentation-dl.html" class="active">DL Seg</a></li><li><a href="foundation-models.html">FM</a></li><li><a href="tracking.html">Track.</a></li><li><a href="quantification.html">Quant.</a></li><li><a href="3d-multidim.html">3D</a></li><li><a href="high-content.html">HCS</a></li><li><a href="pathology.html">Path.</a></li><li><a href="tools.html">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 6 / 9</div>
+<h1 data-zh="深度學習分割 (DL Segmentation)" data-en="Deep Learning Segmentation">深度學習分割</h1>
+<p class="subtitle" data-lang="zh">傳統方法處理不了相黏細胞、不規則形狀、複雜組織。DL 分割器現在能跨顯微術式泛化，幾乎不用重訓——已是細胞 / 核 / 組織區段的預設首選。</p>
+<p class="subtitle" data-lang="en">Classical methods fail on touching cells, irregular morphologies, and crowded tissue. DL segmenters now generalize across modalities with little or no retraining — the default for cells, nuclei, and tissue compartments.</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="觀念" data-en="CONCEPT">觀念</div>
+<h2 data-zh="一、語意 / 實例 / 全景分割" data-en="I. Semantic / Instance / Panoptic">一、語意 / 實例 / 全景</h2>
+<div class="card-grid cols-3">
+<div class="card"><h4>🎨 <span data-zh="語意 (Semantic)" data-en="Semantic">語意</span></h4>
+<div data-lang="zh"><p>每個像素分到一個類別（細胞 / 背景 / 細胞核 / 細胞質）。<strong>不分個體</strong>。例：U-Net 輸出。</p></div>
+<div data-lang="en"><p>Per-pixel class label (cell / background / nucleus / cytoplasm). <strong>No individual identity.</strong> E.g., U-Net output.</p></div>
+</div>
+<div class="card"><h4>🔢 <span data-zh="實例 (Instance)" data-en="Instance">實例</span></h4>
+<div data-lang="zh"><p>每個物件一個唯一 ID（cell 1, cell 2 …）。是<strong>下游所有量化的前提</strong>。Cellpose, StarDist, Mask R-CNN 都輸出實例分割。</p></div>
+<div data-lang="en"><p>Each object has a unique ID (cell 1, cell 2 …). <strong>Prerequisite for downstream quantification.</strong> Cellpose, StarDist, Mask R-CNN output instances.</p></div>
+</div>
+<div class="card"><h4>🎭 <span data-zh="全景 (Panoptic)" data-en="Panoptic">全景</span></h4>
+<div data-lang="zh"><p>語意 + 實例混合。「可數物件」(thing) 用實例分；背景區域 (stuff) 用語意分。多細胞組織分析常見。</p></div>
+<div data-lang="en"><p>Semantic + instance combined. "Things" get instance IDs; "stuff" (background regions) gets semantic labels. Common in multi-cell tissue analysis.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="主流模型" data-en="MAIN MODELS">主流模型</div>
+<h2 data-zh="二、主流 DL 分割模型（2025–2026）" data-en="II. Mainstream DL Segmenters (2025–2026)">二、主流 DL 模型</h2>
+<table class="comp-table">
+<thead><tr><th>Model</th><th data-zh="輸出表示" data-en="Output">輸出</th><th data-zh="特色" data-en="Strength">特色</th></tr></thead>
+<tbody>
+<tr><td><strong>U-Net</strong></td><td data-lang="zh">語意機率圖</td><td data-lang="zh">所有 DL 分割的<strong>奠基架構</strong>。Encoder + decoder + skip 連線。</td><td data-lang="en">Semantic probability map</td><td data-lang="en"><strong>Foundational architecture</strong>. Encoder + decoder + skip connections.</td></tr>
+<tr><td><strong>Cellpose 4 (Cellpose-SAM)</strong></td><td data-lang="zh">梯度流場 → 細胞中心</td><td data-lang="zh"><strong>2025 最新</strong>，SAM transformer backbone，泛化能力極強，最常見起點</td><td data-lang="en">Gradient flow field → centres</td><td data-lang="en"><strong>2025 release</strong>, SAM transformer backbone, exceptional generalization — best starting point</td></tr>
+<tr><td><strong>Cellpose 3</strong></td><td data-lang="zh">同上</td><td data-lang="zh">含一鍵 denoise/deblur/upsample <code>cyto3</code> super-generalist</td><td data-lang="en">Same</td><td data-lang="en">One-click denoise/deblur/upsample + <code>cyto3</code> super-generalist</td></tr>
+<tr><td><strong>StarDist</strong></td><td data-lang="zh">Star-convex 多邊形 (2D) / 多面體 (3D)</td><td data-lang="zh"><strong>圓形緊密物件</strong>（核）首選；2D / 3D 模型分別維護</td><td data-lang="en">Star-convex polygon (2D) / polyhedron (3D)</td><td data-lang="en">Best for <strong>round densely-packed objects</strong> (nuclei)</td></tr>
+<tr><td><strong>nnU-Net</strong></td><td data-lang="zh">語意 / 實例 (可選)</td><td data-lang="zh"><strong>自配置</strong> pipeline，是醫學影像 benchmark 事實標準</td><td data-lang="en">Semantic / instance (optional)</td><td data-lang="en"><strong>Self-configuring</strong>; de facto standard for medical benchmarks</td></tr>
+<tr><td><strong>Mesmer (DeepCell)</strong></td><td data-lang="zh">核 + 全細胞</td><td data-lang="zh"><strong>多重染色組織</strong>（CODEX, IMC, MIBI）專屬，需固定通道順序</td><td data-lang="en">Nucleus + whole-cell</td><td data-lang="en">For <strong>multiplexed tissue</strong> (CODEX, IMC, MIBI) — fixed channel order required</td></tr>
+<tr><td><strong>Omnipose</strong></td><td data-lang="zh">梯度場 (修改版)</td><td data-lang="zh">細長 / 分支型態（細菌、神經元、菌絲）</td><td data-lang="en">Modified flow field</td><td data-lang="en">Elongated / branching morphologies (bacteria, neurons, hyphae)</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="決策樹" data-en="DECISIONS">決策樹</div>
+<h2 data-zh="三、選哪個模型？" data-en="III. Which Model to Use?">三、選哪個模型？</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="DL 分割選擇樹" data-en="DL Segmenter Selection Tree">DL 分割選擇樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>是<strong>密集圓核</strong>（如組織切片 DAPI）？<span class="dt-arrow">→</span> <strong>StarDist 2D_versatile_fluo</strong> 或 <strong>StarDist H&amp;E</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>是<strong>一般細胞</strong>（活細胞、培養皿）？<span class="dt-arrow">→</span> <strong>Cellpose-SAM</strong> (cyto3 模型)；先零訓練試試</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>是<strong>多重染色組織</strong>（CODEX/IMC）？<span class="dt-arrow">→</span> <strong>Mesmer</strong>（記得 channel 0 = nucleus, channel 1 = membrane）</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>是<strong>細長 / 分支</strong>（細菌、神經元）？<span class="dt-arrow">→</span> <strong>Omnipose</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>是 H&amp;E 病理 / 醫學影像（CT/MRI），且需自訂任務？<span class="dt-arrow">→</span> <strong>nnU-Net</strong>（自配置，要花時間訓練）</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>所有 pretrained 都不行？<span class="dt-arrow">→</span> 收集 50–100 張標註，<strong>Cellpose human-in-the-loop fine-tune</strong>（GUI 友好）或 nnU-Net</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div><strong>Densely packed round nuclei</strong> (DAPI in tissue)? <span class="dt-arrow">→</span> <strong>StarDist 2D_versatile_fluo</strong> or <strong>StarDist H&amp;E</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div><strong>General cells</strong> (live, culture)? <span class="dt-arrow">→</span> <strong>Cellpose-SAM</strong> (cyto3 model); try zero-shot first</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div><strong>Multiplexed tissue</strong> (CODEX/IMC)? <span class="dt-arrow">→</span> <strong>Mesmer</strong> (channel 0 = nucleus, channel 1 = membrane)</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div><strong>Elongated / branching</strong> (bacteria, neurons)? <span class="dt-arrow">→</span> <strong>Omnipose</strong></div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>H&amp;E / medical (CT/MRI), custom task? <span class="dt-arrow">→</span> <strong>nnU-Net</strong> (self-configuring, training required)</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>None of the pretrained work? <span class="dt-arrow">→</span> Annotate 50–100 images and <strong>fine-tune Cellpose via human-in-the-loop</strong> or nnU-Net</div></div>
+</div>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>原則：</strong>先試 pretrained 通用模型零訓練（Cellpose-SAM cyto3、StarDist versatile）。大多數人從來不需要自己訓練。<br>真要訓練時，先用<strong>少量標註 + human-in-the-loop</strong>，再考慮全量訓練。</span>
+<span data-lang="en"><strong>Principle:</strong> Try a pretrained generalist (Cellpose-SAM cyto3, StarDist versatile) zero-shot first. Most users never train.<br>When you must train, start with <strong>a few labels + human-in-the-loop</strong> before full training.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="評估" data-en="EVALUATION">評估</div>
+<h2 data-zh="四、分割結果評估" data-en="IV. Evaluating Segmentation">四、分割結果評估</h2>
+<div data-lang="zh">
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>IoU (Intersection over Union, Jaccard)</strong>：交集 / 聯集，0–1 越高越好</li>
+<li><strong>Dice (F1)</strong>：2·交集 / (預測+真值)，與 IoU 同調但更敏感</li>
+<li><strong>AP@IoU</strong>：物件層級平均精度，IoU 閾值不同會得不同分數 (常見 0.5, 0.75)</li>
+<li><strong>Panoptic Quality (PQ)</strong>：偵測 + 分割綜合分數</li>
+<li><strong>Cell Tracking Challenge SEG</strong>：每個 GT 物件與最大重疊預測的 IoU 平均</li>
+</ul>
+<p><strong>務必</strong>在從未見過的測試集上評估。在訓練集上看「眼睛感覺準」是學習曲線一定會遇到的陷阱。</p>
+</div>
+<div data-lang="en">
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>IoU (Jaccard)</strong>: intersection over union, 0–1, higher is better</li>
+<li><strong>Dice (F1)</strong>: 2·intersection / (pred + GT), more sensitive than IoU</li>
+<li><strong>AP@IoU</strong>: object-level average precision at given IoU thresholds (commonly 0.5, 0.75)</li>
+<li><strong>Panoptic Quality (PQ)</strong>: combined detection + segmentation score</li>
+<li><strong>Cell Tracking Challenge SEG</strong>: mean IoU between each GT and best-overlap prediction</li>
+</ul>
+<p><strong>Always</strong> evaluate on a held-out test set. "It looks right by eye on the training set" is a trap every learner falls into once.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="五、實作範例" data-en="V. Code Examples">五、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns"><button class="code-tab-btn active" onclick="switchTab(this,'cp1')">Cellpose-SAM</button><button class="code-tab-btn" onclick="switchTab(this,'sd1')">StarDist</button><button class="code-tab-btn" onclick="switchTab(this,'me1')">Mesmer</button><button class="code-tab-btn" onclick="switchTab(this,'nn1')">nnU-Net</button></div>
+<div class="code-tab-content active" id="cp1"><pre><span class="comment"># Cellpose 4 (Cellpose-SAM) — 2025 generalist</span>
+<span class="kw">from</span> cellpose <span class="kw">import</span> models, io
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+img = io.imread(<span class="str">"cells.tif"</span>)                     <span class="comment"># [H, W] or [H, W, C]</span>
+
+<span class="comment"># Zero-shot inference</span>
+mdl = models.Cellpose(gpu=<span class="kw">True</span>, model_type=<span class="str">"cyto3"</span>)
+masks, flows, styles, diams = mdl.eval(
+    img,
+    diameter=<span class="kw">None</span>,                             <span class="comment"># auto-estimate</span>
+    channels=[<span class="num">0</span>, <span class="num">0</span>],                           <span class="comment"># [cyto, nuc] channel indices</span>
+    flow_threshold=<span class="num">0.4</span>,
+    cellprob_threshold=<span class="num">0.0</span>
+)
+<span class="func">print</span>(masks.max(), <span class="str">"cells found"</span>)
+
+<span class="comment"># Human-in-the-loop fine-tune (GUI: cellpose --train)</span>
+<span class="comment"># Or train programmatically</span>
+<span class="kw">from</span> cellpose <span class="kw">import</span> train
+train.train_seg(mdl.net, train_data=imgs, train_labels=labels,
+                channels=[<span class="num">0</span>,<span class="num">0</span>], save_path=<span class="str">"./my_model"</span>, n_epochs=<span class="num">100</span>)</pre></div>
+<div class="code-tab-content" id="sd1"><pre><span class="comment"># StarDist — round dense nuclei</span>
+<span class="kw">from</span> stardist.models <span class="kw">import</span> StarDist2D
+<span class="kw">from</span> csbdeep.utils <span class="kw">import</span> normalize
+<span class="kw">import</span> tifffile
+
+img = tifffile.imread(<span class="str">"dapi.tif"</span>)
+img = normalize(img, <span class="num">1</span>, <span class="num">99.8</span>)                  <span class="comment"># percentile normalize</span>
+
+mdl = StarDist2D.from_pretrained(<span class="str">"2D_versatile_fluo"</span>)
+labels, details = mdl.predict_instances(img, prob_thresh=<span class="num">0.5</span>, nms_thresh=<span class="num">0.4</span>)
+
+<span class="comment"># 3D version</span>
+<span class="kw">from</span> stardist.models <span class="kw">import</span> StarDist3D
+mdl3 = StarDist3D.from_pretrained(<span class="str">"3D_demo"</span>)
+labels3, _ = mdl3.predict_instances(stack, axes=<span class="str">"ZYX"</span>)</pre></div>
+<div class="code-tab-content" id="me1"><pre><span class="comment"># Mesmer — multiplexed tissue (CODEX/IMC/MIBI)</span>
+<span class="kw">from</span> deepcell.applications <span class="kw">import</span> Mesmer
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="comment"># IMPORTANT: input shape (batch, H, W, 2)</span>
+<span class="comment"># channel 0 = nucleus marker (e.g., DAPI)</span>
+<span class="comment"># channel 1 = membrane marker (e.g., CD45, pan-CK)</span>
+nuc = imread(<span class="str">"dapi.tif"</span>)
+mem = imread(<span class="str">"cd45.tif"</span>)
+inp = np.stack([nuc, mem], axis=-<span class="num">1</span>)[np.newaxis]    <span class="comment"># (1, H, W, 2)</span>
+
+app = Mesmer()
+seg = app.predict(inp, image_mpp=<span class="num">0.5</span>,
+    compartment=<span class="str">"whole-cell"</span>)                    <span class="comment"># or "nuclear"</span>
+
+cell_labels = seg[<span class="num">0</span>, ..., <span class="num">0</span>]</pre></div>
+<div class="code-tab-content" id="nn1"><pre><span class="comment"># nnU-Net v2 (CLI workflow)</span>
+<span class="comment"># 1) Organize data following nnUNet_raw/Dataset001_Task/imagesTr/ + labelsTr/</span>
+<span class="comment"># 2) Plan and preprocess</span>
+nnUNetv2_plan_and_preprocess -d <span class="num">1</span> --verify_dataset_integrity
+
+<span class="comment"># 3) Train (5-fold CV by default)</span>
+nnUNetv2_train <span class="num">1</span> 2d <span class="num">0</span>                        <span class="comment"># dataset 1, 2D, fold 0</span>
+
+<span class="comment"># 4) Predict</span>
+nnUNetv2_predict -i imagesTs/ -o pred/ -d <span class="num">1</span> -c 2d -f <span class="num">0</span>
+
+<span class="comment"># 5) Find best configuration &amp; ensemble</span>
+nnUNetv2_find_best_configuration <span class="num">1</span> -c 2d 3d_fullres</pre></div>
+</div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">1. 你要分割組織切片中密集的細胞核 (DAPI)。最佳預設模型？</p>
+<p data-lang="en">1. You need to segment densely packed nuclei (DAPI) in a tissue section. Best default model?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. Otsu + watershed</span><span data-lang="en">A. Otsu + watershed</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. StarDist 2D_versatile_fluo（star-convex 對圓核最強）</span><span data-lang="en">B. StarDist 2D_versatile_fluo (star-convex excels for round nuclei)</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Mesmer</span><span data-lang="en">C. Mesmer</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. Omnipose</span><span data-lang="en">D. Omnipose</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">2. Mesmer 必須輸入 (nucleus, membrane) 兩通道。你誤把通道順序顛倒會發生什麼？</p>
+<p data-lang="en">2. Mesmer requires (nucleus, membrane) channels. What happens if you swap them?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 跳出例外</span><span data-lang="en">A. Throws an exception</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 自動偵測並修正</span><span data-lang="en">B. Auto-detects and fixes</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 不報錯，但分割結果完全錯誤——這是最危險的 silent failure</span><span data-lang="en">C. No error, but the segmentation is wrong — a dangerous silent failure</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 速度變慢</span><span data-lang="en">D. Just runs slower</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">3. 你用訓練集眼睛掃過覺得「分得很準」。實際發表前還應該？</p>
+<p data-lang="en">3. You eyeballed the training set and it looks accurate. Before publishing, you should…?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 直接寫論文</span><span data-lang="en">A. Just write the paper</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 在從未看過的測試集量化 IoU/Dice/AP，避免 overfit 偏差</span><span data-lang="en">B. Quantify IoU/Dice/AP on a held-out test set to avoid overfit bias</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 用更多 epoch 再訓練</span><span data-lang="en">C. Retrain for more epochs</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 換更貴的 GPU</span><span data-lang="en">D. Buy a fancier GPU</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav">
+<a href="segmentation-classic.html"><span class="nav-dir" data-zh="← 上一步" data-en="← Previous">← 上一步</span><span class="nav-title" data-zh="Step 5: 傳統分割 (Classical Segmentation)" data-en="Step 5: Classical Segmentation">Step 5: 傳統分割 (Classical Segmentation)</span></a>
+<a href="foundation-models.html"><span class="nav-dir" data-zh="下一步 →" data-en="Next →">下一步 →</span><span class="nav-title" data-zh="Step 7: AI 基礎模型 (Foundation Models)" data-en="Step 7: AI Foundation Models">Step 7: AI 基礎模型 (Foundation Models)</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+function switchTab(b,id){const p=b.closest('.code-tabs');p.querySelectorAll('.code-tab-btn').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.code-tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');}
+const QF={
+  zh:{q1_y:'StarDist 的 star-convex 表示法為密集圓核設計，是這個任務的事實標準。',q1_n:'正確答案已標示。',q2_y:'Mesmer 的通道順序錯誤是最危險的 silent failure，不會報錯卻完全錯。',q2_n:'正確答案已標示。',q3_y:'唯一可信的衡量是在獨立測試集上算定量指標。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'StarDist\'s star-convex representation was designed for dense round nuclei — the de facto standard.',q1_n:'Correct answer highlighted.',q2_y:'Channel-order error in Mesmer is the canonical silent failure: no exception, wrong biology.',q2_n:'Correct answer highlighted.',q3_y:'Only quantitative metrics on a held-out test set tell the truth.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

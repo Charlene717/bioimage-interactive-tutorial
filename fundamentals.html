@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 1: Image Fundamentals — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html" class="active">Fund.</a></li><li><a href="preprocessing.html">Preproc.</a></li><li><a href="deconvolution.html">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html">Class.Seg</a></li><li><a href="segmentation-dl.html">DL Seg</a></li><li><a href="foundation-models.html">FM</a></li><li><a href="tracking.html">Track.</a></li><li><a href="quantification.html">Quant.</a></li><li><a href="3d-multidim.html">3D</a></li><li><a href="high-content.html">HCS</a></li><li><a href="pathology.html">Path.</a></li><li><a href="tools.html">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 1 / 9</div>
+<h1 data-zh="影像基礎 (Image Fundamentals)" data-en="Image Fundamentals">影像基礎 (Image Fundamentals)</h1>
+<p class="subtitle" data-lang="zh">每一個量化結論都建立在「像素到底代表什麼」之上——物理尺度、位元深度、通道、檔案格式。讀錯這些，後續再厲害的演算法也會給你錯誤的生物學答案。</p>
+<p class="subtitle" data-lang="en">Every quantitative claim rests on what a pixel represents — physical size, bit depth, channels, file format. Get these wrong and the most sophisticated downstream algorithm will silently give you wrong biology.</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="概覽" data-en="OVERVIEW">概覽</div>
+<h2 data-zh="為什麼從影像基礎開始？" data-en="Why start with fundamentals?">為什麼從影像基礎開始？</h2>
+<div data-lang="zh">
+<p>顯微鏡輸出的不只是「圖片」，而是一個有<strong>物理尺度、動態範圍、通道與時間軸</strong>的多維數位陣列。生物影像分析最常見的錯誤都不是出在進階演算法，而是<strong>第一步讀檔時把通道順序、位元深度或體素各向異性搞錯</strong>——這種錯誤通常不會丟出例外，而是默默地給你錯誤答案。</p>
+<p>本章建立你閱讀任何顯微影像所需的詞彙：從像素 / 體素、位元深度、通道與時間 (TCZYX)，到 OME-TIFF、CZI、LIF、ND2、OME-Zarr 等實際格式，以及 Bio-Formats 這個讀檔聖物。</p>
+</div>
+<div data-lang="en">
+<p>A microscope does not output "a picture" — it outputs a multi-dimensional numeric array with <strong>physical scale, dynamic range, channels, and time</strong>. The most common errors in bioimage analysis are not in fancy algorithms; they are in <strong>step 1 — reading the file with the wrong channel order, bit depth, or voxel anisotropy</strong>. These errors do not throw exceptions; they silently return wrong answers.</p>
+<p>This chapter gives you the vocabulary to read any microscopy file: pixels/voxels, bit depth, the TCZYX axis convention, OME-TIFF, CZI, LIF, ND2, and OME-Zarr, plus the holy reader library, Bio-Formats.</p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>核心原則：</strong>讀檔後第一件事永遠是 <code>print(img.shape, img.dtype, img.dims, pixel_size)</code>。十次有九次的 bug 在這行就現形。</span>
+<span data-lang="en"><strong>Core principle:</strong> The first thing you do after reading a file is <code>print(img.shape, img.dtype, img.dims, pixel_size)</code>. Nine out of ten bugs are caught by this line.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="像素與體素" data-en="PIXELS &amp; VOXELS">像素與體素</div>
+<h2 data-zh="一、像素 (Pixel) vs. 體素 (Voxel) 與物理尺度" data-en="I. Pixel vs. Voxel and Physical Scale">一、像素 vs. 體素與物理尺度</h2>
+<div data-lang="zh">
+<p><strong>像素 (pixel)</strong> 是 2D 影像的最小單位；<strong>體素 (voxel)</strong> 是 3D 體積的最小單位。每一個像素 / 體素都有：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>數值</strong>：亮度（強度），可能是 uint8 / uint16 / float32 等型別</li>
+<li><strong>物理大小</strong>：通常以 µm / pixel 或 nm / pixel 表示（pixel size, scale）</li>
+<li><strong>位置</strong>：在影像座標系中的 (x, y) 或 (x, y, z)</li>
+</ul>
+<p><strong>各向異性 (Anisotropy)</strong>：共軛焦或光片顯微鏡的 Z 軸間距通常比 XY 大 3–10 倍（例如 0.2 × 0.2 × 1.0 µm）。如果不處理，3D 分割與形態學特徵會被嚴重扭曲。</p>
+</div>
+<div data-lang="en">
+<p>A <strong>pixel</strong> is the smallest unit of a 2D image; a <strong>voxel</strong> is the smallest unit of a 3D volume. Each pixel/voxel has:</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Value</strong>: intensity, typically uint8 / uint16 / float32</li>
+<li><strong>Physical size</strong>: µm/pixel or nm/pixel (pixel size, scale)</li>
+<li><strong>Position</strong>: (x, y) or (x, y, z) in image coordinates</li>
+</ul>
+<p><strong>Anisotropy</strong>: Confocal and light-sheet stacks usually have Z spacing 3–10× coarser than XY (e.g., 0.2 × 0.2 × 1.0 µm). Ignore it and your 3D segmentation and shape features will be badly distorted.</p>
+</div>
+
+<div class="card-grid cols-3">
+<div class="card"><div class="card-icon">🔢</div><h4 data-zh="位元深度 (Bit Depth)" data-en="Bit Depth">位元深度</h4>
+<div data-lang="zh"><p><strong>uint8</strong>：0–255（一般 RGB 圖、JPEG）。<br><strong>uint16</strong>：0–65535（多數科學相機，但常只用前 12 bits = 0–4095）。<br><strong>float32</strong>：去噪 / 解卷積後的影像。<br>切忌「為了好看」把 16-bit 轉成 8-bit 後再分析。</p></div>
+<div data-lang="en"><p><strong>uint8</strong>: 0–255 (consumer RGB, JPEG).<br><strong>uint16</strong>: 0–65535 (most scientific cameras, often only the first 12 bits = 0–4095 are used).<br><strong>float32</strong>: after denoising or deconvolution.<br>Never down-convert 16-bit to 8-bit "for display" then analyse.</p></div>
+</div>
+<div class="card"><div class="card-icon">🌈</div><h4 data-zh="通道 (Channels)" data-en="Channels">通道</h4>
+<div data-lang="zh"><p>多個螢光標誌（DAPI、GFP、Cy5…）各佔一個通道。順序與分析語意密切相關——Mesmer 規定第 0 通道為核、第 1 通道為膜。<strong>讀錯通道順序，模型不會報錯，會默默給你錯誤分割。</strong></p></div>
+<div data-lang="en"><p>Multiple fluorescent markers (DAPI, GFP, Cy5…) each occupy a channel. Order is semantically important — Mesmer requires channel 0 = nucleus, channel 1 = membrane. <strong>Wrong channel order yields wrong segmentation silently.</strong></p></div>
+</div>
+<div class="card"><div class="card-icon">📐</div><h4 data-zh="軸序 (Axis Order)" data-en="Axis Order">軸序</h4>
+<div data-lang="zh"><p>OME 標準：<code>TCZYX</code>（時間、通道、Z、Y、X）。但 Fiji 預設 <code>XYCZT</code>、numpy 陣列預設 <code>(Z, Y, X)</code> 或 <code>(Y, X, C)</code>。讀檔後務必檢查 <code>img.dims</code>。</p></div>
+<div data-lang="en"><p>OME standard: <code>TCZYX</code>. But Fiji defaults to <code>XYCZT</code>, and numpy uses <code>(Z, Y, X)</code> or <code>(Y, X, C)</code>. After loading, always check <code>img.dims</code>.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="顯微術式" data-en="MICROSCOPY">顯微術式</div>
+<h2 data-zh="二、常見顯微術式與它們的影像特性" data-en="II. Common Microscopy Modalities and Their Image Properties">二、常見顯微術式</h2>
+<table class="comp-table">
+<thead><tr>
+<th data-zh="術式" data-en="Modality">術式</th>
+<th data-zh="典型解析度" data-en="Typical Resolution">典型解析度</th>
+<th data-zh="影像特性" data-en="Image Properties">影像特性</th>
+<th data-zh="常見格式" data-en="Common Formats">常見格式</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>Widefield</strong></td><td>~250 nm (Abbe)</td><td data-lang="zh">2D；out-of-focus 模糊嚴重，需 decon</td><td data-lang="zh">TIFF, CZI, ND2</td><td data-lang="en">2D; severe out-of-focus haze, needs decon</td><td data-lang="en">TIFF, CZI, ND2</td></tr>
+<tr><td><strong>Confocal</strong></td><td>~200 nm</td><td data-lang="zh">3D 切片；點掃描慢、speckle 多</td><td data-lang="zh">CZI, LIF, OIB</td><td data-lang="en">3D optical sections; point-scan is slow, more speckle</td><td data-lang="en">CZI, LIF, OIB</td></tr>
+<tr><td><strong>Spinning disk</strong></td><td>~250 nm</td><td data-lang="zh">活細胞 friendly；多焦點同步</td><td data-lang="zh">ND2, TIFF</td><td data-lang="en">Live-cell friendly; many pinholes scanned in parallel</td><td data-lang="en">ND2, TIFF</td></tr>
+<tr><td><strong>Two-photon</strong></td><td>~400 nm</td><td data-lang="zh">深穿透（腦切片）；訊號弱</td><td data-lang="zh">TIFF, OIB</td><td data-lang="en">Deep penetration (brain slices); weak signal</td><td data-lang="en">TIFF, OIB</td></tr>
+<tr><td><strong>Light-sheet (SPIM)</strong></td><td>~300 nm</td><td data-lang="zh">巨大資料量、多視角、需 BigStitcher</td><td data-lang="zh">CZI, HDF5/N5</td><td data-lang="en">Massive datasets, multi-view, BigStitcher required</td><td data-lang="en">CZI, HDF5/N5</td></tr>
+<tr><td><strong>Super-resolution</strong> (STED/SIM/STORM)</td><td>20–100 nm</td><td data-lang="zh">SMLM 為點清單；SIM/STED 仍為影像</td><td data-lang="zh">TIFF, 自訂格式</td><td data-lang="en">SMLM yields point lists; SIM/STED still pixel images</td><td data-lang="en">TIFF, custom</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="檔案格式" data-en="FILE FORMATS">檔案格式</div>
+<h2 data-zh="三、檔案格式：專有 vs. 開放" data-en="III. File Formats: Proprietary vs. Open">三、檔案格式：專有 vs. 開放</h2>
+<div data-lang="zh">
+<p>每家顯微鏡廠商都有自己的<strong>專有格式</strong>，用來保存原始像素與大量元資料（雷射功率、像素大小、Z step、stage 位置…）。專有格式有版本問題，所以分析時通常會<strong>轉換到開放格式</strong>。</p>
+</div>
+<div data-lang="en">
+<p>Every microscope vendor has a <strong>proprietary format</strong> that stores raw pixels and rich metadata (laser power, pixel size, Z step, stage positions…). Proprietary formats have versioning issues, so analysis usually <strong>converts to an open format</strong>.</p>
+</div>
+<div class="card-grid cols-2">
+<div class="card"><h4>📁 <span data-zh="專有格式" data-en="Proprietary">專有格式</span></h4>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>CZI</strong> (Zeiss ZEN)</li>
+<li><strong>LIF</strong> (Leica LAS X)</li>
+<li><strong>ND2</strong> (Nikon NIS-Elements)</li>
+<li><strong>OIB / OIR</strong> (Olympus / Evident FluoView)</li>
+<li><strong>MRXS</strong> (Hamamatsu / 3DHistech 病理掃片)</li>
+</ul>
+</div>
+<div class="card"><h4>📂 <span data-zh="開放格式" data-en="Open Formats">開放格式</span></h4>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>TIFF / OME-TIFF</strong>：最通用，可載 OME-XML 元資料</li>
+<li><strong>HDF5 / N5</strong>：分塊存取，適合大資料 / BigDataViewer</li>
+<li><strong>OME-Zarr (NGFF)</strong>：雲端原生、多解析度金字塔，<em>2025 年的新標準</em></li>
+</ul>
+</div>
+</div>
+
+<div class="decision-tree">
+<h4>🌳 <span data-zh="讀檔工具決策樹" data-en="Reader Decision Tree">讀檔工具決策樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>檔案是哪一家廠商的？<span class="dt-arrow">→</span> <strong>未知</strong> → 用 <code>bioio</code> 或 Fiji + Bio-Formats，幾乎所有格式都支援</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>檔案是病理 WSI (.svs/.ndpi/.mrxs)？<span class="dt-arrow">→</span> 用 <code>openslide</code> / <code>tiffslide</code> 而非 Bio-Formats（金字塔多解析度存取更快）</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>檔案 &gt; 10 GB？<span class="dt-arrow">→</span> 不要整檔載入記憶體！用 <code>dask-image</code> 或 OME-Zarr 分塊讀取</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>要與深度學習結合？<span class="dt-arrow">→</span> 預先轉成 OME-Zarr，搭配 <code>pytorch</code> Dataset 串流</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>What vendor is the file from? <span class="dt-arrow">→</span> <strong>Unknown</strong> → use <code>bioio</code> or Fiji + Bio-Formats — covers almost everything</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Is it a pathology WSI (.svs/.ndpi/.mrxs)? <span class="dt-arrow">→</span> Use <code>openslide</code> / <code>tiffslide</code>, not Bio-Formats — faster pyramid access</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>File &gt; 10 GB? <span class="dt-arrow">→</span> Do not load the whole thing into RAM. Use <code>dask-image</code> or OME-Zarr chunked access</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>Integrating with deep learning? <span class="dt-arrow">→</span> Pre-convert to OME-Zarr and stream with a PyTorch Dataset</div></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="四、讀取顯微影像實作" data-en="IV. Reading Microscopy Images">四、讀取顯微影像實作</h2>
+<div class="code-tabs"><div class="code-tab-btns"><button class="code-tab-btn active" onclick="switchTab(this,'py1')">Python (bioio / tifffile)</button><button class="code-tab-btn" onclick="switchTab(this,'fiji1')">Fiji (Bio-Formats)</button></div>
+<div class="code-tab-content active" id="py1"><pre><span class="comment"># 1) Universal reader via bioio — handles CZI/LIF/ND2/OME-TIFF/OME-Zarr</span>
+<span class="kw">from</span> bioio <span class="kw">import</span> BioImage
+img = BioImage(<span class="str">"sample.czi"</span>)
+<span class="func">print</span>(img.shape, img.dims, img.dtype)        <span class="comment"># (T, C, Z, Y, X), e.g. (1, 3, 41, 1024, 1024)</span>
+<span class="func">print</span>(img.physical_pixel_sizes)               <span class="comment"># PhysicalPixelSizes(Z=1.0, Y=0.21, X=0.21)  µm</span>
+<span class="func">print</span>(img.channel_names)                      <span class="comment"># ['DAPI', 'GFP', 'Cy5']</span>
+
+<span class="comment"># Get one channel as numpy</span>
+nuc = img.get_image_data(<span class="str">"ZYX"</span>, T=<span class="num">0</span>, C=<span class="num">0</span>)    <span class="comment"># 3D nucleus channel</span>
+
+<span class="comment"># 2) Fast OME-TIFF read with tifffile</span>
+<span class="kw">import</span> tifffile, numpy <span class="kw">as</span> np
+arr = tifffile.imread(<span class="str">"sample.ome.tif"</span>)        <span class="comment"># shape e.g. (T,C,Z,Y,X) or (Y,X)</span>
+<span class="func">print</span>(arr.shape, arr.dtype)
+
+<span class="comment"># 3) Cloud-native: OME-Zarr</span>
+<span class="kw">import</span> zarr
+z = zarr.open(<span class="str">"sample.ome.zarr"</span>, mode=<span class="str">"r"</span>)
+level0 = z[<span class="num">0</span>]                                  <span class="comment"># multi-scale level 0 (highest res)</span>
+
+<span class="comment"># 4) WSI / pathology — use tiffslide (faster) or openslide</span>
+<span class="kw">from</span> tiffslide <span class="kw">import</span> TiffSlide
+slide = TiffSlide(<span class="str">"tumor.svs"</span>)
+<span class="func">print</span>(slide.level_dimensions, slide.properties[<span class="str">"openslide.mpp-x"</span>])
+tile = slide.read_region((<span class="num">10000</span>,<span class="num">10000</span>), level=<span class="num">0</span>, size=(<span class="num">512</span>,<span class="num">512</span>))</pre></div>
+<div class="code-tab-content" id="fiji1"><pre><span class="comment">// Fiji macro — open any vendor format via Bio-Formats</span>
+run(<span class="str">"Bio-Formats Importer"</span>, <span class="str">"open=[/path/sample.czi] color_mode=Default view=Hyperstack stack_order=XYCZT"</span>);
+
+<span class="comment">// Check pixel size</span>
+getPixelSize(unit, pw, ph, pd);
+print(<span class="str">"pixel size: "</span> + pw + <span class="str">" x "</span> + ph + <span class="str">" "</span> + unit);
+print(<span class="str">"depth (Z step): "</span> + pd);
+
+<span class="comment">// Get dimensions</span>
+getDimensions(w, h, ch, sl, fr);
+print(<span class="str">"W="</span>+w+<span class="str">" H="</span>+h+<span class="str">" C="</span>+ch+<span class="str">" Z="</span>+sl+<span class="str">" T="</span>+fr);
+
+<span class="comment">// Save as OME-TIFF for downstream tools</span>
+run(<span class="str">"Bio-Formats Exporter"</span>, <span class="str">"save=[/path/sample.ome.tif]"</span>);</pre></div>
+</div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>陷阱：</strong>把 16-bit 影像顯示「看起來太暗」就直接 <code>img.astype(uint8)</code> 是最常見的初學者錯誤——這會讓你失去 99% 的動態範圍。只在<strong>顯示</strong>時做 contrast stretch，<strong>分析</strong>請保留原本資料型別。</span>
+<span data-lang="en"><strong>Pitfall:</strong> The most common beginner mistake is to convert a 16-bit image that "looks too dark" via <code>img.astype(uint8)</code> — that throws away 99% of the dynamic range. Contrast-stretch only for <strong>display</strong>; keep the native dtype for <strong>analysis</strong>.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="最佳實踐" data-en="BEST PRACTICES">最佳實踐</div>
+<h2 data-zh="五、元資料 (Metadata) 與資料管理" data-en="V. Metadata and Data Management">五、元資料與資料管理</h2>
+<div data-lang="zh">
+<p>影像分析的可重現性，<strong>10% 在演算法，90% 在元資料管理</strong>。一個 TIFF 沒寫 pixel size，整篇論文的所有 µm 都是猜的。</p>
+<ul style="margin:12px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>OME-XML</strong>：標準化元資料 schema，OME-TIFF 預設嵌入</li>
+<li><strong>BIDS-Microscopy</strong>：仿照 fMRI BIDS，制定影像資料的目錄結構</li>
+<li><strong>BioImage Archive</strong>：EMBL-EBI 的影像公共資料庫，類似 GEO/SRA 之於序列</li>
+<li><strong>IDR (Image Data Resource)</strong>：策展過的高品質公共影像資料集</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>Reproducibility in image analysis is <strong>10% algorithm, 90% metadata management</strong>. A TIFF without pixel size means every µm in your paper is a guess.</p>
+<ul style="margin:12px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>OME-XML</strong>: standardized metadata schema, embedded in OME-TIFF</li>
+<li><strong>BIDS-Microscopy</strong>: BIDS-style directory layout for imaging</li>
+<li><strong>BioImage Archive</strong>: EMBL-EBI public image data repository (image counterpart of GEO/SRA)</li>
+<li><strong>IDR</strong>: curated, high-quality public image datasets</li>
+</ul>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>實用建議：</strong>專案啟動時建一個 <code>data_manifest.csv</code>，每一列記錄一張影像、檔案路徑、物種、組織、染色、顯微鏡、像素大小、Z 間距、拍攝者、日期。這張表會在三年後救你的命。</span>
+<span data-lang="en"><strong>Practical tip:</strong> At project start, create a <code>data_manifest.csv</code> — one row per image with path, species, tissue, staining, microscope, pixel size, Z step, operator, date. This table will save you three years from now.</span>
+</div></div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. 你在 Fiji 開啟一個共軛焦 stack，發現 3D 分割結果中所有細胞都被「壓扁」。最可能的原因是？</p>
+<p data-lang="en">1. You open a confocal stack in Fiji and your 3D segmentation shows all cells "squashed flat." Most likely cause?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 細胞本來就是扁的</span><span data-lang="en">A. The cells are inherently flat</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 通道順序錯誤</span><span data-lang="en">B. Wrong channel order</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 沒有處理 Z 方向的各向異性 (anisotropy)</span><span data-lang="en">C. Z anisotropy was ignored</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 位元深度太低</span><span data-lang="en">D. Bit depth too low</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">2. 關於 OME-Zarr，下列何者正確？</p>
+<p data-lang="en">2. Which is correct about OME-Zarr?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 它是 Zeiss 的專有格式</span><span data-lang="en">A. It is Zeiss's proprietary format</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 它是雲端原生、分塊存取、多解析度的開放格式，是 NGFF 標準的實作</span><span data-lang="en">B. A cloud-native, chunked, multi-resolution open format implementing the NGFF standard</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 只能存單通道 2D 影像</span><span data-lang="en">C. Only supports single-channel 2D images</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 比 OME-TIFF 慢，已被淘汰</span><span data-lang="en">D. Slower than OME-TIFF and deprecated</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">3. 你的 16-bit 顯微影像看起來太暗。最佳處理方式是？</p>
+<p data-lang="en">3. Your 16-bit microscopy image looks too dark. Best approach?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. <code>img.astype(uint8)</code> 轉成 8-bit</span><span data-lang="en">A. <code>img.astype(uint8)</code> to convert to 8-bit</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 拍攝時加大雷射功率重拍</span><span data-lang="en">B. Re-acquire with higher laser power</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 顯示時做 contrast stretch（如 1–99 百分位），分析仍用原 16-bit</span><span data-lang="en">C. Contrast-stretch only for display (e.g., 1–99 percentile); keep 16-bit for analysis</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 把所有像素 ×10 再儲存</span><span data-lang="en">D. Multiply all pixels by 10 and resave</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav"><div class="placeholder"></div>
+<a href="preprocessing.html"><span class="nav-dir" data-zh="下一步 →" data-en="Next →">下一步 →</span><span class="nav-title" data-zh="Step 2: 預處理與去噪 (Preprocessing &amp;amp; Denoising)" data-en="Step 2: Preprocessing &amp;amp; Denoising">Step 2: 預處理與去噪 (Preprocessing &amp; Denoising)</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+function switchTab(b,id){const p=b.closest('.code-tabs');p.querySelectorAll('.code-tab-btn').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.code-tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');}
+const QF={
+  zh:{q1_y:'各向異性是 3D 顯微影像最常見的陷阱，Z 軸通常比 XY 大 3–10 倍。',q1_n:'正確答案已標示。',q2_y:'OME-Zarr 是 NGFF 標準的雲端原生實作，2025 年起逐步成為大資料量影像的首選。',q2_n:'正確答案已標示。',q3_y:'分析請保留 16-bit 動態範圍，只在顯示時做對比拉伸，避免資訊流失。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'Anisotropy is the #1 trap in 3D microscopy — Z is typically 3–10× coarser than XY.',q1_n:'Correct answer highlighted.',q2_y:'OME-Zarr implements the NGFF standard — cloud-native and now the preferred format for large image datasets.',q2_n:'Correct answer highlighted.',q3_y:'Preserve the 16-bit dynamic range for analysis; only contrast-stretch for display.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

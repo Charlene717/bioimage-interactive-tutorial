@@ -1,0 +1,226 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Advanced: Digital Pathology — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html">Fund.</a></li><li><a href="preprocessing.html">Preproc.</a></li><li><a href="deconvolution.html">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html">Class.Seg</a></li><li><a href="segmentation-dl.html">DL Seg</a></li><li><a href="foundation-models.html">FM</a></li><li><a href="tracking.html">Track.</a></li><li><a href="quantification.html">Quant.</a></li><li><a href="3d-multidim.html">3D</a></li><li><a href="high-content.html">HCS</a></li><li><a href="pathology.html" class="active">Path.</a></li><li><a href="tools.html">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">ADVANCED</div>
+<h1 data-zh="數位病理 (Digital Pathology)" data-en="Digital Pathology">數位病理</h1>
+<p class="subtitle" data-lang="zh">病理玻片掃成 Giga-pixel 金字塔影像 (WSI)，撐起癌症診斷、生物標誌探索與臨床 AI。Tile → 染色正規化 → 推論 → slide 級聚合，是這個領域獨特的工作流。</p>
+<p class="subtitle" data-lang="en">Pathology slides are scanned as gigapixel pyramidal images (WSI) — the foundation of cancer diagnostics, biomarker discovery, and clinical AI. Tile → stain normalize → per-tile inference → slide-level aggregation is this domain's signature workflow.</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="WSI 基礎" data-en="WSI BASICS">WSI 基礎</div>
+<h2 data-zh="一、WSI 格式與分塊存取" data-en="I. WSI Formats &amp; Tiled Access">一、WSI 格式</h2>
+<div data-lang="zh">
+<p>WSI = Whole-Slide Image，整張病理切片掃成的<strong>金字塔影像</strong>：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li>一張切片約 20×20 mm，40× 掃描 = 80k × 80k pixel ≈ 數 GB</li>
+<li>金字塔：原解析度（level 0）+ 縮小版（level 1, 2 …）</li>
+<li>用 <strong>tile（512×512 或 256×256）</strong> 處理，不會整檔載入</li>
+</ul>
+<p><strong>常見格式</strong>：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><code>.svs</code> Aperio（最常見）、<code>.ndpi</code> Hamamatsu、<code>.mrxs</code> 3DHistech</li>
+<li><code>.dcm</code> DICOM-WSI（醫療標準）</li>
+<li><strong>Microns Per Pixel (MPP)</strong> 是關鍵 metadata：20× ≈ 0.5 µm/px，40× ≈ 0.25 µm/px</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>WSI = Whole-Slide Image — a pathology slide digitized as a <strong>pyramidal image</strong>:</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li>~20×20 mm slide at 40× = 80k × 80k pixels ≈ several GB</li>
+<li>Pyramid: native resolution (level 0) + downsampled levels (1, 2, …)</li>
+<li>Processed in <strong>tiles</strong> (512×512 or 256×256) — never loaded whole</li>
+</ul>
+<p><strong>Common formats</strong>:</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><code>.svs</code> Aperio (most common), <code>.ndpi</code> Hamamatsu, <code>.mrxs</code> 3DHistech</li>
+<li><code>.dcm</code> DICOM-WSI (medical standard)</li>
+<li><strong>Microns Per Pixel (MPP)</strong> is the critical metadata: 20× ≈ 0.5 µm/px, 40× ≈ 0.25 µm/px</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="染色正規化" data-en="STAIN NORMALIZATION">染色正規化</div>
+<h2 data-zh="二、染色正規化 (Stain Normalization)" data-en="II. Stain Normalization">二、染色正規化</h2>
+<div data-lang="zh">
+<p>不同醫院 / 染色批次 / 掃描儀的 H&amp;E 顏色差異極大——粉、紫、橘、藍。DL 模型對顏色非常敏感，跨機構部署必須正規化。</p>
+<table class="comp-table">
+<thead><tr><th data-zh="方法" data-en="Method">方法</th><th data-zh="原理" data-en="Principle">原理</th><th data-zh="特色" data-en="Note">特色</th></tr></thead>
+<tbody>
+<tr><td><strong>Reinhard</strong></td><td data-lang="zh">LAB 空間配對 mean / std</td><td data-lang="zh">最簡單；對組織量不平衡敏感</td><td data-lang="en">Match LAB-space mean/std</td><td data-lang="en">Simplest; sensitive to tissue-fraction imbalance</td></tr>
+<tr><td><strong>Macenko 2009</strong></td><td data-lang="zh">在 OD 空間找 H 與 E 兩 stain 向量</td><td data-lang="zh"><strong>事實標準</strong>，TIA Toolbox、QuPath 預設</td><td data-lang="en">Find H&amp;E stain vectors in OD space</td><td data-lang="en"><strong>De facto standard</strong>; default in TIA Toolbox, QuPath</td></tr>
+<tr><td><strong>Vahadane 2016</strong></td><td data-lang="zh">SNMF 分離 stain，更貼近生物</td><td data-lang="zh">更準；較慢</td><td data-lang="en">Sparse NMF stain separation</td><td data-lang="en">More faithful; slower</td></tr>
+<tr><td><strong>StainGAN / StainNet</strong></td><td data-lang="zh">GAN / CNN 學跨機構對映</td><td data-lang="zh">SOTA；需訓練資料</td><td data-lang="en">GAN/CNN learning cross-site mapping</td><td data-lang="en">SOTA; needs training data</td></tr>
+</tbody></table>
+</div>
+<div data-lang="en">
+<p>H&amp;E colour varies enormously across hospitals/batches/scanners — pink, purple, orange, blue. DL models are highly colour-sensitive; cross-site deployment demands normalization.</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="DL pipeline" data-en="DL PIPELINE">DL pipeline</div>
+<h2 data-zh="三、WSI DL 工作流" data-en="III. WSI DL Workflow">三、WSI DL 工作流</h2>
+<div class="workflow">
+<div class="workflow-step" data-step="1"><h4 data-zh="組織偵測 (Tissue mask)" data-en="Tissue detection">組織偵測</h4>
+<div data-lang="zh"><p>用 HSV 飽和度或預訓練 GrandQC 偵測組織區域，排除背景白色 → 大幅減少 tile 數量。</p></div>
+<div data-lang="en"><p>Detect tissue via HSV saturation or pretrained GrandQC — drop background tiles to slash tile count.</p></div>
+</div>
+<div class="workflow-step" data-step="2"><h4 data-zh="Tile 切割 (Patching)" data-en="Tile / patch extraction">Tile 切割</h4>
+<div data-lang="zh"><p>在指定 MPP 切 256×256 或 512×512 patch。對齊 pretrained 模型期望的 MPP（多數 ~0.5 µm/px = 20×）。</p></div>
+<div data-lang="en"><p>Extract 256×256 or 512×512 patches at a target MPP — match what your pretrained model expects (often 0.5 µm/px ≈ 20×).</p></div>
+</div>
+<div class="workflow-step" data-step="3"><h4 data-zh="染色正規化 + tile-level 推論" data-en="Stain normalize + tile-level inference">染色正規化 + tile 推論</h4>
+<div data-lang="zh"><p>每 tile 跑分割 (HoVer-Net, StarDist H&amp;E, CellViT) 或分類 (UNI/Virchow embedding + classifier)。</p></div>
+<div data-lang="en"><p>Per tile: segmentation (HoVer-Net, StarDist H&amp;E, CellViT) or classification (UNI/Virchow embedding + classifier).</p></div>
+</div>
+<div class="workflow-step" data-step="4"><h4 data-zh="Slide-level 聚合 (MIL)" data-en="Slide-level aggregation (MIL)">Slide-level 聚合</h4>
+<div data-lang="zh"><p>幾千個 tile 的 embedding → slide-level 預測。<strong>Multiple Instance Learning</strong>：ABMIL、CLAM、TransMIL、DSMIL。CLAM 是教學首選。</p></div>
+<div data-lang="en"><p>Thousands of tile embeddings → slide-level prediction. <strong>Multiple Instance Learning</strong>: ABMIL, CLAM, TransMIL, DSMIL. CLAM is the teaching default.</p></div>
+</div>
+<div class="workflow-step" data-step="5"><h4 data-zh="解釋性 (Attention heatmap)" data-en="Interpretability (attention heatmap)">解釋性</h4>
+<div data-lang="zh"><p>CLAM 等 attention MIL 輸出 per-tile 注意力分數 → 在 slide 上畫熱圖，告訴病理醫師「模型看哪裡」。</p></div>
+<div data-lang="en"><p>Attention MIL outputs per-tile attention → heatmap overlaid on the slide, showing pathologists "where the model looks."</p></div>
+</div>
+</div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>放大倍率陷阱：</strong>UNI / Virchow 等 FM 預期 ~0.5 µm/px。若你直接餵 40× (0.25 µm/px)，性能會悄悄下降。讀 <code>slide.properties["openslide.mpp-x"]</code> 並做正確的 level 選擇。</span>
+<span data-lang="en"><strong>Magnification trap:</strong> UNI / Virchow expect ~0.5 µm/px. Feeding 40× (0.25 µm/px) directly silently hurts performance. Read <code>slide.properties["openslide.mpp-x"]</code> and pick the right level.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="工具" data-en="TOOLS">工具</div>
+<h2 data-zh="四、工具地圖" data-en="IV. Tool Map">四、工具地圖</h2>
+<table class="comp-table">
+<thead><tr><th>Tool</th><th data-zh="角色" data-en="Role">角色</th></tr></thead>
+<tbody>
+<tr><td><strong>QuPath</strong></td><td data-lang="zh">開源 WSI 檢視 + Groovy 腳本；IHC / 多重 IF / 臨床標註首選</td><td data-lang="en">Open-source WSI viewer + Groovy scripting; workhorse for IHC / multiplex IF / clinical annotation</td></tr>
+<tr><td><strong>OpenSlide</strong></td><td data-lang="zh">最廣泛的 WSI 讀檔 lib (C+Python)</td><td data-lang="en">Most widely supported WSI reader (C + Python)</td></tr>
+<tr><td><strong>TiffSlide</strong></td><td data-lang="zh">純 Python，比 OpenSlide 快</td><td data-lang="en">Pure Python, faster than OpenSlide for pyramidal TIFF</td></tr>
+<tr><td><strong>TIA Toolbox</strong></td><td data-lang="zh">完整 WSI pipeline (預處理、模型、視覺化)</td><td data-lang="en">End-to-end WSI pipeline (preproc, models, viz)</td></tr>
+<tr><td><strong>PathML</strong></td><td data-lang="zh">brightfield + IF + spatial omics 統一 API</td><td data-lang="en">Unified API for brightfield, IF, and spatial omics</td></tr>
+<tr><td><strong>HoVer-Net / CellViT / StarDist H&amp;E</strong></td><td data-lang="zh">核分割 + 分類</td><td data-lang="en">Nuclear instance segmentation + classification</td></tr>
+<tr><td><strong>CLAM</strong></td><td data-lang="zh">弱監督 slide-level 分類</td><td data-lang="en">Weakly-supervised slide-level classification</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="五、實作" data-en="V. Code">五、實作</h2>
+<div class="code-tabs"><div class="code-tab-btns"><button class="code-tab-btn active" onclick="switchTab(this,'os1')">TiffSlide + Macenko</button><button class="code-tab-btn" onclick="switchTab(this,'hov1')">HoVer-Net (TIA Toolbox)</button><button class="code-tab-btn" onclick="switchTab(this,'qp1')">QuPath (Groovy)</button></div>
+<div class="code-tab-content active" id="os1"><pre><span class="kw">from</span> tiffslide <span class="kw">import</span> TiffSlide
+<span class="kw">from</span> tiatoolbox.tools.stainnorm <span class="kw">import</span> MacenkoNormalizer
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+slide = TiffSlide(<span class="str">"tumor_001.svs"</span>)
+mpp = float(slide.properties[<span class="str">"openslide.mpp-x"</span>])
+<span class="func">print</span>(<span class="str">"MPP:"</span>, mpp, <span class="str">"  Dims:"</span>, slide.level_dimensions[<span class="num">0</span>])
+
+<span class="comment"># Pick level closest to 0.5 µm/px (20x equivalent)</span>
+target_mpp = <span class="num">0.5</span>
+downsample = target_mpp / mpp
+level = slide.get_best_level_for_downsample(downsample)
+
+<span class="comment"># Tile extraction at chosen level</span>
+tile_size = <span class="num">512</span>
+tile = slide.read_region(location=(<span class="num">20000</span>, <span class="num">15000</span>), level=level, size=(tile_size, tile_size))
+tile_np = np.array(tile)[..., :<span class="num">3</span>]                     <span class="comment"># drop alpha</span>
+
+<span class="comment"># Macenko normalize against a reference tile</span>
+norm = MacenkoNormalizer()
+norm.fit(reference_tile)
+tile_norm = norm.transform(tile_np)</pre></div>
+<div class="code-tab-content" id="hov1"><pre><span class="kw">from</span> tiatoolbox.models.engine.nucleus_instance_segmentor <span class="kw">import</span> NucleusInstanceSegmentor
+
+inst_seg = NucleusInstanceSegmentor(
+    pretrained_model=<span class="str">"hovernet_fast-pannuke"</span>,
+    num_loader_workers=<span class="num">4</span>, batch_size=<span class="num">8</span>
+)
+
+output = inst_seg.predict(
+    [<span class="str">"tumor_001.svs"</span>],
+    masks=<span class="kw">None</span>,
+    save_dir=<span class="str">"./hovernet_out/"</span>,
+    mode=<span class="str">"wsi"</span>,
+    on_gpu=<span class="kw">True</span>
+)
+
+<span class="comment"># Output is a .dat per slide with per-nucleus instance + class (5 PanNuke classes)</span></pre></div>
+<div class="code-tab-content" id="qp1"><pre><span class="comment">// QuPath Groovy script — IHC positive cell detection</span>
+<span class="kw">import</span> qupath.lib.scripting.QP
+
+selectAnnotations();
+runPlugin(<span class="str">"qupath.imagej.detect.cells.PositiveCellDetection"</span>,
+    <span class="str">"{\"detectionImageBrightfield\":\"Hematoxylin OD\","</span> +
+    <span class="str">"\"requestedPixelSizeMicrons\":0.5,"</span> +
+    <span class="str">"\"backgroundRadiusMicrons\":8.0,"</span> +
+    <span class="str">"\"minAreaMicrons\":10.0, \"maxAreaMicrons\":400.0,"</span> +
+    <span class="str">"\"thresholdCompartment\":\"Cell: DAB OD mean\","</span> +
+    <span class="str">"\"thresholdPositive1\":0.2}"</span>);
+
+<span class="comment">// Export per-cell measurements</span>
+saveDetectionMeasurements(<span class="str">"results.csv"</span>);</pre></div>
+</div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">1. 在跨醫院 H&amp;E DL 模型部署，最該優先做？</p>
+<p data-lang="en">1. Deploying H&amp;E DL across hospitals — top priority?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 換更大模型</span><span data-lang="en">A. Use a larger model</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 染色正規化 (Macenko / Vahadane / StainGAN)</span><span data-lang="en">B. Stain normalization (Macenko / Vahadane / StainGAN)</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 降低解析度</span><span data-lang="en">C. Lower resolution</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 不需要任何處理</span><span data-lang="en">D. No preprocessing</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">2. UNI / Virchow 期望 ~0.5 µm/px。你直接餵 40× (0.25 µm/px) tile 會怎樣？</p>
+<p data-lang="en">2. UNI / Virchow expect ~0.5 µm/px. What happens if you feed 40× (0.25 µm/px) tiles directly?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 結果更準</span><span data-lang="en">A. More accurate</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 報錯</span><span data-lang="en">B. Throws an error</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 不報錯，但效能默默下降——典型 silent failure</span><span data-lang="en">C. No error, performance silently drops — a classic silent failure</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 速度變更快</span><span data-lang="en">D. Runs faster</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">3. CLAM 等弱監督 MIL 適合的情境？</p>
+<p data-lang="en">3. When is weakly-supervised MIL (e.g., CLAM) appropriate?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 只有 10 張 slide</span><span data-lang="en">A. Only 10 slides</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 有大量 slide-level 標籤（無 patch 級標註）</span><span data-lang="en">B. Many slide-level labels but no patch-level annotation</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 已有全 slide 像素級標註</span><span data-lang="en">C. Pixel-level annotations across whole slides</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 只想做配準</span><span data-lang="en">D. Just want to register</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav">
+<a href="high-content.html"><span class="nav-dir" data-zh="← 上一步" data-en="← Previous">← 上一步</span><span class="nav-title" data-zh="高內涵分析 (High-Content Screening)" data-en="High-Content Screening">高內涵分析 (High-Content Screening)</span></a>
+<a href="tools.html"><span class="nav-dir" data-zh="下一步 →" data-en="Next →">下一步 →</span><span class="nav-title" data-zh="工具比較與整合 (Tools Comparison)" data-en="Tools Comparison &amp;amp; Integration">工具比較與整合 (Tools Comparison)</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+function switchTab(b,id){const p=b.closest('.code-tabs');p.querySelectorAll('.code-tab-btn').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.code-tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');}
+const QF={
+  zh:{q1_y:'跨機構顏色差異是 H&E 模型的主要殺手，染色正規化必做。',q1_n:'正確答案已標示。',q2_y:'MPP 不對是 WSI 模型最常見的 silent failure，務必對齊 pretrained 期望。',q2_n:'正確答案已標示。',q3_y:'MIL 設計就是給「只有 slide-level 標籤」的情境用。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'Cross-site colour variation is the #1 killer of H&E models — stain normalization is mandatory.',q1_n:'Correct answer highlighted.',q2_y:'Wrong MPP is the most common silent failure for WSI models — always match the pretrained MPP.',q2_n:'Correct answer highlighted.',q3_y:'MIL is designed exactly for slide-level labels with no patch annotation.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

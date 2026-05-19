@@ -1,0 +1,229 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Advanced: High-Content Screening — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html">Fund.</a></li><li><a href="preprocessing.html">Preproc.</a></li><li><a href="deconvolution.html">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html">Class.Seg</a></li><li><a href="segmentation-dl.html">DL Seg</a></li><li><a href="foundation-models.html">FM</a></li><li><a href="tracking.html">Track.</a></li><li><a href="quantification.html">Quant.</a></li><li><a href="3d-multidim.html">3D</a></li><li><a href="high-content.html" class="active">HCS</a></li><li><a href="pathology.html">Path.</a></li><li><a href="tools.html">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">ADVANCED</div>
+<h1 data-zh="高內涵分析 (High-Content Screening)" data-en="High-Content Screening">高內涵分析</h1>
+<p class="subtitle" data-lang="zh">藥物 / 擾動 / Cell Painting 篩選一次產生 10⁴–10⁶ 張影像，組織成 plate × well × site × channel。挑戰從「分割這張」變成「在大規模上建可重現 pipeline、跨 plate 正規化、做表型 profile」。</p>
+<p class="subtitle" data-lang="en">HCS produces 10⁴–10⁶ images per experiment, organised as plate × well × site × channel. The challenge shifts from "segment this image" to "build a reproducible pipeline, normalize across plates, and extract phenotype profiles at scale."</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="HCS 架構" data-en="HCS LAYOUT">HCS 架構</div>
+<h2 data-zh="一、HCS 資料層次" data-en="I. HCS Data Hierarchy">一、HCS 資料層次</h2>
+<div data-lang="zh">
+<p>典型 96 / 384 well plate：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Plate</strong>（一塊培養盤）→ 多個 <strong>Well</strong>（如 A1, A2 …）→ 多個 <strong>Site / Field</strong>（每 well 拍幾個位置）→ 多個 <strong>Channel</strong>（DAPI、Mito、ER、Actin、RNA、Golgi/PM）。</li>
+<li>每張影像必須對應 <strong>plate map</strong>：哪個 well 是 control、哪個是哪個化合物、濃度、replicate ID。</li>
+<li>每個物件還要記 <strong>per-cell features</strong> → 然後聚合到 well 層級（per-well profile）。</li>
+</ul>
+</div>
+<div data-lang="en">
+<p>Typical 96/384-well plate:</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Plate</strong> → multiple <strong>Wells</strong> (A1, A2, …) → multiple <strong>Sites/Fields</strong> per well → multiple <strong>Channels</strong> (DAPI, Mito, ER, Actin, RNA, Golgi/PM).</li>
+<li>Each image must map to a <strong>plate map</strong>: which well is control, which compound at which dose, replicate ID.</li>
+<li>Each cell yields <strong>per-cell features</strong> → aggregated to <strong>per-well profile</strong>.</li>
+</ul>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="工具" data-en="TOOLS">工具</div>
+<h2 data-zh="二、HCS 工具生態" data-en="II. HCS Tool Ecosystem">二、HCS 工具生態</h2>
+<table class="comp-table">
+<thead><tr><th>Tool</th><th data-zh="角色" data-en="Role">角色</th><th data-zh="特色" data-en="Strength">特色</th></tr></thead>
+<tbody>
+<tr><td><strong>CellProfiler 4</strong></td><td data-lang="zh">宣告式 pipeline</td><td data-lang="zh">無需寫碼，GUI 可建 segmentation + 特徵 + 輸出 CSV；可 headless 跑叢集</td><td data-lang="en">Declarative pipeline</td><td data-lang="en">No-code; build segmentation+features+CSV in GUI; runs headless on clusters</td></tr>
+<tr><td><strong>CellProfiler Analyst</strong></td><td data-lang="zh">互動式探索 + 機器學習分類器</td><td data-lang="zh">scatter QC、訓練 RF 預測 phenotype class</td><td data-lang="en">Interactive exploration + ML classifier</td><td data-lang="en">Scatter QC, train RF to predict phenotype class</td></tr>
+<tr><td><strong>DeepProfiler</strong></td><td data-lang="zh">DL embedding 替代 CP 手工特徵</td><td data-lang="zh">ImageNet/CellPainting pretrained CNN 提 feature</td><td data-lang="en">DL embedding instead of hand-crafted features</td><td data-lang="en">Pretrained CNN on ImageNet/CellPainting</td></tr>
+<tr><td><strong>pycytominer</strong></td><td data-lang="zh">表型 profile 正規化 / feature select / aggregation</td><td data-lang="zh">Broad 出品的事實標準後處理工具</td><td data-lang="en">Profile normalization / feature selection / aggregation</td><td data-lang="en">Broad's de facto post-processing toolkit</td></tr>
+<tr><td><strong>JUMP-CP pipelines (starrynight)</strong></td><td data-lang="zh">Cell Painting reference workflow</td><td data-lang="zh">超大規模可重現參考</td><td data-lang="en">Cell Painting reference workflow</td><td data-lang="en">Mega-scale reproducible reference</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="Cell Painting" data-en="CELL PAINTING">Cell Painting</div>
+<h2 data-zh="三、Cell Painting：6 染色見全細胞表型" data-en="III. Cell Painting: 6 Stains, Whole-Cell Phenotype">三、Cell Painting</h2>
+<div data-lang="zh">
+<p>Cell Painting 是<strong>非靶向 (unbiased)</strong> 的形態學表型 assay。一次染 6 條螢光染料 (5 個通道) 覆蓋細胞主要區室：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li>Hoechst → 核 DNA</li>
+<li>SYTO 14 → 核仁 + 細胞質 RNA</li>
+<li>Concanavalin A → ER</li>
+<li>WGA → Golgi / 細胞膜</li>
+<li>Phalloidin → F-actin (細胞骨架)</li>
+<li>MitoTracker → 粒線體</li>
+</ul>
+<p>從這 5 個通道萃取數百個 per-cell 特徵 → 聚合成 well-level <strong>morphological profile</strong>。同樣表型的擾動會有相似 profile (cosine similarity)。</p>
+<p>JUMP-CP 公開了 3M+ 影像、12k+ 化合物 + 8k+ 基因擾動的世界級資源（Chandrasekaran 2024）。</p>
+</div>
+<div data-lang="en">
+<p>Cell Painting is an <strong>unbiased</strong> morphological phenotyping assay. Six dyes (5 channels) cover the major cellular compartments:</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li>Hoechst → nuclear DNA</li>
+<li>SYTO 14 → nucleoli + cytoplasmic RNA</li>
+<li>Concanavalin A → ER</li>
+<li>WGA → Golgi / plasma membrane</li>
+<li>Phalloidin → F-actin</li>
+<li>MitoTracker → mitochondria</li>
+</ul>
+<p>Hundreds of per-cell features → aggregated into a well-level <strong>morphological profile</strong>. Perturbations with similar phenotypes have similar profiles (cosine similarity).</p>
+<p>JUMP-CP released 3M+ images of 12k+ compounds + 8k+ genetic perturbations (Chandrasekaran 2024).</p>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="正規化" data-en="NORMALIZATION">正規化</div>
+<h2 data-zh="四、Plate effect 與正規化" data-en="IV. Plate Effects &amp; Normalization">四、Plate 效應與正規化</h2>
+<div data-lang="zh">
+<p>HCS 最大的<strong>陷阱</strong>是 plate effect：</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Edge effect</strong>：外圈 well 蒸發 / 溫度不均，數據偏離</li>
+<li><strong>Plate-to-plate variation</strong>：染色強度、顯微鏡 drift</li>
+<li><strong>Row/column gradient</strong>：機械手液移誤差</li>
+</ul>
+<p>標準流程：</p>
+</div>
+<div data-lang="en">
+<p>The biggest <strong>trap</strong> in HCS is plate effects:</p>
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>Edge effect</strong>: outer wells dry out or run hot</li>
+<li><strong>Plate-to-plate variation</strong>: staining intensity, microscope drift</li>
+<li><strong>Row/column gradient</strong>: liquid handler errors</li>
+</ul>
+<p>Standard workflow:</p>
+</div>
+<div class="workflow">
+<div class="workflow-step" data-step="1"><h4 data-zh="QC 過濾" data-en="QC filter">QC 過濾</h4>
+<div data-lang="zh"><p>剔除 out-of-focus / 細胞太少 / 顯微鏡飄移的 site。每 well 細胞數應有最低門檻。</p></div>
+<div data-lang="en"><p>Drop out-of-focus / under-populated / drifted sites. Enforce a minimum cell count per well.</p></div>
+</div>
+<div class="workflow-step" data-step="2"><h4 data-zh="Per-cell feature aggregation" data-en="Per-cell aggregation">每細胞 → 每井聚合</h4>
+<div data-lang="zh"><p>用 <strong>median</strong>（不是 mean，CP 分佈重尾）+ MAD 聚合到 per-well profile。</p></div>
+<div data-lang="en"><p>Use <strong>median</strong> (not mean — distributions are heavy-tailed) and MAD per well.</p></div>
+</div>
+<div class="workflow-step" data-step="3"><h4 data-zh="Plate-wise normalization" data-en="Plate-wise normalization">每板正規化</h4>
+<div data-lang="zh"><p>每 plate 用 <strong>negative control 的 median ± MAD</strong> 做 robust z-score。或用 <strong>Typical Variation Normalization (TVN)</strong>、Sphering 校正 batch。</p></div>
+<div data-lang="en"><p>Robust z-score per plate using <strong>negative-control median ± MAD</strong>. Or <strong>TVN / sphering</strong> for batch correction.</p></div>
+</div>
+<div class="workflow-step" data-step="4"><h4 data-zh="Feature selection" data-en="Feature selection">特徵選擇</h4>
+<div data-lang="zh"><p>用 pycytominer 過濾相關性 &gt; 0.95、low-variance、NaN 過多的特徵。</p></div>
+<div data-lang="en"><p>Use pycytominer to drop r &gt; 0.95, low-variance, or NaN-heavy features.</p></div>
+</div>
+<div class="workflow-step" data-step="5"><h4 data-zh="Profile matching" data-en="Profile matching">表型配對</h4>
+<div data-lang="zh"><p>計算<strong>percent-replicating</strong>（replicate 之間的相似度勝過隨機的比例）；<strong>percent-matching</strong>（不同擾動有相同表型的比例）。論文 reporting 標準指標。</p></div>
+<div data-lang="en"><p>Compute <strong>percent-replicating</strong> (replicate similarity beating random) and <strong>percent-matching</strong> (cross-perturbation similarity). Standard reporting metrics.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="五、實作" data-en="V. Code">五、實作</h2>
+<div class="code-tabs"><div class="code-tab-btns"><button class="code-tab-btn active" onclick="switchTab(this,'pcm1')">pycytominer</button><button class="code-tab-btn" onclick="switchTab(this,'cp1')">CellProfiler CLI</button></div>
+<div class="code-tab-content active" id="pcm1"><pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> pycytominer <span class="kw">import</span> normalize, feature_select, aggregate
+
+<span class="comment"># Load per-cell features (CellProfiler output, parquet)</span>
+df = pd.read_parquet(<span class="str">"single_cell_features.parquet"</span>)
+
+<span class="comment"># 1) Aggregate to per-well</span>
+profiles = aggregate(df,
+    strata=[<span class="str">"Metadata_Plate"</span>, <span class="str">"Metadata_Well"</span>],
+    features=<span class="str">"infer"</span>, operation=<span class="str">"median"</span>)
+
+<span class="comment"># 2) Plate-wise normalize against DMSO controls</span>
+norm = normalize(profiles,
+    features=<span class="str">"infer"</span>,
+    meta_features=[<span class="str">"Metadata_Plate"</span>,<span class="str">"Metadata_Well"</span>,<span class="str">"Metadata_perturbation"</span>],
+    samples=<span class="str">"Metadata_perturbation == 'DMSO'"</span>,
+    method=<span class="str">"mad_robustize"</span>)
+
+<span class="comment"># 3) Feature select</span>
+sel = feature_select(norm, features=<span class="str">"infer"</span>,
+    operation=[<span class="str">"variance_threshold"</span>, <span class="str">"correlation_threshold"</span>,
+               <span class="str">"drop_na_columns"</span>, <span class="str">"blocklist"</span>])
+
+<span class="comment"># 4) Percent replicating (simple version)</span>
+<span class="kw">from</span> sklearn.metrics.pairwise <span class="kw">import</span> cosine_similarity
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+feat_cols = [c <span class="kw">for</span> c <span class="kw">in</span> sel.columns <span class="kw">if</span> c.startswith((<span class="str">"Cells_"</span>,<span class="str">"Nuclei_"</span>,<span class="str">"Cytoplasm_"</span>))]
+X = sel[feat_cols].values
+sim = cosine_similarity(X)
+<span class="comment"># Compare replicate sim vs. random null...</span></pre></div>
+<div class="code-tab-content" id="cp1"><pre><span class="comment"># CellProfiler in headless / batch mode (cluster-ready)</span>
+cellprofiler --run-headless \
+    --pipeline analysis.cppipe \
+    --image-directory /data/plate1/images \
+    --output-directory /results/plate1 \
+    --plugins-directory /opt/cp-plugins \
+    --jvm-heap-size=8g
+
+<span class="comment"># Distribute across plates via Snakemake</span>
+<span class="comment"># rule cp_per_plate:</span>
+<span class="comment">#     input: lambda w: glob(f"data/{w.plate}/*.tif")</span>
+<span class="comment">#     output: "results/{plate}/features.csv"</span>
+<span class="comment">#     shell: "cellprofiler --run-headless ..."</span></pre></div>
+</div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. 你的 96-well plate 結果顯示「最外圈 well 都是 hit」。最可能？</p>
+<p data-lang="en">1. Your 96-well screen shows "all outer wells are hits." Most likely?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 真的 hit</span><span data-lang="en">A. Real hits</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 標靶有空間特異性</span><span data-lang="en">B. Target has spatial specificity</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 經典 edge effect，需正規化才能下結論</span><span data-lang="en">C. Classic edge effect — normalize before concluding</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 換顯微鏡</span><span data-lang="en">D. Change microscope</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">2. CP per-cell 特徵聚合成 per-well profile，最佳統計量？</p>
+<p data-lang="en">2. Aggregating per-cell features to a per-well profile — which statistic?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. mean ± std</span><span data-lang="en">A. mean ± std</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. median ± MAD（CP 分佈重尾）</span><span data-lang="en">B. median ± MAD (CP distributions are heavy-tailed)</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. max</span><span data-lang="en">C. max</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. sum</span><span data-lang="en">D. sum</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="0">
+<p data-lang="zh">3. <strong>Percent-replicating</strong> 指什麼？</p>
+<p data-lang="en">3. What does <strong>percent-replicating</strong> measure?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 同一擾動 replicate 之間相似度顯著高於隨機 null 的比例</span><span data-lang="en">A. Fraction of perturbations whose replicate similarity beats a random null</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 影像複製品的比例</span><span data-lang="en">B. Fraction of duplicated images</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. DNA 複製速率</span><span data-lang="en">C. DNA replication rate</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. plate 數量</span><span data-lang="en">D. Number of plates</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav">
+<a href="3d-multidim.html"><span class="nav-dir" data-zh="← 上一步" data-en="← Previous">← 上一步</span><span class="nav-title" data-zh="3D 與多維分析 (3D / Multi-Dim)" data-en="3D &amp;amp; Multi-Dimensional Analysis">3D 與多維分析 (3D / Multi-Dim)</span></a>
+<a href="pathology.html"><span class="nav-dir" data-zh="下一步 →" data-en="Next →">下一步 →</span><span class="nav-title" data-zh="數位病理 (Digital Pathology)" data-en="Digital Pathology">數位病理 (Digital Pathology)</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+function switchTab(b,id){const p=b.closest('.code-tabs');p.querySelectorAll('.code-tab-btn').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.code-tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');}
+const QF={
+  zh:{q1_y:'外圈 well 蒸發、溫度不均，是 HCS 經典 edge effect。',q1_n:'正確答案已標示。',q2_y:'CP 表型分佈重尾，median + MAD 比 mean + std 穩定得多。',q2_n:'正確答案已標示。',q3_y:'Percent-replicating 是判斷 assay reproducibility 的標準指標。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'Edge wells dry out and run hot — the canonical HCS edge effect.',q1_n:'Correct answer highlighted.',q2_y:'CP profiles are heavy-tailed; median + MAD is far more stable than mean + std.',q2_n:'Correct answer highlighted.',q3_y:'Percent-replicating is the canonical metric for assay reproducibility.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

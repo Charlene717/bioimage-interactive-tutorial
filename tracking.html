@@ -1,0 +1,202 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 8: Cell / Particle Tracking — Bioimage Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
+  <ul class="top-nav-links"><li><a href="fundamentals.html">Fund.</a></li><li><a href="preprocessing.html">Preproc.</a></li><li><a href="deconvolution.html">Decon.</a></li><li><a href="registration.html">Regist.</a></li><li><a href="segmentation-classic.html">Class.Seg</a></li><li><a href="segmentation-dl.html">DL Seg</a></li><li><a href="foundation-models.html">FM</a></li><li><a href="tracking.html" class="active">Track.</a></li><li><a href="quantification.html">Quant.</a></li><li><a href="3d-multidim.html">3D</a></li><li><a href="high-content.html">HCS</a></li><li><a href="pathology.html">Path.</a></li><li><a href="tools.html">Tools</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 8 / 9</div>
+<h1 data-zh="細胞 / 粒子追蹤 (Tracking)" data-en="Cell / Particle Tracking">細胞 / 粒子追蹤</h1>
+<p class="subtitle" data-lang="zh">動態生物（分裂、遷移、訊號振盪、譜系關係）需要把分割物件跨時間連起來。追蹤錯誤會累積——第 30 幀的 ID switch 會毀掉之後整條譜系。</p>
+<p class="subtitle" data-lang="en">Dynamic biology (division, migration, signalling oscillations, lineage) requires linking segmented objects across time. Tracking errors compound — an ID switch at frame 30 corrupts the rest of the lineage.</p>
+</header>
+<main class="content-wrap">
+
+<section class="section">
+<div class="section-label" data-zh="兩大範式" data-en="PARADIGMS">兩大範式</div>
+<h2 data-zh="一、Tracking-by-Detection vs. 聯合偵測追蹤" data-en="I. Tracking-by-Detection vs. Joint Detection-Tracking">一、兩大範式</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>🎯 <span data-zh="Tracking-by-Detection (兩階段)" data-en="Tracking-by-Detection (Two Stage)">Tracking-by-Detection</span></h4>
+<div data-lang="zh"><p>(1) 每一幀獨立做<strong>分割 / 偵測</strong>；<br>(2) 用 <strong>linker</strong>（LAP、Kalman、graph match）把跨幀物件連起來。<br>大多數工具屬此類：TrackMate、btrack、ilastik。<strong>優點</strong>：模組化、可換 segmenter。</p></div>
+<div data-lang="en"><p>(1) Per-frame <strong>segmentation/detection</strong>;<br>(2) A <strong>linker</strong> (LAP/Kalman/graph) connects objects across frames.<br>Most tools follow this: TrackMate, btrack, ilastik. <strong>Pros</strong>: modular, swap segmenter freely.</p></div>
+</div>
+<div class="card"><h4>🌐 <span data-zh="Joint detection+tracking" data-en="Joint detection+tracking">聯合偵測追蹤</span></h4>
+<div data-lang="zh"><p>單一 DL 模型同時輸出物件 + 跨幀關聯。代表：<strong>Trackastra</strong>（transformer pairwise association、2024 CTC 冠軍）。<strong>優點</strong>：對相黏 / 快速移動更穩。</p></div>
+<div data-lang="en"><p>A single DL model jointly outputs detections + cross-frame associations. Example: <strong>Trackastra</strong> (transformer pairwise association, winner of CTC 2024). <strong>Pros</strong>: more robust on touching / fast-moving objects.</p></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="連結演算法" data-en="LINKING">連結演算法</div>
+<h2 data-zh="二、連結演算法" data-en="II. Linking Algorithms">二、連結演算法</h2>
+<table class="comp-table">
+<thead><tr><th data-zh="演算法" data-en="Algorithm">演算法</th><th data-zh="原理" data-en="Principle">原理</th><th data-zh="優缺" data-en="Pros / Cons">優缺</th></tr></thead>
+<tbody>
+<tr><td><strong>Nearest neighbour</strong></td><td data-lang="zh">每幀找最近物件</td><td data-lang="zh">最簡單；高密度時錯誤多</td><td data-lang="en">Match each to nearest in next frame</td><td data-lang="en">Simplest; many errors at high density</td></tr>
+<tr><td><strong>LAP (Jaqaman 2008)</strong></td><td data-lang="zh">把追蹤建成 Linear Assignment Problem，全域最佳解 (Hungarian)</td><td data-lang="zh">事實上的標準；支援 gap closing、merge/split</td><td data-lang="en">Frame the problem as LAP, solve globally (Hungarian)</td><td data-lang="en">De facto standard; supports gap closing, merge/split</td></tr>
+<tr><td><strong>Kalman filter</strong></td><td data-lang="zh">預測下一幀位置 + 量測修正</td><td data-lang="zh">適合線性運動 (細胞遷移)；分裂處理不佳</td><td data-lang="en">Predict next position + measurement correction</td><td data-lang="en">Good for linear motion; weak at divisions</td></tr>
+<tr><td><strong>Bayesian (btrack)</strong></td><td data-lang="zh">概率模型 + 譜系樹聯合推論</td><td data-lang="zh">明確建模分裂、死亡；最適長時間序列</td><td data-lang="en">Probabilistic model + joint lineage inference</td><td data-lang="en">Models division/death explicitly; best for long time-lapses</td></tr>
+<tr><td><strong>Transformer (Trackastra)</strong></td><td data-lang="zh">attention 學跨幀關聯</td><td data-lang="zh">SOTA；需 GPU；尚在快速發展</td><td data-lang="en">Attention learns cross-frame associations</td><td data-lang="en">SOTA; GPU-required; evolving fast</td></tr>
+</tbody></table>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="評估" data-en="METRICS">評估</div>
+<h2 data-zh="三、追蹤評估指標" data-en="III. Tracking Metrics">三、追蹤評估指標</h2>
+<div data-lang="zh">
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>MOTA (Multi-Object Tracking Accuracy)</strong>：綜合 FN、FP、ID switch</li>
+<li><strong>IDF1</strong>：基於 ID 對齊的 F1，對 ID 切換更敏感</li>
+<li><strong>Cell Tracking Challenge 三大指標</strong>：<br>　<strong>DET</strong>：每幀偵測準確度<br>　<strong>SEG</strong>：分割 IoU<br>　<strong>TRA</strong>：追蹤拓撲（節點 + 邊）正確性</li>
+<li><strong>Mitosis F1</strong>：分裂事件偵測 F1，譜系研究必看</li>
+</ul>
+</div>
+<div data-lang="en">
+<ul style="margin:8px 0 0 20px;color:var(--c-ink-light);">
+<li><strong>MOTA</strong>: combined FN, FP, ID switches</li>
+<li><strong>IDF1</strong>: ID-alignment-based F1, more sensitive to ID switches</li>
+<li><strong>Cell Tracking Challenge metrics</strong>:<br>　<strong>DET</strong>: per-frame detection accuracy<br>　<strong>SEG</strong>: segmentation IoU<br>　<strong>TRA</strong>: tracking topology (nodes + edges) correctness</li>
+<li><strong>Mitosis F1</strong>: division-event detection F1 — essential for lineage studies</li>
+</ul>
+</div>
+<div class="callout danger"><span class="callout-icon">🚫</span><div>
+<span data-lang="zh"><strong>原則：先優化分割，再調追蹤參數。</strong>5% 的偵測漏失常造成 30% 的 ID switch。在分割還沒到位之前，動 tracker 是徒勞。</span>
+<span data-lang="en"><strong>Rule: optimize segmentation first, tracker parameters second.</strong> A 5% detection miss typically causes ~30% ID switches. Tuning the tracker before segmentation is solid is wasted effort.</span>
+</div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="決策" data-en="DECISIONS">決策</div>
+<h2 data-zh="四、工具選擇" data-en="IV. Tool Selection">四、工具選擇</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="追蹤工具選擇樹" data-en="Tracker Decision Tree">追蹤工具選擇樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>需要 GUI 互動、又要與 Cellpose/StarDist 整合？<span class="dt-arrow">→</span> <strong>TrackMate 7</strong>（Fiji）</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>長時間譜系研究（細胞分裂、死亡）？<span class="dt-arrow">→</span> <strong>btrack</strong>（明確建模分裂）</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>追蹤亞細胞點 (puncta)、SPT（單分子定位）？<span class="dt-arrow">→</span> <strong>TrackPy</strong>（Crocker-Grier）</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>追相黏 / 快速 / 雜亂、想衝 SOTA？<span class="dt-arrow">→</span> <strong>Trackastra</strong>（DL）</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>已有少量人工標註想做半監督？<span class="dt-arrow">→</span> <strong>ilastik tracking workflow</strong></div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>Need a GUI + integrate Cellpose/StarDist? <span class="dt-arrow">→</span> <strong>TrackMate 7</strong> (Fiji)</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Long-term lineage (division, death)? <span class="dt-arrow">→</span> <strong>btrack</strong> (models division explicitly)</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>Subcellular puncta / SPT? <span class="dt-arrow">→</span> <strong>TrackPy</strong> (Crocker-Grier)</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>Touching / fast / cluttered, want SOTA? <span class="dt-arrow">→</span> <strong>Trackastra</strong> (DL)</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>Have some labelled data, want semi-supervised? <span class="dt-arrow">→</span> <strong>ilastik tracking workflow</strong></div></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="五、實作範例" data-en="V. Code Examples">五、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns"><button class="code-tab-btn active" onclick="switchTab(this,'tm1')">TrackMate (Fiji)</button><button class="code-tab-btn" onclick="switchTab(this,'bt1')">btrack (Python)</button><button class="code-tab-btn" onclick="switchTab(this,'ta1')">Trackastra</button></div>
+<div class="code-tab-content active" id="tm1"><pre><span class="comment">// TrackMate 7 — Cellpose detector + LAP linker</span>
+<span class="comment">// 1) Plugins &gt; Tracking &gt; TrackMate</span>
+<span class="comment">// 2) Detector: Cellpose detector  →  Custom model / cyto3</span>
+<span class="comment">// 3) Initial thresholding on quality</span>
+<span class="comment">// 4) Tracker: Simple LAP tracker</span>
+<span class="comment">//    - Frame-to-frame max distance: ~15 px</span>
+<span class="comment">//    - Gap-closing max distance: ~25 px, max frame gap: 2</span>
+<span class="comment">//    - Splitting/merging: ON if you have divisions</span>
+<span class="comment">// 5) Save XML → reusable as input to other tools</span>
+
+<span class="comment">// Or call via Jython for automation</span>
+<span class="kw">from</span> fiji.plugin.trackmate <span class="kw">import</span> Settings, TrackMate, Model
+settings = Settings(imp)
+settings.detectorFactory = CellposeDetectorFactory()
+settings.trackerFactory  = SimpleSparseLAPTrackerFactory()
+tm = TrackMate(model, settings)
+tm.process()</pre></div>
+<div class="code-tab-content" id="bt1"><pre><span class="comment"># btrack — Bayesian tracking with lineage</span>
+<span class="kw">import</span> btrack
+<span class="kw">from</span> btrack <span class="kw">import</span> datasets
+
+<span class="comment"># Convert segmentation labels to btrack objects</span>
+objects = btrack.utils.segmentation_to_objects(labels_stack)
+
+<span class="kw">with</span> btrack.BayesianTracker() <span class="kw">as</span> tracker:
+    tracker.configure(<span class="str">"cell_config.json"</span>)
+    tracker.append(objects)
+    tracker.volume = ((<span class="num">0</span>, <span class="num">1200</span>), (<span class="num">0</span>, <span class="num">1600</span>))   <span class="comment"># (xlim, ylim)</span>
+    tracker.track(step_size=<span class="num">100</span>)
+    tracker.optimize()
+    tracks = tracker.tracks       <span class="comment"># list of Track objects with ID, t, x, y, parent</span>
+
+<span class="comment"># Export as napari layer</span>
+data, properties, graph = tracker.to_napari()
+<span class="comment"># In napari: viewer.add_tracks(data, properties=properties, graph=graph)</span></pre></div>
+<div class="code-tab-content" id="ta1"><pre><span class="comment"># Trackastra — transformer-based tracker</span>
+<span class="kw">from</span> trackastra.model <span class="kw">import</span> Trackastra
+<span class="kw">from</span> trackastra.tracking <span class="kw">import</span> graph_to_napari_tracks
+
+<span class="comment"># Load pretrained general model</span>
+model = Trackastra.from_pretrained(<span class="str">"general_2d"</span>, device=<span class="str">"cuda"</span>)
+
+<span class="comment"># Input: image stack + corresponding label stack (instance segmentation per frame)</span>
+track_graph = model.track(imgs, masks, mode=<span class="str">"greedy"</span>)
+
+<span class="comment"># Convert to napari tracks</span>
+data, properties, graph = graph_to_napari_tracks(track_graph)
+
+<span class="comment"># Or export as CSV / CTC format</span>
+<span class="kw">from</span> trackastra.tracking <span class="kw">import</span> ctc_tools
+ctc_tools.write_ctc_data(track_graph, out_dir=<span class="str">"results/"</span>)</pre></div>
+</div>
+</section>
+
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">1. 你發現 5% 細胞偶爾被 segmenter 漏偵測，導致 30% 的 ID switch。最佳處理？</p>
+<p data-lang="en">1. Your segmenter misses ~5% of cells per frame, causing 30% ID switches. Best fix?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 把 tracker 的 max distance 加大</span><span data-lang="en">A. Increase tracker's max distance</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 回頭改善 segmentation；同時開 gap-closing 允許短時間漏偵測</span><span data-lang="en">B. Go back and improve segmentation; also enable gap-closing for short misses</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 用更貴的 tracker</span><span data-lang="en">C. Use a fancier tracker</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 換低時間解析度的影像</span><span data-lang="en">D. Reduce time resolution</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="0">
+<p data-lang="zh">2. 研究細胞分裂譜系（每代追到曾孫）。最適合的 tracker？</p>
+<p data-lang="en">2. Studying division lineages (track through great-grand-daughters). Best tracker?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. btrack（Bayesian + 明確建模 division）</span><span data-lang="en">A. btrack (Bayesian + explicit division model)</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 純 Kalman filter</span><span data-lang="en">B. Pure Kalman filter</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Nearest neighbour</span><span data-lang="en">C. Nearest neighbour</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 不需要 tracker</span><span data-lang="en">D. No tracker needed</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">3. 視覺檢查影片「看起來追得對」是否能取代量化評估？</p>
+<p data-lang="en">3. Can "looks right by eye" replace quantitative tracking evaluation?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 可以，看影片最直觀</span><span data-lang="en">A. Yes, it's the most intuitive</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 短片可以，長片有疑慮</span><span data-lang="en">B. For short clips, yes; not for long</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 不行，必須在標註好的 GT 上算 TRA / DET / MOTA</span><span data-lang="en">C. No — quantify with TRA/DET/MOTA on a labelled GT</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 只要 IDF1 &gt; 0.5 就好</span><span data-lang="en">D. As long as IDF1 &gt; 0.5</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+</section>
+
+<nav class="page-nav">
+<a href="foundation-models.html"><span class="nav-dir" data-zh="← 上一步" data-en="← Previous">← 上一步</span><span class="nav-title" data-zh="Step 7: AI 基礎模型 (Foundation Models)" data-en="Step 7: AI Foundation Models">Step 7: AI 基礎模型 (Foundation Models)</span></a>
+<a href="quantification.html"><span class="nav-dir" data-zh="下一步 →" data-en="Next →">下一步 →</span><span class="nav-title" data-zh="Step 9: 量化與特徵 (Quantification &amp;amp; Features)" data-en="Step 9: Quantification &amp;amp; Features">Step 9: 量化與特徵 (Quantification &amp; Features)</span></a>
+</nav>
+</main>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener('scroll',()=>{const h=document.documentElement;document.getElementById('progressBar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+'%';});
+function switchTab(b,id){const p=b.closest('.code-tabs');p.querySelectorAll('.code-tab-btn').forEach(x=>x.classList.remove('active'));p.querySelectorAll('.code-tab-content').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(id).classList.add('active');}
+const QF={
+  zh:{q1_y:'分割漏失放大成 ID switch 是經典現象，要先改善分割，並用 gap closing 容忍短暫漏失。',q1_n:'正確答案已標示。',q2_y:'btrack 顯式建模分裂，是譜系研究的首選。',q2_n:'正確答案已標示。',q3_y:'眼睛永遠低估追蹤錯誤，量化指標才可信。',q3_n:'正確答案已標示。'},
+  en:{q1_y:'Detection misses amplify into ID switches — improve segmentation first and allow short gap-closing.',q1_n:'Correct answer highlighted.',q2_y:'btrack explicitly models division — the canonical choice for lineage work.',q2_n:'Correct answer highlighted.',q3_y:'The eye underestimates tracking errors; quantitative metrics are the only reliable signal.',q3_n:'Correct answer highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script>
+</body></html>

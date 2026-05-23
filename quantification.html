@@ -16,6 +16,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="從 Pearson 1896 到 PyRadiomics 2017：把影像變數字 120 年" data-en="From Pearson 1896 to PyRadiomics 2017: 120 years of turning images into numbers">從 Pearson 1896 到 PyRadiomics 2017：把影像變數字 120 年</h3>
+  <div data-lang="zh"><p>1896 年 Karl Pearson 在英國皇家統計學會發表相關係數；1979 年 Haralick 在 IEEE 發表 GLCM texture；1993 年 Erik Manders 在 Journal of Microscopy 發表 M1/M2 colocalization；2004 年 Sylvain Costes 用 randomization test 校正偏差。</p><p>今天每個 Cell Painting 螢幕跑 ~1000 個 features，但 80% 仍是 1980 前的演算法。「把影像變數字」是 120 年的累積，從 Pearson 到 PyRadiomics 一脈相承。要避免「相關 ≠ 因果」與「Pearson ≠ 共定位」的常見謬誤。</p></div>
+  <div data-lang="en"><p>In 1896 Karl Pearson published correlation coefficients at the Royal Statistical Society; 1979 Haralick published GLCM texture in IEEE; 1993 Erik Manders introduced M1/M2 colocalization in J. Microscopy; 2004 Sylvain Costes added a randomization test for bias correction.</p><p>Today each Cell Painting screen extracts ~1,000 features — but 80% are still pre-1980 algorithms. 'Turning images into numbers' is a 120-year accumulation, Pearson to PyRadiomics in unbroken lineage. Be aware of two perennial fallacies: 'correlation ≠ causation' and 'Pearson ≠ colocalization.'</p></div>
+  <div class="story-question" data-lang="zh">🤔 Pearson r = 0.95 但兩通道背景都偏高——這個 r 真的反映「共定位」嗎？</div>
+  <div class="story-question" data-lang="en">🤔 Pearson r = 0.95 but both channels have high background — does that r really reflect 'colocalization'?</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="特徵家族" data-en="FEATURES">特徵家族</div>
 <h2 data-zh="一、特徵家族總覽" data-en="I. Feature Families Overview">一、特徵家族</h2>
@@ -166,6 +176,185 @@ features = extractor.execute(img, msk)
 <span class="comment"># features is a dict: {'original_glcm_Contrast': 0.34, ...}</span></pre></div>
 </div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="量化與特徵核心詞彙" data-en="Core Vocabulary for Quantification & Features">量化與特徵核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">Integrated density <span class="en">Integrated density</span></div><div class="gloss-kid" data-lang="zh">細胞「亮度的總和」。</div><div class="gloss-kid" data-lang="en">Sum of a cell's brightness.</div><div class="gloss-tech" data-lang="zh">= mean × area；最常用的螢光強度指標。</div><div class="gloss-tech" data-lang="en">= mean × area; the most common fluorescence-intensity metric.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Eccentricity <span class="en">Eccentricity</span></div><div class="gloss-kid" data-lang="zh">細胞是「圓」還是「橢圓」。</div><div class="gloss-kid" data-lang="en">Is the cell 'round' or 'oval'?</div><div class="gloss-tech" data-lang="zh">範圍 0–1：0=完美圓，1=極端橢圓。</div><div class="gloss-tech" data-lang="en">Range 0–1: 0 = perfect circle, 1 = extreme ellipse.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Solidity <span class="en">Solidity</span></div><div class="gloss-kid" data-lang="zh">細胞「實心程度」（不規則邊的洞會減分）。</div><div class="gloss-kid" data-lang="en">How 'solid' the cell is — concavities reduce it.</div><div class="gloss-tech" data-lang="zh">= area / convex_hull_area；分支結構 solidity 低。</div><div class="gloss-tech" data-lang="en">= area / convex_hull_area; branched structures have low solidity.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Feret diameter <span class="en">Feret diameter</span></div><div class="gloss-kid" data-lang="zh">細胞最寬的「卡尺距離」。</div><div class="gloss-kid" data-lang="en">The longest 'caliper distance' across a cell.</div><div class="gloss-tech" data-lang="zh">任意方向最遠兩點距離；對細長物件有意義。</div><div class="gloss-tech" data-lang="en">Longest distance between two points in any direction; meaningful for elongated objects.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Pearson r <span class="en">Pearson r</span></div><div class="gloss-kid" data-lang="zh">兩通道亮度「同步起伏」的程度。</div><div class="gloss-kid" data-lang="en">How much two channels' brightness 'co-fluctuates.'</div><div class="gloss-tech" data-lang="zh">= cov(A,B) / (σA·σB)；range −1 ~ +1，對背景偏移敏感。</div><div class="gloss-tech" data-lang="en">= cov(A,B) / (σA·σB); range −1 to +1; very sensitive to background offset.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Manders M1/M2 <span class="en">Manders M1/M2</span></div><div class="gloss-kid" data-lang="zh">通道 A 中「也有通道 B 訊號」的比例。</div><div class="gloss-kid" data-lang="en">Fraction of channel A that 'also has channel B signal.'</div><div class="gloss-tech" data-lang="zh">M1 = Σ A(B>T2) / Σ A；需 Costes 自動閾值。</div><div class="gloss-tech" data-lang="en">M1 = Σ A(B>T2) / Σ A; requires Costes auto-threshold.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Costes randomization <span class="en">Costes randomization test</span></div><div class="gloss-kid" data-lang="zh">把一個通道洗牌，看 r 是不是「真的高於亂猜」。</div><div class="gloss-kid" data-lang="en">Scramble one channel, then ask if r is 'genuinely above random.'</div><div class="gloss-tech" data-lang="zh">Costes 2004 Biophys J；N=200 次塊狀洗牌得 null 分佈。</div><div class="gloss-tech" data-lang="en">Costes 2004 Biophys J; 200 block-shuffles to build a null distribution.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Object-based colocalization <span class="en">Object-based colocalization</span></div><div class="gloss-kid" data-lang="zh">先把胞器分割好，再算「重疊比例」。</div><div class="gloss-kid" data-lang="en">Segment organelles first, then compute fractional overlap.</div><div class="gloss-tech" data-lang="zh">對胞器級結構（粒線體、囊泡）比像素級更生物意義。</div><div class="gloss-tech" data-lang="en">More biologically meaningful than pixel-level for organelle-scale structures.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Haralick GLCM <span class="en">Haralick GLCM</span></div><div class="gloss-kid" data-lang="zh">看「亮度旁邊的鄰居」分佈，描述紋理。</div><div class="gloss-kid" data-lang="en">Look at 'who lives next to whom' in brightness — describes texture.</div><div class="gloss-tech" data-lang="zh">Gray-Level Co-occurrence Matrix；4 個經典特徵 contrast/correlation/energy/homogeneity。</div><div class="gloss-tech" data-lang="en">Gray-Level Co-occurrence Matrix; 4 classics: contrast/correlation/energy/homogeneity.</div></div>
+  <div class="gloss-card"><div class="gloss-term">PyRadiomics <span class="en">PyRadiomics</span></div><div class="gloss-kid" data-lang="zh">從影像萃取 ~1000 個 IBSI 標準特徵的 Python 套件。</div><div class="gloss-kid" data-lang="en">Python package extracting ~1,000 IBSI-standard features.</div><div class="gloss-tech" data-lang="zh">van Griethuysen 2017 Cancer Res；shape / first-order / GLCM / GLRLM / GLSZM / NGTDM / wavelet。</div><div class="gloss-tech" data-lang="en">van Griethuysen 2017 Cancer Res; shape / first-order / GLCM / GLRLM / GLSZM / NGTDM / wavelet.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Ripley's K <span class="en">Ripley's K</span></div><div class="gloss-kid" data-lang="zh">看物件「聚集 vs 散開」的距離函數。</div><div class="gloss-kid" data-lang="en">A distance function showing 'clumped vs dispersed.'</div><div class="gloss-tech" data-lang="zh">空間統計學經典；spatial omics / 多重染色組織常用。</div><div class="gloss-tech" data-lang="en">Classical spatial statistics; common in spatial omics and multiplex tissue.</div></div>
+  <div class="gloss-card"><div class="gloss-term">regionprops_table <span class="en">regionprops_table</span></div><div class="gloss-kid" data-lang="zh">一行 Python 算出每個物件所有 features。</div><div class="gloss-kid" data-lang="en">One line of Python — every feature for every object.</div><div class="gloss-tech" data-lang="zh">scikit-image API；回傳 DataFrame-friendly dict。</div><div class="gloss-tech" data-lang="en">scikit-image API; returns a DataFrame-friendly dict.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="量化與特徵 120 年" data-en="120 Years of Quantification & Features">量化與特徵 120 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item milestone"><span class="tl-year">1896</span><span class="tl-title" data-zh="Pearson 相關係數" data-en="Pearson correlation">Pearson 相關係數</span><div class="tl-body" data-lang="zh">Karl Pearson 英國皇家統計學會發表 r。</div><div class="tl-body" data-lang="en">Karl Pearson publishes r at the Royal Statistical Society.</div></div>
+<div class="tl-item milestone"><span class="tl-year">1979</span><span class="tl-title" data-zh="Haralick GLCM" data-en="Haralick GLCM">Haralick GLCM</span><div class="tl-body" data-lang="zh">IEEE Trans. SMC — 紋理分析的奠基論文。</div><div class="tl-body" data-lang="en">IEEE Trans. SMC — texture-analysis cornerstone.</div></div>
+<div class="tl-item"><span class="tl-year">1980</span><span class="tl-title" data-zh="Manders 共定位起源" data-en="Manders colocalization origins">Manders 共定位起源</span><div class="tl-body" data-lang="zh">Manders / Karreman 提出共定位概念。</div><div class="tl-body" data-lang="en">Manders / Karreman propose the colocalization concept.</div></div>
+<div class="tl-item milestone"><span class="tl-year">1993</span><span class="tl-title" data-zh="Manders M1/M2" data-en="Manders M1/M2">Manders M1/M2</span><div class="tl-body" data-lang="zh">J. Microsc. — M1/M2 公式定稿。</div><div class="tl-body" data-lang="en">J. Microsc. — M1/M2 formulas codified.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2004</span><span class="tl-title" data-zh="Costes randomization" data-en="Costes randomization">Costes randomization</span><div class="tl-body" data-lang="zh">Biophys. J. — 解決 Pearson 共定位偏差。</div><div class="tl-body" data-lang="en">Biophys. J. — fixes Pearson colocalization bias.</div></div>
+<div class="tl-item"><span class="tl-year">2014</span><span class="tl-title" data-zh="scikit-image PeerJ" data-en="scikit-image PeerJ">scikit-image PeerJ</span><div class="tl-body" data-lang="zh">regionprops / measure 等 Python API 普及。</div><div class="tl-body" data-lang="en">regionprops / measure popularize the Python APIs.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2017</span><span class="tl-title" data-zh="Caicedo Cell Painting" data-en="Caicedo Cell Painting">Caicedo Cell Painting</span><div class="tl-body" data-lang="zh">Nat Methods — image-based profiling 策略。</div><div class="tl-body" data-lang="en">Nat Methods — image-based profiling strategies.</div></div>
+<div class="tl-item"><span class="tl-year">2017</span><span class="tl-title" data-zh="PyRadiomics" data-en="PyRadiomics">PyRadiomics</span><div class="tl-body" data-lang="zh">van Griethuysen Cancer Res — IBSI 標準。</div><div class="tl-body" data-lang="en">van Griethuysen Cancer Res — IBSI standard.</div></div>
+<div class="tl-item"><span class="tl-year">2020</span><span class="tl-title" data-zh="IBSI standard" data-en="IBSI standard">IBSI standard</span><div class="tl-body" data-lang="zh">Image Biomarker Standardization Initiative。</div><div class="tl-body" data-lang="en">Image Biomarker Standardization Initiative.</div></div>
+<div class="tl-item"><span class="tl-year">2022</span><span class="tl-title" data-zh="CellProfiler 4 BMC" data-en="CellProfiler 4 BMC">CellProfiler 4 BMC</span><div class="tl-body" data-lang="zh">Stirling — HCS 量化標配升級。</div><div class="tl-body" data-lang="en">Stirling — HCS quantitation upgrade.</div></div>
+<div class="tl-item recent"><span class="tl-year">2024</span><span class="tl-title" data-zh="JUMP-CP 3M images" data-en="JUMP-CP 3M images">JUMP-CP 3M images</span><div class="tl-body" data-lang="zh">Chandrasekaran Nat Methods — 大規模表型篩選。</div><div class="tl-body" data-lang="en">Chandrasekaran Nat Methods — large-scale phenotypic screen.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="IBSI 2 + DL features" data-en="IBSI 2 + DL features">IBSI 2 + DL features</span><div class="tl-body" data-lang="zh">DeepProfiler v2 用 UNI 抽取 embedding 為新 feature。</div><div class="tl-body" data-lang="en">DeepProfiler v2 uses UNI embeddings as new features.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="Costes 隨機化檢定 (Manders 共定位)" data-en="Costes Randomization Test (Manders Colocalization)">Costes 隨機化檢定 (Manders 共定位)</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">p = #{ r<sub>obs</sub> ≤ r<sub>random,k</sub> } / N</div>
+<div class="sw-step"><strong>① <span data-lang='zh'>觀測 r</span><span data-lang='en'>Observed r</span></strong> <span data-lang="zh">r_obs = Pearson(channel A, channel B)（建議先扣背景）。</span><span data-lang="en">r_obs = Pearson(channel A, channel B) (after subtracting background).</span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>區塊洗牌</span><span data-lang='en'>Block shuffle</span></strong> <span data-lang="zh">把 channel B 分成 PSF 大小的小塊，隨機重排位置。</span><span data-lang="en">Slice channel B into PSF-sized blocks and shuffle their positions.</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>null 分佈</span><span data-lang='en'>Null distribution</span></strong> <span data-lang="zh">重複 N=200 次，得 r_random_k 分佈。</span><span data-lang="en">Repeat N=200 times to build a null distribution of r_random_k.</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>p-value</span><span data-lang='en'>p-value</span></strong> <span data-lang="zh">p = r_obs 落在 null 分佈右端的比例；p &lt; 0.05 才算「顯著高於亂猜」。</span><span data-lang="en">p = position of r_obs in the right tail; p &lt; 0.05 = 'genuinely above random.'</span></div>
+<div class="sw-step"><strong>⑤ <span data-lang='zh'>Manders M1/M2</span><span data-lang='en'>Manders M1/M2</span></strong> <span data-lang="zh">用 Costes 自動閾值 (T1, T2) 後算：M1 = Σ A(B≥T2) / Σ A；M2 對稱。</span><span data-lang="en">After Costes auto-thresholds (T1, T2): M1 = Σ A(B≥T2) / Σ A; M2 symmetric.</span></div>
+
+<div class="sw-note" data-lang="zh">結論：Pearson r 高 ≠ 共定位真實。永遠先扣背景 + Costes 檢定 + object-based 三步驗證。Manders M1/M2 需明確報告閾值方法。</div>
+<div class="sw-note" data-lang="en">Bottom line: a high Pearson r ≠ true colocalization. Always do background subtraction + Costes test + object-based as three layers of verification. Manders M1/M2 must explicitly report the threshold method.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="量化三大爭論" data-en="Three Debates in Quantification">量化三大爭論</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. Pearson r=0.9 ≠ 共定位？" data-en="A. Pearson r=0.9 ≠ colocalization?">A. Pearson r=0.9 ≠ 共定位？</h5><div class="disc-q" data-lang="zh">你算出 r=0.9，是否就能說 protein A 與 protein B 共定位？</div><div class="disc-q" data-lang="en">You got r=0.9 — does that prove protein A and B colocalize?</div><div class="disc-hint" data-lang="zh">提示：r 對背景偏移敏感；同步背景高就會給出假高 r。需 Costes randomization + Manders 雙重驗證。</div><div class="disc-hint" data-lang="en">Hint: r is biased by joint high background. Need Costes randomization + Manders for double verification.</div></div>
+  <div class="discussion-card"><h5 data-zh="B. Manders M1 = 0.9 真強共定位嗎？" data-en="B. Is Manders M1 = 0.9 truly strong?">B. Manders M1 = 0.9 真強共定位嗎？</h5><div class="disc-q" data-lang="zh">M1 = 0.9 看似很強，但閾值如何設定？</div><div class="disc-q" data-lang="en">M1 = 0.9 sounds strong — but how was the threshold set?</div><div class="disc-hint" data-lang="zh">提示：M1 完全取決於閾值 T2；用 Costes 自動或人為閾值差異大。報告必須寫明閾值方法。</div><div class="disc-hint" data-lang="en">Hint: M1 depends entirely on T2; Costes auto vs manual threshold gives different M1. Report the method explicitly.</div></div>
+  <div class="discussion-card"><h5 data-zh="C. Haralick texture 跨樣本不可比？" data-en="C. Haralick texture isn't cross-comparable?">C. Haralick texture 跨樣本不可比？</h5><div class="disc-q" data-lang="zh">你算 contrast feature 用 32 levels 與 256 levels 結果差很大——哪個才對？</div><div class="disc-q" data-lang="en">Contrast feature differs between 32 vs 256 grey levels — which is right?</div><div class="disc-hint" data-lang="zh">提示：兩者都對，但跨樣本必須一致。IBSI 建議 32 或 64 levels，要寫進 methods。</div><div class="disc-hint" data-lang="en">Hint: both are valid, but consistency across samples matters. IBSI recommends 32 or 64 levels; document it in methods.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個改寫量化的故事" data-en="Two Stories That Shaped Quantification">兩個改寫量化的故事</h2>
+<div class="spotlight">
+  <h5 data-zh="① Manders vs Costes：共定位 10 年論戰" data-en="① Manders vs Costes: a 10-year colocalization debate">① Manders vs Costes：共定位 10 年論戰</h5>
+  <div class="spot-meta">Manders 1993 J. Microsc. + Costes 2004 Biophys J</div>
+  <p data-lang="zh">Manders 1993 提出 M1/M2 後迅速普及，但 90 年代末研究者發現：<strong>不同人選的閾值讓 M1 差異極大</strong>。Sylvain Costes 在 2004 Biophys J 提出「自動閾值 + randomization test」三重檢定。從此 colocalization 從「文藝復興」走向「實證學科」。Bolte & Cordelières 2006 J. Microsc. 整理整套 best practice，至今 30,000+ 引用。</p>
+  <p data-lang="en">Manders 1993 introduced M1/M2 — soon popular but by the late 1990s researchers found <strong>different thresholds produced wildly different M1</strong>. Sylvain Costes (Biophys J 2004) proposed an 'auto-threshold + randomization test' triple check. Colocalization moved from 'Renaissance' to 'empirical discipline.' Bolte & Cordelières (J. Microsc. 2006) summarized best practices — now 30,000+ citations.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：方法論之爭往往讓一個領域成熟。「方便用 → 嚴謹用」是必經之路。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: methodological debate matures a field. 'Convenient' → 'rigorous' is a necessary path.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② JUMP-CP：3 百萬 Cell Painting 影像" data-en="② JUMP-CP: three million Cell Painting images">② JUMP-CP：3 百萬 Cell Painting 影像</h5>
+  <div class="spot-meta">Chandrasekaran et al., Nat Methods 21:1114 (2024) · jump-cellpainting.broadinstitute.org</div>
+  <p data-lang="zh">Broad 領導的 12 institution JUMP-CP 聯盟，2024 在 Nat Methods 發表 <strong>3,072,156 張 Cell Painting 影像 × 12,602 化合物 + 8,069 基因擾動</strong>，全部用 CellProfiler 標準特徵 (1746 維)。後續 DeepProfiler v2 改用 UNI embedding 取代手工特徵，性能再提升。整個 image-based profiling 領域從此進入「大數據+ML」時代。</p>
+  <p data-lang="en">The Broad-led 12-institution JUMP-CP consortium published in Nat Methods 2024: <strong>3,072,156 Cell Painting images × 12,602 compounds + 8,069 genetic perturbations</strong>, all processed with CellProfiler's standard 1,746-feature pipeline. DeepProfiler v2 later swapped UNI embeddings for hand-crafted features, lifting performance. Image-based profiling entered the 'big data + ML' era.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：好的標準化資料集 > 任何單篇論文的演算法創新。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: a well-standardized dataset matters more than any single algorithmic paper.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="量化六大陷阱" data-en="Six Pitfalls of Quantification">量化六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="Pearson 沒扣背景" data-en="Pearson without background subtraction">Pearson 沒扣背景</span><div class="pf-body" data-lang="zh">共同高背景給出假高 r。</div><div class="pf-body" data-lang="en">Joint high background inflates r.</div><div class="pf-fix" data-lang="zh">先 percentile / rolling-ball 扣背景再算。</div><div class="pf-fix" data-lang="en">Background-subtract via percentile / rolling-ball first.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="Manders 沒用 Costes threshold" data-en="Manders without Costes threshold">Manders 沒用 Costes threshold</span><div class="pf-body" data-lang="zh">手選閾值結果隨意，M1 不可比。</div><div class="pf-body" data-lang="en">Manual thresholds make M1 incomparable.</div><div class="pf-fix" data-lang="zh">用 Costes 自動閾值，並在 methods 寫明。</div><div class="pf-fix" data-lang="en">Use Costes auto-thresholds and document them in methods.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="regionprops (x, y) 順序錯" data-en="regionprops (x, y) wrong order">regionprops (x, y) 順序錯</span><div class="pf-body" data-lang="zh">畫圖時 X / Y 反，centroid 鏡像。</div><div class="pf-body" data-lang="en">Plots get mirrored centroids.</div><div class="pf-fix" data-lang="zh">scikit-image 用 (row, col) = (y, x)；matplotlib 要 (x, y)。</div><div class="pf-fix" data-lang="en">scikit-image uses (row, col) = (y, x); matplotlib expects (x, y).</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="Haralick levels 不一致" data-en="Inconsistent Haralick levels">Haralick levels 不一致</span><div class="pf-body" data-lang="zh">32 vs 256 levels 給不同 contrast 值。</div><div class="pf-body" data-lang="en">32 vs 256 levels give different contrast.</div><div class="pf-fix" data-lang="zh">固定 32 或 64 levels 跨所有樣本。</div><div class="pf-fix" data-lang="en">Lock to 32 or 64 levels across all samples.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="mean+std 聚合 heavy-tailed 表型" data-en="mean+std on heavy-tailed phenotypes">mean+std 聚合 heavy-tailed 表型</span><div class="pf-body" data-lang="zh">Cell Painting 分佈長尾，mean 被極端值拉走。</div><div class="pf-body" data-lang="en">CP distributions are heavy-tailed; means get yanked by outliers.</div><div class="pf-fix" data-lang="zh">用 median + MAD 替代 mean + std。</div><div class="pf-fix" data-lang="en">Use median + MAD instead of mean + std.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="3D volume 忘記 voxel size" data-en="3-D volume without voxel size">3D volume 忘記 voxel size</span><div class="pf-body" data-lang="zh">回報 voxel count 而非 μm³。</div><div class="pf-body" data-lang="en">Report voxel count instead of μm³.</div><div class="pf-fix" data-lang="zh">Volume = voxel_count × dx² × dz（μm³）。</div><div class="pf-fix" data-lang="en">Volume = voxel_count × dx² × dz (μm³).</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種量化哲學" data-en="Two Quantification Philosophies">兩種量化哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="「對 raw fluorescence 直接算 Pearson」" data-en=""Pearson straight on raw fluorescence"">「對 raw fluorescence 直接算 Pearson」</span></h5>
+    <ul>
+      <li data-lang="zh">不扣背景</li>
+      <li data-lang="zh">沒做 randomization test</li>
+      <li data-lang="zh">Haralick levels 隨意</li>
+      <li data-lang="zh">Aggregate 用 mean ± std</li>
+      <li data-lang="zh">Methods 寫「colocalization computed」一句</li>
+      <li data-lang="en">No background subtraction</li>
+      <li data-lang="en">No randomization test</li>
+      <li data-lang="en">Haralick levels arbitrary</li>
+      <li data-lang="en">Aggregate with mean ± std</li>
+      <li data-lang="en">Methods says 'colocalization computed'</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="「背景扣除 + Costes randomization + object-based」 三步驗證" data-en=""Background subtract + Costes randomization + object-based" triple-check">「背景扣除 + Costes randomization + object-based」 三步驗證</span></h5>
+    <ul>
+      <li data-lang="zh">百分位數扣背景（如 5%）</li>
+      <li data-lang="zh">Costes randomization 確認 p &lt; 0.05</li>
+      <li data-lang="zh">Object-based colocalization 對胞器級結構</li>
+      <li data-lang="zh">Aggregate 用 median + MAD</li>
+      <li data-lang="zh">Methods 明確列出方法版本與閾值</li>
+      <li data-lang="en">Percentile background subtraction (e.g., 5%)</li>
+      <li data-lang="en">Confirm p &lt; 0.05 via Costes randomization</li>
+      <li data-lang="en">Object-based colocalization for organelles</li>
+      <li data-lang="en">Aggregate with median + MAD</li>
+      <li data-lang="en">Methods explicitly lists method versions and thresholds</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 量化 SOTA" data-en="2024–2026 Quantification SOTA">2024–2026 量化 SOTA</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="DL embedding 取代手工 features？" data-en="Are DL embeddings replacing hand-crafted features?">DL embedding 取代手工 features？</h5>
+<p data-lang="zh">2024–2026 量化領域走向 DL feature：</p>
+<p data-lang="en">Quantification in 2024–2026 leans DL-feature:</p>
+<ul>
+  <li><strong>DeepProfiler v2 (2024)</strong> <span data-lang="zh">Broad — 用 UNI 抽 embedding 取代 CellProfiler 1700+ feature。</span><span data-lang="en">Broad — UNI embeddings replace CellProfiler's 1,700+ features.</span></li>
+  <li><strong>Cellpose + spotiflow (2024)</strong> <span data-lang="zh">puncta / FISH spot 計數整合。</span><span data-lang="en">Integrated puncta / FISH spot counting.</span></li>
+  <li><strong>TissueQuant (2025)</strong> <span data-lang="zh">spatial omics 整合 phenotype + 空間統計。</span><span data-lang="en">Spatial omics integrating phenotype + spatial statistics.</span></li>
+  <li><strong>pycytominer v3 (2025)</strong> <span data-lang="zh">plate map normalization 升級。</span><span data-lang="en">Upgraded plate-map normalization.</span></li>
+  <li><strong>IBSI 2 (2025)</strong> <span data-lang="zh">新標準加入 DL features 規範。</span><span data-lang="en">New standard codifies DL features.</span></li>
+  <li><strong>Radiomics-FM (2025)</strong> <span data-lang="zh">Pretrained radiomics foundation model for tumor profiling。</span><span data-lang="en">Pretrained radiomics FM for tumour profiling.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Manders 1993 J. Microsc. · Costes 2004 Biophys J · Bolte 2006 J. Microsc. · van Griethuysen 2017 Cancer Res · Chandrasekaran 2024 Nat Methods</div>
+<div class="an-cite" data-lang="en">Key refs: Manders 1993 J. Microsc. · Costes 2004 Biophys J · Bolte 2006 J. Microsc. · van Griethuysen 2017 Cancer Res · Chandrasekaran 2024 Nat Methods</div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Karl Pearson 1896 在 Phil. Trans. Royal Society A 發表相關係數時，他研究的是「父母與孩子身高的關係」——完全沒考慮顯微影像背景。100 多年後同樣的 r 仍在每個 colocalization 報告中。<strong>歷史諷刺的是</strong>：當代統計學家 Pearson 本人會被自己的 r 騙到——因為他沒考慮「兩通道背景同步偏高」造成的偽 r。所以 Costes 才必須出現。</span>
+<span data-lang="en">When Karl Pearson published his correlation coefficient in Phil. Trans. Royal Society A (1896), he was studying 'parents' and children's heights' — microscopy background was not on his mind. Over 100 years later, the same r still anchors every colocalization report. <strong>The historical irony</strong>: even Pearson, the master statistician, would have been fooled by his own r — because he hadn't anticipated 'both channels with joint high background' creating spurious r. That's why Costes had to come along.</span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>你目前報告的 phenotype 哪些是 1980 前的「過時」特徵？要不要試 DL embedding？</li>
+    <li>你的 colocalization 是否做了完整的三步驗證（扣背景 + Costes + object-based）？</li>
+    <li>你會用 IBSI 標準嗎？在你的領域是否值得投資 PyRadiomics + 1,000 features 工作流？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>Which phenotypes you currently report are pre-1980 'legacy' features? Would DL embeddings help?</li>
+    <li>Did your colocalization complete all three checks (background subtraction + Costes + object-based)?</li>
+    <li>Will you use IBSI? Is investing in PyRadiomics + 1,000-feature pipelines worth it for your domain?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">「把影像變數字」聽起來簡單，但每個數字背後都有 100 年的假設。要把這些假設寫進 methods 才算嚴謹。</div>
+  <div class="rq-hint" data-lang="en">'Turning images into numbers' sounds simple — but each number carries 100 years of assumptions. Rigour means writing those assumptions into methods.</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

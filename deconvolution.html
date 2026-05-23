@@ -17,6 +17,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="1972 年的數學如何救活每一張共軛焦" data-en="How 1970s Maths Still Rescues Every Confocal Stack">1972 年的數學如何救活每一張共軛焦</h3>
+  <div data-lang="zh"><p>1972 年 William Richardson 與 1974 年 Leon Lucy 各自獨立發表了同一個迭代去模糊法——前者是光學家，後者是天文學家，兩人為了星體影像而非顯微鏡。後人合稱 Richardson-Lucy decon。</p><p>半世紀後，這個演算法仍在 widefield、共軛焦、light-sheet 上日復一日地使用。把模糊「逆回去」聽起來像魔法，但本質是 PSF 的數學建模 + Poisson 最大概似估計。2018 CARE 用 CNN 跳脫顯式 PSF 後，整個領域進入 DL 時代——但 RL 的數學直覺仍是必修。</p></div>
+  <div data-lang="en"><p>In 1972, William Richardson — and Leon Lucy in 1974 — independently published the same iterative deblurring method. Neither was a microscopist; one was an optician, one an astronomer. We now call it Richardson-Lucy deconvolution.</p><p>Half a century later it still runs daily on widefield, confocal, and light-sheet stacks. 'Reversing blur' sounds magical, but it's just PSF modelling + Poisson MLE. After CARE (2018) added CNNs to bypass explicit PSFs, the field went DL — but RL's intuition is still required reading.</p></div>
+  <div class="story-question" data-lang="zh">🤔 為什麼 RL 在 30 次迭代後 MSE 開始上升？這背後揭露了「迭代式還原」的核心 trade-off。</div>
+  <div class="story-question" data-lang="en">🤔 Why does RL's MSE start rising after ~30 iterations? It exposes the core trade-off of any iterative restoration.</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="觀念" data-en="CONCEPT">觀念</div>
 <h2 data-zh="一、PSF、卷積與影像形成模型" data-en="I. PSF, Convolution, and the Image Formation Model">一、PSF 與影像形成模型</h2>
@@ -147,6 +157,185 @@ config = Config(<span class="str">"ZYX"</span>, n_channel_in=<span class="num">1
 model = CARE(config, <span class="str">"my_care"</span>); model.train(X, Y)</pre></div>
 </div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="去卷積核心詞彙" data-en="Core Vocabulary for Deconvolution">去卷積核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">PSF <span class="en">Point Spread Function</span></div><div class="gloss-kid" data-lang="zh">一個極小的亮點，被顯微鏡「畫胖」之後的樣子。</div><div class="gloss-kid" data-lang="en">What a single point looks like after the microscope blurs it.</div><div class="gloss-tech" data-lang="zh">系統脈衝響應；3D PSF 在 Z 方向呈「沙漏 / 雙錐」狀。</div><div class="gloss-tech" data-lang="en">System impulse response; 3-D PSFs form 'hourglass / double cone' shapes in Z.</div></div>
+  <div class="gloss-card"><div class="gloss-term">卷積 ⊗ <span class="en">Convolution</span></div><div class="gloss-kid" data-lang="zh">把每個訊號點都換成 PSF 的形狀疊起來。</div><div class="gloss-kid" data-lang="en">Replace every signal point with the PSF shape and add them up.</div><div class="gloss-tech" data-lang="zh">線性運算；FFT 域為乘法。</div><div class="gloss-tech" data-lang="en">Linear operation; multiplication in the FFT domain.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Born-Wolf PSF <span class="en">Born-Wolf PSF</span></div><div class="gloss-kid" data-lang="zh">用基本光學算出來的「理想」PSF。</div><div class="gloss-kid" data-lang="en">An 'ideal' PSF computed from basic optics.</div><div class="gloss-tech" data-lang="zh">理論模型，假設無球差；薄樣本適用。</div><div class="gloss-tech" data-lang="en">Theoretical model assuming no spherical aberration; works for thin samples.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Gibson-Lanni PSF <span class="en">Gibson-Lanni PSF</span></div><div class="gloss-kid" data-lang="zh">考慮樣本深度與折射率失配的進階 PSF。</div><div class="gloss-kid" data-lang="en">An advanced PSF that accounts for sample depth and refractive-index mismatch.</div><div class="gloss-tech" data-lang="zh">加入 immersion / cover-slip / sample 折射率與厚度；深樣本適用。</div><div class="gloss-tech" data-lang="en">Adds immersion / coverslip / sample refractive indices and thickness; suited for deep tissue.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Bead-measured PSF <span class="en">Bead-measured PSF</span></div><div class="gloss-kid" data-lang="zh">拍亞解析度螢光珠，量出真實 PSF。</div><div class="gloss-kid" data-lang="en">Measure the real PSF by imaging sub-resolution beads.</div><div class="gloss-tech" data-lang="zh">100 nm bead，3D average 後變成「golden PSF」；最準。</div><div class="gloss-tech" data-lang="en">100 nm bead, 3-D averaged → the 'golden PSF'; the most accurate option.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Inverse filter <span class="en">Inverse filter</span></div><div class="gloss-kid" data-lang="zh">FFT 域直接除掉 PSF。</div><div class="gloss-kid" data-lang="en">Just divide by the PSF in the FFT domain.</div><div class="gloss-tech" data-lang="zh">最快、最不穩；對雜訊極敏感，幾乎不堪用。</div><div class="gloss-tech" data-lang="en">Fastest, least stable; extremely noise-sensitive — rarely usable.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Wiener filter <span class="en">Wiener filter</span></div><div class="gloss-kid" data-lang="zh">加上 noise 模型的「聰明版」inverse。</div><div class="gloss-kid" data-lang="en">A noise-model-aware 'smart' inverse.</div><div class="gloss-tech" data-lang="zh">FFT 域加入 noise-to-signal ratio 正則；線性、單步。</div><div class="gloss-tech" data-lang="en">FFT domain with NSR regularization; linear, single-shot.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Richardson-Lucy (RL) <span class="en">Richardson-Lucy</span></div><div class="gloss-kid" data-lang="zh">猜一個答案、看與實際差多少、修正、再來一次。</div><div class="gloss-kid" data-lang="en">Guess an answer, see how it differs, correct, repeat.</div><div class="gloss-tech" data-lang="zh">Poisson 最大概似迭代；10–30 iter 為實用區。</div><div class="gloss-tech" data-lang="en">Poisson maximum-likelihood iteration; 10–30 iter is the sweet spot.</div></div>
+  <div class="gloss-card"><div class="gloss-term">RL-TV <span class="en">RL with Total Variation</span></div><div class="gloss-kid" data-lang="zh">RL 加上「不要太亂」的限制。</div><div class="gloss-kid" data-lang="en">RL plus a 'don't get too wild' constraint.</div><div class="gloss-tech" data-lang="zh">RL + Total Variation 正則，減少 ringing；多一個 λ 參數。</div><div class="gloss-tech" data-lang="en">RL + Total Variation regularization, reduces ringing; adds one λ knob.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Blind decon <span class="en">Blind deconvolution</span></div><div class="gloss-kid" data-lang="zh">PSF 與真實影像同時猜。</div><div class="gloss-kid" data-lang="en">Guess the PSF and the image simultaneously.</div><div class="gloss-tech" data-lang="zh">無需測 PSF；不穩定，需良好初值與 priors。</div><div class="gloss-tech" data-lang="en">No PSF measurement needed; unstable, requires a good init and priors.</div></div>
+  <div class="gloss-card"><div class="gloss-term">CARE <span class="en">Content-Aware Restoration</span></div><div class="gloss-kid" data-lang="zh">DL 用 noisy/clean 配對學會把模糊「猜」回去。</div><div class="gloss-kid" data-lang="en">A DL model learns to 'guess' the blur away from noisy/clean pairs.</div><div class="gloss-tech" data-lang="zh">Weigert 2018 Nat Methods；含 decon / isotropic / denoise 三模式。</div><div class="gloss-tech" data-lang="en">Weigert 2018 Nat Methods; supports decon / isotropic / denoise modes.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Ringing artefact <span class="en">Ringing artefact</span></div><div class="gloss-kid" data-lang="zh">還原過頭出現的同心圓紋。</div><div class="gloss-kid" data-lang="en">Concentric rings around bright objects from over-restoration.</div><div class="gloss-tech" data-lang="zh">RL 後期迭代雜訊放大；TV 正則可緩。</div><div class="gloss-tech" data-lang="en">Noise amplified at late RL iterations; TV regularization mitigates it.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Iso-Net <span class="en">Iso-Net</span></div><div class="gloss-kid" data-lang="zh">CARE 的姊妹，把 anisotropic 還原成 isotropic。</div><div class="gloss-kid" data-lang="en">CARE's sibling — restores anisotropic data to isotropic.</div><div class="gloss-tech" data-lang="zh">Weigert 2020 WACV，3D widefield 各向異性救星。</div><div class="gloss-tech" data-lang="en">Weigert 2020 WACV — the savior for 3-D widefield anisotropy.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="去卷積 50 年" data-en="50 Years of Deconvolution">去卷積 50 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item milestone"><span class="tl-year">1972</span><span class="tl-title" data-zh="Richardson 提出迭代法" data-en="Richardson's iterative method">Richardson 提出迭代法</span><div class="tl-body" data-lang="zh">Richardson, JOSA — 用於天文影像還原。</div><div class="tl-body" data-lang="en">Richardson, JOSA — for astronomical image restoration.</div></div>
+<div class="tl-item milestone"><span class="tl-year">1974</span><span class="tl-title" data-zh="Lucy 獨立提出" data-en="Lucy's independent method">Lucy 獨立提出</span><div class="tl-body" data-lang="zh">Lucy, Astron. J. — 星系影像處理。</div><div class="tl-body" data-lang="en">Lucy, Astron. J. — galaxy image processing.</div></div>
+<div class="tl-item"><span class="tl-year">1980s</span><span class="tl-title" data-zh="RL 進入顯微鏡領域" data-en="RL enters microscopy">RL 進入顯微鏡領域</span><div class="tl-body" data-lang="zh">McNally, Conchello 等將 RL 應用於 widefield 影像。</div><div class="tl-body" data-lang="en">McNally, Conchello and others apply RL to widefield.</div></div>
+<div class="tl-item"><span class="tl-year">1990</span><span class="tl-title" data-zh="Holmes blind decon" data-en="Holmes blind deconvolution">Holmes blind decon</span><div class="tl-body" data-lang="zh">JOSA A — 同時估 PSF 與影像。</div><div class="tl-body" data-lang="en">JOSA A — joint estimation of PSF and image.</div></div>
+<div class="tl-item"><span class="tl-year">1995</span><span class="tl-title" data-zh="Carrington 3D widefield decon" data-en="Carrington 3D widefield decon">Carrington 3D widefield decon</span><div class="tl-body" data-lang="zh">Science — 3D 重建細胞胞器。</div><div class="tl-body" data-lang="en">Science — 3-D reconstruction of cellular organelles.</div></div>
+<div class="tl-item"><span class="tl-year">2005</span><span class="tl-title" data-zh="DeconvolutionLab" data-en="DeconvolutionLab">DeconvolutionLab</span><div class="tl-body" data-lang="zh">Sage 在 EPFL 發布 Fiji 插件。</div><div class="tl-body" data-lang="en">Sage releases the Fiji plugin at EPFL.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2017</span><span class="tl-title" data-zh="DeconvolutionLab2" data-en="DeconvolutionLab2">DeconvolutionLab2</span><div class="tl-body" data-lang="zh">Methods 115:28 — RL/Wiener/TV 開源整合。</div><div class="tl-body" data-lang="en">Methods 115:28 — open-source RL/Wiener/TV suite.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2018</span><span class="tl-title" data-zh="CARE" data-en="CARE">CARE</span><div class="tl-body" data-lang="zh">Weigert Nat Methods 15:1090 — DL decon 革命。</div><div class="tl-body" data-lang="en">Weigert Nat Methods 15:1090 — DL decon revolution.</div></div>
+<div class="tl-item"><span class="tl-year">2020</span><span class="tl-title" data-zh="Iso-Net (StarDist 3D)" data-en="Iso-Net (StarDist 3D)">Iso-Net (StarDist 3D)</span><div class="tl-body" data-lang="zh">Weigert WACV — anisotropic → isotropic 還原。</div><div class="tl-body" data-lang="en">Weigert WACV — anisotropic → isotropic restoration.</div></div>
+<div class="tl-item recent"><span class="tl-year">2024</span><span class="tl-title" data-zh="ZS-DeconvNet" data-en="ZS-DeconvNet">ZS-DeconvNet</span><div class="tl-body" data-lang="zh">Wang Nat Methods — 零樣本 DL decon。</div><div class="tl-body" data-lang="en">Wang Nat Methods — zero-shot DL deconvolution.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="Diffusion-based decon" data-en="Diffusion-based decon">Diffusion-based decon</span><div class="tl-body" data-lang="zh">DiffBIR / DiffMicro — diffusion model 進入低光 restoration。</div><div class="tl-body" data-lang="en">DiffBIR / DiffMicro — diffusion models enter low-light restoration.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="Richardson-Lucy 迭代公式" data-en="The Richardson-Lucy Iteration">Richardson-Lucy 迭代公式</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">x<sup>(k+1)</sup> = x<sup>(k)</sup> · [PSF<sup>T</sup> ⊛ (image / (PSF ⊛ x<sup>(k)</sup>))]</div>
+<div class="sw-step"><strong>① <span data-lang='zh'>初始估計</span><span data-lang='en'>Initial guess</span></strong> <span data-lang="zh">x⁰ 通常取 = image 或 = mean(image)。</span><span data-lang="en">x⁰ usually = image or = mean(image).</span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>正向模型</span><span data-lang='en'>Forward model</span></strong> <span data-lang="zh">PSF ⊛ x^(k) = 用目前估計合成的「理論影像」。</span><span data-lang="en">PSF ⊛ x^(k) = synthetic 'theoretical image' from the current estimate.</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>比值</span><span data-lang='en'>Ratio</span></strong> <span data-lang="zh">image / (PSF ⊛ x^(k))：與實際影像比較，得到「需要放大多少」的因子。</span><span data-lang="en">image / (PSF ⊛ x^(k)): compare to the real image to get a 'how much to scale' factor.</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>反向投影</span><span data-lang='en'>Back-projection</span></strong> <span data-lang="zh">PSF^T ⊛ ratio：把因子按 PSF 對稱反向卷積回去。</span><span data-lang="en">PSF^T ⊛ ratio: convolve the factor backward through PSF.</span></div>
+<div class="sw-step"><strong>⑤ <span data-lang='zh'>更新</span><span data-lang='en'>Update</span></strong> <span data-lang="zh">乘法更新：x^(k+1) = x^(k) × 因子。Poisson MLE 的 EM 更新規則。</span><span data-lang="en">Multiplicative update: x^(k+1) = x^(k) × factor. The EM rule for Poisson MLE.</span></div>
+
+<div class="sw-note" data-lang="zh">早期迭代 MSE 下降，late iterations noise 放大成 ringing。經驗法則：10–30 iter；自動停止可用 MSE 拐點偵測或 SURE 估計。</div>
+<div class="sw-note" data-lang="en">Early iterations lower MSE; late iterations amplify noise into ringing. Rule of thumb: 10–30 iter; auto-stop via MSE plateau detection or SURE estimation.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="去卷積三大爭論" data-en="Three Debates in Deconvolution">去卷積三大爭論</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. 量化還能在 decon 後做嗎？" data-en="A. Can you still quantify after decon?">A. 量化還能在 decon 後做嗎？</h5><div class="disc-q" data-lang="zh">你的 GFP-FRET 螢光強度需要 ±5% 準確度。RL decon 不保線性，可以用嗎？</div><div class="disc-q" data-lang="en">Your GFP-FRET intensity needs ±5% accuracy. RL decon isn't linearity-preserving — can you use it?</div><div class="disc-hint" data-lang="zh">提示：RL 不保強度線性；想量化用 Wiener（線性）或 RL-TV（受控）。對所有條件用相同設定 + 同一 PSF。</div><div class="disc-hint" data-lang="en">Hint: RL isn't linearity-preserving; use Wiener (linear) or RL-TV (controlled). Use identical settings and the same PSF across conditions.</div></div>
+  <div class="discussion-card"><h5 data-zh="B. 理論 PSF 何時失敗？" data-en="B. When do theoretical PSFs fail?">B. 理論 PSF 何時失敗？</h5><div class="disc-q" data-lang="zh">你用 60× 油鏡（n=1.515）拍水樣本（n=1.33）深 50 μm。Born-Wolf 還能信嗎？</div><div class="disc-q" data-lang="en">60× oil (n=1.515) imaging an aqueous sample (n=1.33) at 50 μm depth — can you still trust Born-Wolf?</div><div class="disc-hint" data-lang="zh">提示：折射率失配 → 球差。深樣本必須改用 Gibson-Lanni 或 bead-measured PSF。</div><div class="disc-hint" data-lang="en">Hint: refractive-index mismatch → spherical aberration. Switch to Gibson-Lanni or bead-measured PSFs for deep tissue.</div></div>
+  <div class="discussion-card"><h5 data-zh="C. CARE 在訓練分布外表現？" data-en="C. CARE outside its training distribution?">C. CARE 在訓練分布外表現？</h5><div class="disc-q" data-lang="zh">你的 CARE 模型用 fixed HeLa 訓練。拿來推論 live cardiomyocytes 會怎樣？</div><div class="disc-q" data-lang="en">Your CARE model was trained on fixed HeLa. What happens when you infer on live cardiomyocytes?</div><div class="disc-hint" data-lang="zh">提示：DL 模型對 OOD 樣本可能「幻想」結構。永遠在新 sample 做 validation；保留 raw 影像作雙重檢查。</div><div class="disc-hint" data-lang="en">Hint: DL models can 'hallucinate' structure on OOD samples. Always validate on new samples; keep raw as a control.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個改寫去卷積歷史的故事" data-en="Two Stories That Rewrote Deconvolution">兩個改寫去卷積歷史的故事</h2>
+<div class="spotlight">
+  <h5 data-zh="① CARE：DL 第一次擊敗傳統 decon" data-en="① CARE: when DL first beat classical decon">① CARE：DL 第一次擊敗傳統 decon</h5>
+  <div class="spot-meta">Weigert et al., Nat Methods 15:1090 (2018) · DOI: 10.1038/s41592-018-0216-7</div>
+  <p data-lang="zh">2018 年 Martin Weigert 等在 Dresden 提出 CARE：用 noisy / high-quality 配對訓練 CNN 直接學還原映射。<strong>不需顯式 PSF</strong>，且能同時 denoise + deconvolve + super-resolve。在 planaria 與 flatworm 影像上達到「5× 短曝光、同等畫質」。CARE 從此改變生物影像：你可以拍得更暗、活更久、看更深。</p>
+  <p data-lang="en">In 2018 Martin Weigert and colleagues at Dresden published CARE: train a CNN on noisy/clean pairs to learn the restoration map directly. <strong>No explicit PSF needed</strong>, and it could denoise + deconvolve + super-resolve simultaneously. On planaria they reached '5× shorter exposure for the same quality.' CARE changed bioimaging — you can now image dimmer, longer, deeper.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：當你不知道精確的 PSF，「資料驅動」往往比「物理建模」更實用。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: when the exact PSF is unknown, data-driven often beats physics-driven.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② Light-sheet 多視角融合：從 6 視角到一張各向同性 3D" data-en="② Light-sheet multi-view fusion: six views into one isotropic 3-D">② Light-sheet 多視角融合：從 6 視角到一張各向同性 3D</h5>
+  <div class="spot-meta">Preibisch / Hörl BigStitcher · DOI: 10.1038/s41592-019-0501-0</div>
+  <p data-lang="zh">BigStitcher 把多視角光片資料 (例如從 6 個角度拍胚胎) 進行 multi-view fusion + 去卷積。原本各向異性的單視角 → 重建出近乎 isotropic 的 3D。Mette Boye 在 EMBL Heidelberg 用 BigStitcher 拍下整隻 fly 胚胎發育，<strong>每張影像 200 GB，全程用 BigStitcher fusion + decon</strong>，輸出供下游 Cellpose 3D 分割。</p>
+  <p data-lang="en">BigStitcher fuses light-sheet data acquired from many angles (e.g., 6 views of an embryo) and deconvolves jointly. The originally anisotropic single views → a near-isotropic 3-D reconstruction. Mette Boye at EMBL Heidelberg used BigStitcher to image whole fly embryo development — <strong>200 GB per snapshot, all fused + deconvolved with BigStitcher</strong>, then fed into Cellpose 3D.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：多視角 + 去卷積結合，是當前最強的 3D 影像重建組合。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: multi-view + decon is the strongest 3-D reconstruction combo we have today.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="去卷積六大陷阱" data-en="Six Pitfalls of Deconvolution">去卷積六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="RL 過度迭代" data-en="RL over-iteration">RL 過度迭代</span><div class="pf-body" data-lang="zh">200 iter 後 ringing 與 speckle 大爆發。</div><div class="pf-body" data-lang="en">After 200 iter, ringing and speckle explode.</div><div class="pf-fix" data-lang="zh">10–30 iter 停止；用 MSE plateau 自動停。</div><div class="pf-fix" data-lang="en">Stop at 10–30 iter; use an MSE-plateau auto-stop.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="用錯 PSF" data-en="Wrong PSF">用錯 PSF</span><div class="pf-body" data-lang="zh">油鏡測 PSF 拿去 water sample 用，球差未補。</div><div class="pf-body" data-lang="en">Oil-objective PSF reused for an aqueous sample, no spherical-aberration correction.</div><div class="pf-fix" data-lang="zh">重新拍 bead PSF；或用 Gibson-Lanni 模型補。</div><div class="pf-fix" data-lang="en">Re-acquire a bead PSF, or use the Gibson-Lanni model.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="Widefield 不先扣背景" data-en="No background subtraction before widefield decon">Widefield 不先扣背景</span><div class="pf-body" data-lang="zh">離焦霧被「銳化」成偽訊號。</div><div class="pf-body" data-lang="en">Out-of-focus haze gets sharpened into pseudo-signal.</div><div class="pf-fix" data-lang="zh">Decon 前必做 rolling-ball 背景減除。</div><div class="pf-fix" data-lang="en">Always rolling-ball before decon.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="Quantify 後做 decon" data-en="Decon after quantifying">Quantify 後做 decon</span><div class="pf-body" data-lang="zh">順序錯：應「先 decon 再量化」，或反之但全程一致。</div><div class="pf-body" data-lang="en">Wrong order: 'decon then quantify' or vice versa, but be consistent.</div><div class="pf-fix" data-lang="zh">為對照組與實驗組用完全相同的處理順序。</div><div class="pf-fix" data-lang="en">Apply identical processing order to all conditions.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="CARE 訓練分布外推論" data-en="CARE inference OOD">CARE 訓練分布外推論</span><div class="pf-body" data-lang="zh">用 fixed sample 訓練的模型推論 live cell 出現 hallucination。</div><div class="pf-body" data-lang="en">A model trained on fixed samples may hallucinate structure on live cells.</div><div class="pf-fix" data-lang="zh">為新 sample 重訓或用 transfer learning；保留 raw 影像。</div><div class="pf-fix" data-lang="en">Re-train or transfer-learn for new samples; keep raw images.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="Blind decon 初值不佳" data-en="Bad init for blind decon">Blind decon 初值不佳</span><div class="pf-body" data-lang="zh">隨機初值常導致 collapse 或非物理 PSF。</div><div class="pf-body" data-lang="en">Random init often collapses or produces unphysical PSFs.</div><div class="pf-fix" data-lang="zh">用 Gibson-Lanni 計算理論 PSF 當初值。</div><div class="pf-fix" data-lang="en">Initialize from a Gibson-Lanni theoretical PSF.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種去卷積哲學" data-en="Two Deconvolution Philosophies">兩種去卷積哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="RL 跑到底 + 完全相信結果" data-en="Run RL to the end + trust blindly">RL 跑到底 + 完全相信結果</span></h5>
+    <ul>
+      <li data-lang="zh">迭代 200 次「以求乾淨」</li>
+      <li data-lang="zh">理論 PSF 一律 Born-Wolf</li>
+      <li data-lang="zh">decon 後直接量化強度發表</li>
+      <li data-lang="zh">Raw 影像不保留</li>
+      <li data-lang="zh">Methods 沒寫 iter 數</li>
+      <li data-lang="en">200 iterations 'for cleanliness'</li>
+      <li data-lang="en">Theoretical PSF always Born-Wolf</li>
+      <li data-lang="en">Quantify intensity straight after decon and publish</li>
+      <li data-lang="en">Discard the raw image</li>
+      <li data-lang="en">Methods section omits iteration count</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="Wiener / RL-TV + 雙重檢查" data-en="Wiener / RL-TV + dual check">Wiener / RL-TV + 雙重檢查</span></h5>
+    <ul>
+      <li data-lang="zh">先試 Wiener (線性) 看是否足夠</li>
+      <li data-lang="zh">Bead PSF 為金標準；Gibson-Lanni 為深樣本</li>
+      <li data-lang="zh">量化用 raw + 一致濾波兩組對比</li>
+      <li data-lang="zh">Raw 必留作 supplementary figure</li>
+      <li data-lang="zh">Methods 寫明 iter / PSF source / 軟體版本</li>
+      <li data-lang="en">Try Wiener (linear) first to see if it suffices</li>
+      <li data-lang="en">Bead PSF is the gold standard; Gibson-Lanni for deep tissue</li>
+      <li data-lang="en">Quantify on both raw and consistently-filtered groups</li>
+      <li data-lang="en">Always keep raw as a supplementary figure</li>
+      <li data-lang="en">Methods documents iter / PSF source / software version</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 去卷積 SOTA" data-en="2024–2026 Deconvolution SOTA">2024–2026 去卷積 SOTA</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="DL decon 走向「零樣本 + diffusion」" data-en="DL decon goes 'zero-shot + diffusion'">DL decon 走向「零樣本 + diffusion」</h5>
+<p data-lang="zh">去卷積 / restoration 的 2024–2026 最新方向：</p>
+<p data-lang="en">Decon / restoration directions in 2024–2026:</p>
+<ul>
+  <li><strong>ZS-DeconvNet (2024)</strong> <span data-lang="zh">Wang Nat Methods — <strong>零樣本</strong> DL decon，無需訓練資料。</span><span data-lang="en">Wang Nat Methods — <strong>zero-shot</strong> DL deconvolution, no training data needed.</span></li>
+  <li><strong>Iso-Net++ (2024)</strong> <span data-lang="zh">CARE 家族升級，3D widefield → isotropic 還原。</span><span data-lang="en">CARE family update — 3-D widefield → isotropic restoration.</span></li>
+  <li><strong>Decon-NN with attention (2025)</strong> <span data-lang="zh">Transformer 結合 PSF 物理 prior。</span><span data-lang="en">Transformer integrated with PSF physical priors.</span></li>
+  <li><strong>DiffBIR / DiffMicro (2024)</strong> <span data-lang="zh">Diffusion 模型用於低光 restoration，PSNR 比 CARE 再 +2 dB。</span><span data-lang="en">Diffusion models for low-light restoration; +2 dB PSNR over CARE.</span></li>
+  <li><strong>BLINK (2025)</strong> <span data-lang="zh">NPC + diffusion，多模態零訓練 restoration。</span><span data-lang="en">NPC + diffusion — zero-shot multi-modal restoration.</span></li>
+  <li><strong>Cellpose 3 deblur (2025)</strong> <span data-lang="zh">內建於 Cellpose 3 的 deblur 模式，一鍵整合到分割。</span><span data-lang="en">Built into Cellpose 3 as the deblur mode — one click into segmentation.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Weigert 2018 Nat Methods 15:1090 · Sage 2017 Methods 115:28 · Wang 2024 Nat Methods</div>
+<div class="an-cite" data-lang="en">Key refs: Weigert 2018 Nat Methods 15:1090 · Sage 2017 Methods 115:28 · Wang 2024 Nat Methods</div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Richardson 1972 是<em>光學家</em>而非生物學家；Lucy 1974 是<em>星系物理學家</em>。兩人不認識，各自為了星體影像重建發明同樣的 EM 迭代式去模糊法。20 年後生物學界才發現「咦這個演算法剛好可用」。<strong>科學的精彩就在這裡：等待某個跨領域的火花。</strong></span>
+<span data-lang="en">Richardson (1972) was an <em>optician</em>, not a biologist; Lucy (1974) was a <em>galaxy physicist</em>. They never met, but each invented the same EM iterative deblur for stellar image restoration. Twenty years later the biology field discovered: 'Hey — this algorithm fits us.' <strong>That's the magic of science — it waits for a cross-disciplinary spark.</strong></span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>你的影像 SNR 多少時你會選 RL / Wiener / CARE？背後的判斷依據是什麼？</li>
+    <li>Bead PSF 是否該變成你 acquisition pipeline 的標配項目？實作成本與收益如何？</li>
+    <li>如果審稿人質疑「你的 decon 是否導致虛假訊號」，你會準備哪些對照組來回應？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>At what SNR would you choose RL vs. Wiener vs. CARE? What's the rationale?</li>
+    <li>Should bead PSF acquisition become a standard part of your pipeline? What's the cost / benefit?</li>
+    <li>If a reviewer asks 'did your decon create phantom signal?', what controls would you present?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">Decon 是「相信物理 + 相信演算法」的雙重信仰；準備好對照組讓人可以驗證你的選擇。</div>
+  <div class="rq-hint" data-lang="en">Decon = belief in physics + belief in the algorithm. Always have controls so others can audit your choice.</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

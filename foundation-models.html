@@ -16,6 +16,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="從 SAM 到 Micro-SAM：兩年內變天的 bioimage AI" data-en="From SAM to Micro-SAM: how bioimage AI changed in two years">從 SAM 到 Micro-SAM：兩年內變天的 bioimage AI</h3>
+  <div data-lang="zh"><p>2023 年 4 月 Meta AI 發表 Segment Anything (SAM)：「任何影像、任何 prompt、零訓練分割」。3 個月內 napari、QuPath、Fiji 都長出 SAM plugin。但研究者很快發現：<strong>SAM 在 EM 切片上慘不忍睹，在低 SNR fluorescence 也力不從心。</strong></p><p>2025 年 2 月 Anwai Archit 等在 Nat Methods 發表 Micro-SAM (μSAM)，把 SAM fine-tune 到光學+電子顯微全頻譜；同年 MedSAM2、CellSAM、UNI 2 接連登場。Bioimage 進入「prompt-first」時代——標一張就能跑全 dataset。</p></div>
+  <div data-lang="en"><p>In April 2023 Meta AI released Segment Anything (SAM): 'any image, any prompt, zero-shot segmentation.' Within 3 months napari, QuPath, and Fiji all sprouted SAM plugins. But researchers quickly noticed: <strong>SAM was terrible on EM sections and struggled on low-SNR fluorescence.</strong></p><p>In February 2025 Anwai Archit et al. published Micro-SAM (μSAM) in Nat Methods, fine-tuning SAM for the full light + EM microscopy spectrum; the same year brought MedSAM2, CellSAM, and UNI 2. Bioimage entered the 'prompt-first' era — annotate one, run on the whole dataset.</p></div>
+  <div class="story-question" data-lang="zh">🤔 Foundation model 之於分割，是否就像 transformer 之於 NLP？這個範式轉移會在 2026 結束嗎？</div>
+  <div class="story-question" data-lang="en">🤔 Is the foundation model to segmentation what the transformer was to NLP? Will this paradigm shift conclude by 2026?</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="觀念" data-en="CONCEPT">觀念</div>
 <h2 data-zh="一、什麼是「提示式分割」？" data-en="I. What is 'Promptable Segmentation'?">一、提示式分割</h2>
@@ -173,6 +183,185 @@ tf = transforms.Compose([
 <span class="comment"># Train a linear classifier on top using your labelled patches</span></pre></div>
 </div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="基礎模型核心詞彙" data-en="Core Vocabulary for Foundation Models">基礎模型核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">SAM <span class="en">Segment Anything Model</span></div><div class="gloss-kid" data-lang="zh">Meta 出品「能分割任何東西」的通用模型。</div><div class="gloss-kid" data-lang="en">Meta's 'segment anything' generalist.</div><div class="gloss-tech" data-lang="zh">Kirillov 2023 ICCV；ViT backbone + prompt encoder + mask decoder。</div><div class="gloss-tech" data-lang="en">Kirillov 2023 ICCV; ViT backbone + prompt encoder + mask decoder.</div></div>
+  <div class="gloss-card"><div class="gloss-term">SAM 2 <span class="en">SAM 2</span></div><div class="gloss-kid" data-lang="zh">SAM 加上「影片記憶」，可追蹤跨幀。</div><div class="gloss-kid" data-lang="en">SAM with 'video memory' for cross-frame tracking.</div><div class="gloss-tech" data-lang="zh">Ravi 2024 arXiv 2408.00714；Hiera backbone + memory attention。</div><div class="gloss-tech" data-lang="en">Ravi 2024 arXiv 2408.00714; Hiera backbone + memory attention.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Promptable segmentation <span class="en">Promptable segmentation</span></div><div class="gloss-kid" data-lang="zh">點一下、畫個 box、或寫一句話 → 即時 mask。</div><div class="gloss-kid" data-lang="en">Click / box / sentence → instant mask.</div><div class="gloss-tech" data-lang="zh">Point / box / mask / text prompt → fast mask decoder。</div><div class="gloss-tech" data-lang="en">Point / box / mask / text → fast mask decoder.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Image embedding <span class="en">Image embedding</span></div><div class="gloss-kid" data-lang="zh">影像被壓成「特徵指紋」，可重複使用。</div><div class="gloss-kid" data-lang="en">Image compressed into a 'feature fingerprint' for reuse.</div><div class="gloss-tech" data-lang="zh">SAM encoder 跑一次得到 256-d feature map；快取重用。</div><div class="gloss-tech" data-lang="en">SAM encoder runs once to get a 256-d feature map; cached and reused.</div></div>
+  <div class="gloss-card"><div class="gloss-term">AMG <span class="en">Automatic Mask Generation</span></div><div class="gloss-kid" data-lang="zh">自動撒 prompt 找出所有物件。</div><div class="gloss-kid" data-lang="en">Automatically scatter prompts to find all objects.</div><div class="gloss-tech" data-lang="zh">網格化 point prompts + IoU 過濾 → 所有 mask。</div><div class="gloss-tech" data-lang="en">Grid point prompts + IoU filtering → all masks.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Micro-SAM (μSAM) <span class="en">Micro-SAM</span></div><div class="gloss-kid" data-lang="zh">專為顯微影像微調的 SAM。</div><div class="gloss-kid" data-lang="en">SAM fine-tuned for microscopy.</div><div class="gloss-tech" data-lang="zh">Archit 2025 Nat Methods 22:579；napari plugin + 30+ modality 模型。</div><div class="gloss-tech" data-lang="en">Archit 2025 Nat Methods 22:579; napari plugin + 30+ modality models.</div></div>
+  <div class="gloss-card"><div class="gloss-term">MedSAM / MedSAM2 <span class="en">MedSAM / MedSAM2</span></div><div class="gloss-kid" data-lang="zh">專為 CT / MRI / 影片設計的 SAM。</div><div class="gloss-kid" data-lang="en">SAM tailored for CT / MRI / video.</div><div class="gloss-tech" data-lang="zh">Ma 2024 Nat Commun + 2025 arXiv 2504.03600 (3D / video)。</div><div class="gloss-tech" data-lang="en">Ma 2024 Nat Commun + 2025 arXiv 2504.03600 (3-D / video).</div></div>
+  <div class="gloss-card"><div class="gloss-term">UNI <span class="en">UNI</span></div><div class="gloss-kid" data-lang="zh">Mahmood Lab 用 DINOv2 訓練的病理 patch 通用嵌入。</div><div class="gloss-kid" data-lang="en">Mahmood Lab's DINOv2-trained universal pathology patch embedding.</div><div class="gloss-tech" data-lang="zh">Chen 2024 Nat Med 30:850；100M+ patches。</div><div class="gloss-tech" data-lang="en">Chen 2024 Nat Med 30:850; 100M+ patches.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Virchow <span class="en">Virchow</span></div><div class="gloss-kid" data-lang="zh">MSKCC 出品的病理 foundation model。</div><div class="gloss-kid" data-lang="en">MSKCC's pathology foundation model.</div><div class="gloss-tech" data-lang="zh">Vorontsov 2024 Nat Med；DINOv2-style，多癌種預測。</div><div class="gloss-tech" data-lang="en">Vorontsov 2024 Nat Med; DINOv2-style, multi-cancer prediction.</div></div>
+  <div class="gloss-card"><div class="gloss-term">CONCH <span class="en">CONCH</span></div><div class="gloss-kid" data-lang="zh">圖文對齊：可用文字搜尋病理影像。</div><div class="gloss-kid" data-lang="en">Vision-language: search pathology images by text.</div><div class="gloss-tech" data-lang="zh">Lu 2024 Nat Med；CLIP-style 病理 VLM。</div><div class="gloss-tech" data-lang="en">Lu 2024 Nat Med; CLIP-style pathology vision-language model.</div></div>
+  <div class="gloss-card"><div class="gloss-term">LoRA <span class="en">LoRA / Adapter</span></div><div class="gloss-kid" data-lang="zh">凍結大模型，只插一個小可訓練模組。</div><div class="gloss-kid" data-lang="en">Freeze the big model, plug in a small trainable adapter.</div><div class="gloss-tech" data-lang="zh">Low-Rank Adaptation；1% 參數可訓練即可微調 SAM。</div><div class="gloss-tech" data-lang="en">Low-Rank Adaptation; ~1% trainable parameters can fine-tune SAM.</div></div>
+  <div class="gloss-card"><div class="gloss-term">MIL <span class="en">Multiple Instance Learning</span></div><div class="gloss-kid" data-lang="zh">用「整袋只有 slide-level 標籤」訓練分類器。</div><div class="gloss-kid" data-lang="en">Train a classifier with only 'bag-level slide labels.'</div><div class="gloss-tech" data-lang="zh">CLAM (Lu 2021), TransMIL, DSMIL — slide 級弱監督。</div><div class="gloss-tech" data-lang="en">CLAM (Lu 2021), TransMIL, DSMIL — slide-level weak supervision.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="Foundation model 簡史" data-en="Brief History of Foundation Models">Foundation model 簡史</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item milestone"><span class="tl-year">2017</span><span class="tl-title" data-zh="Transformer NeurIPS" data-en="Transformer NeurIPS">Transformer NeurIPS</span><div class="tl-body" data-lang="zh">Vaswani 等發表 Attention is All You Need。</div><div class="tl-body" data-lang="en">Vaswani et al. publish 'Attention is All You Need.'</div></div>
+<div class="tl-item"><span class="tl-year">2020</span><span class="tl-title" data-zh="ViT ICLR" data-en="ViT ICLR">ViT ICLR</span><div class="tl-body" data-lang="zh">Dosovitskiy 把 transformer 帶入影像。</div><div class="tl-body" data-lang="en">Dosovitskiy brings the transformer to images.</div></div>
+<div class="tl-item"><span class="tl-year">2021</span><span class="tl-title" data-zh="CLIP ICML" data-en="CLIP ICML">CLIP ICML</span><div class="tl-body" data-lang="zh">Radford 圖文對齊預訓練。</div><div class="tl-body" data-lang="en">Radford — image-text contrastive pretraining.</div></div>
+<div class="tl-item"><span class="tl-year">2022</span><span class="tl-title" data-zh="MAE CVPR" data-en="MAE CVPR">MAE CVPR</span><div class="tl-body" data-lang="zh">He — masked autoencoder 自監督預訓練。</div><div class="tl-body" data-lang="en">He — masked autoencoder self-supervised pretraining.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2023</span><span class="tl-title" data-zh="SAM ICCV" data-en="SAM ICCV">SAM ICCV</span><div class="tl-body" data-lang="zh">Kirillov — 通用 promptable 分割問世。</div><div class="tl-body" data-lang="en">Kirillov — general-purpose promptable segmentation arrives.</div></div>
+<div class="tl-item"><span class="tl-year">2024</span><span class="tl-title" data-zh="MedSAM Nat Commun" data-en="MedSAM Nat Commun">MedSAM Nat Commun</span><div class="tl-body" data-lang="zh">Ma 等將 SAM 微調至醫學影像。</div><div class="tl-body" data-lang="en">Ma et al. fine-tune SAM for medical imaging.</div></div>
+<div class="tl-item"><span class="tl-year">2024</span><span class="tl-title" data-zh="UNI / Virchow / CONCH" data-en="UNI / Virchow / CONCH">UNI / Virchow / CONCH</span><div class="tl-body" data-lang="zh">三大病理基礎模型同年登場。</div><div class="tl-body" data-lang="en">Three pathology FMs land in one year.</div></div>
+<div class="tl-item"><span class="tl-year">2024</span><span class="tl-title" data-zh="SAM 2 arXiv" data-en="SAM 2 arXiv">SAM 2 arXiv</span><div class="tl-body" data-lang="zh">Ravi — 影片記憶 + 6× 加速。</div><div class="tl-body" data-lang="en">Ravi — video memory + 6× speedup.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2025</span><span class="tl-title" data-zh="Micro-SAM Nat Methods" data-en="Micro-SAM Nat Methods">Micro-SAM Nat Methods</span><div class="tl-body" data-lang="zh">Archit Nat Methods 22:579 — 顯微通用基礎模型。</div><div class="tl-body" data-lang="en">Archit Nat Methods 22:579 — microscopy-general foundation model.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="MedSAM2 / CellSAM" data-en="MedSAM2 / CellSAM">MedSAM2 / CellSAM</span><div class="tl-body" data-lang="zh">Ma 2504.03600 + Israel Nat Methods — 3D 醫學 + 細胞專用。</div><div class="tl-body" data-lang="en">Ma 2504.03600 + Israel Nat Methods — 3-D medical + cell-specific.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="UNI 2 / Virchow 2" data-en="UNI 2 / Virchow 2">UNI 2 / Virchow 2</span><div class="tl-body" data-lang="zh">Mahmood / MSKCC 升級版，200k+ slide 訓練。</div><div class="tl-body" data-lang="en">Mahmood / MSKCC upgrades, trained on 200k+ slides.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="SAM 的數學骨架" data-en="SAM's Mathematical Skeleton">SAM 的數學骨架</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">mask = MaskDecoder( ImageEncoder(image), PromptEncoder(prompt) )</div>
+<div class="sw-step"><strong>① <span data-lang='zh'>Image encoding</span><span data-lang='en'>Image encoding</span></strong> <span data-lang="zh">ViT-H 跑一次得到 image embedding（256×64×64 tensor）。一次性、可快取。</span><span data-lang="en">ViT-H runs once to produce an image embedding (256×64×64 tensor). One-shot, cacheable.</span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>Prompt encoding</span><span data-lang='en'>Prompt encoding</span></strong> <span data-lang="zh">Point / box / mask / text 各有獨立 encoder，輸出 prompt embedding。</span><span data-lang="en">Point / box / mask / text each have an encoder producing a prompt embedding.</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>Cross attention</span><span data-lang='en'>Cross attention</span></strong> <span data-lang="zh">MaskDecoder 用 cross-attention 把 image + prompt embedding 融合。</span><span data-lang="en">MaskDecoder fuses image + prompt embedding via cross-attention.</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>Mask 輸出</span><span data-lang='en'>Mask output</span></strong> <span data-lang="zh">上採樣到 1024×1024，加上 IoU prediction head 給 confidence。</span><span data-lang="en">Upsamples to 1024×1024, with an IoU prediction head for confidence.</span></div>
+
+<div class="sw-note" data-lang="zh">互動式 = embedding cached + prompt 即時計算。一張影像 embedding 算完後，每次 prompt 只需 ~50 ms。Micro-SAM 把這套 fine-tune 到顯微影像並提供 napari plugin。</div>
+<div class="sw-note" data-lang="en">Interactive = cached embedding + on-the-fly prompts. After the one-shot embedding, each prompt costs ~50 ms. Micro-SAM fine-tunes this for microscopy and ships a napari plugin.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="基礎模型三大爭論" data-en="Three Debates on Foundation Models">基礎模型三大爭論</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. UNI vs Cellpose：哪個 first？" data-en="A. UNI vs Cellpose: which comes first?">A. UNI vs Cellpose：哪個 first？</h5><div class="disc-q" data-lang="zh">病理 H&E 切片要做 nucleus segmentation 同時 slide-level cancer 分類，你的 pipeline 順序？</div><div class="disc-q" data-lang="en">H&E slide needs nucleus segmentation AND slide-level cancer classification. Pipeline order?</div><div class="disc-hint" data-lang="zh">提示：兩條 path 並行——Cellpose / HoVer-Net 做 instance segmentation；UNI 抽 patch embedding → CLAM MIL 做 slide-level。最後整合。</div><div class="disc-hint" data-lang="en">Hint: two parallel paths — Cellpose / HoVer-Net for instance segmentation; UNI patch embeddings → CLAM MIL for slide-level. Combine at the end.</div></div>
+  <div class="discussion-card"><h5 data-zh="B. 文字 prompt 能取代手動標註？" data-en="B. Can text prompts replace manual annotation?">B. 文字 prompt 能取代手動標註？</h5><div class="disc-q" data-lang="zh">CONCH 號稱 'find all tumor cells'。實務上 90% 可用？</div><div class="disc-q" data-lang="en">CONCH claims 'find all tumor cells.' Is it 90% reliable in practice?</div><div class="disc-hint" data-lang="zh">提示：當前文字 prompt 對 well-defined object（cancer cell, gland）較準；複雜 phenotype（quiescent stem cell）仍需要 manual。</div><div class="disc-hint" data-lang="en">Hint: text prompts work better for well-defined objects (cancer cell, gland); complex phenotypes (quiescent stem cell) still need manual annotation.</div></div>
+  <div class="discussion-card"><h5 data-zh="C. 2026 後 prompt 工程的位置？" data-en="C. Where is prompt engineering heading post-2026?">C. 2026 後 prompt 工程的位置？</h5><div class="disc-q" data-lang="zh">Foundation model 越強，「prompt 設計」越關鍵嗎？</div><div class="disc-q" data-lang="en">As foundation models get stronger, does prompt design become more critical?</div><div class="disc-hint" data-lang="zh">提示：與 NLP 平行——LLM 越強，prompt 工程從「玄學」變「正規流派」。Bioimage 也會有「prompt cookbook」。</div><div class="disc-hint" data-lang="en">Hint: parallel with NLP — as LLMs grow stronger, prompt engineering moves from 'art' to 'discipline.' Bioimage will follow with 'prompt cookbooks.'</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個改寫 bioimage AI 的故事" data-en="Two Stories That Rewrote Bioimage AI">兩個改寫 bioimage AI 的故事</h2>
+<div class="spotlight">
+  <h5 data-zh="① Micro-SAM：在 napari 內 5 分鐘標 100 細胞" data-en="① Micro-SAM: 100 cells in 5 minutes inside napari">① Micro-SAM：在 napari 內 5 分鐘標 100 細胞</h5>
+  <div class="spot-meta">Archit et al., Nat Methods 22:579 (2025) · github.com/computational-cell-analytics/micro-sam</div>
+  <p data-lang="zh">Anwai Archit 等在 Göttingen 為了讓 SAM 在 EM 與低 SNR fluorescence 真正可用，<strong>把 SAM 微調到 30+ 顯微 modality</strong>。他們的 napari plugin 工作流：算一次 embedding → 點 cell → 即時 mask → 點 negative point 排除背景 → 5 分鐘 100 細胞。整個 Göttingen 細胞生物實驗室一年內捨棄手動標註，全部 prompt-first。</p>
+  <p data-lang="en">Anwai Archit et al. (Göttingen) made SAM actually usable on EM and low-SNR fluorescence by <strong>fine-tuning across 30+ microscopy modalities</strong>. Their napari plugin: one embedding → click a cell → instant mask → click negative points to exclude background → 100 cells in 5 minutes. The Göttingen cell-biology institute abandoned manual annotation entirely within one year.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：foundation model 真正落地的「最後一哩」是領域適配 + 良好 UI。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: the 'last mile' of foundation models in practice is domain adaptation + good UI.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② UNI：100M patch 訓出的病理通用嵌入" data-en="② UNI: a 100M-patch universal pathology embedding">② UNI：100M patch 訓出的病理通用嵌入</h5>
+  <div class="spot-meta">Chen et al., Nat Medicine 30:850 (2024) · Mahmood Lab DFCI</div>
+  <p data-lang="zh">Richard Chen 等在 Dana-Farber Mahmood Lab 用 DINOv2 訓練 UNI：<strong>~100M 病理 patches、ViT-L backbone、自監督預訓練</strong>。在 ~30 個下游任務（cancer 分類、生物標誌預測、prognosis 預測）平均超越 ImageNet pretrained baseline 約 <strong>20%</strong>。UNI 2 (2025) 進一步擴展到 200k slides，重塑整個 computational pathology 領域。</p>
+  <p data-lang="en">Richard Chen et al. (DFCI Mahmood Lab) trained UNI with DINOv2: <strong>~100M pathology patches, ViT-L backbone, self-supervised</strong>. On ~30 downstream tasks (cancer classification, biomarker prediction, prognosis), it beats ImageNet baselines by ~<strong>20% on average</strong>. UNI 2 (2025) extended to 200k slides, reshaping computational pathology.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：在病理這種「特殊視覺領域」，自訓 foundation model 仍有顯著價值。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: in 'specialized visual domains' like pathology, training a dedicated foundation model still pays dividends.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="基礎模型六大陷阱" data-en="Six Pitfalls of Foundation Models">基礎模型六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="原版 SAM 直接套 EM" data-en="Vanilla SAM on EM">原版 SAM 直接套 EM</span><div class="pf-body" data-lang="zh">SAM 沒看過 EM，誤分割膜 / 髓鞘。</div><div class="pf-body" data-lang="en">SAM has never seen EM; mistakes membranes / myelin.</div><div class="pf-fix" data-lang="zh">用 Micro-SAM vit_b_em / vit_l_em。</div><div class="pf-fix" data-lang="en">Use Micro-SAM vit_b_em / vit_l_em.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="3D stack 逐 slice 跑 SAM" data-en="SAM slice-by-slice on a 3-D stack">3D stack 逐 slice 跑 SAM</span><div class="pf-body" data-lang="zh">跨 z ID 不一致；同一 cell 每層新 ID。</div><div class="pf-body" data-lang="en">Inconsistent IDs across z; same cell gets a fresh ID per slice.</div><div class="pf-fix" data-lang="zh">用 Micro-SAM volumetric 或 MedSAM2 3D 模式。</div><div class="pf-fix" data-lang="en">Use Micro-SAM volumetric or MedSAM2 3-D mode.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="MedSAM2 用在病理 WSI" data-en="MedSAM2 on pathology WSI">MedSAM2 用在病理 WSI</span><div class="pf-body" data-lang="zh">MedSAM2 訓練於 CT / MRI / video，不適合 WSI tile。</div><div class="pf-body" data-lang="en">MedSAM2 trained on CT / MRI / video — wrong for WSI tiles.</div><div class="pf-fix" data-lang="zh">WSI 用 UNI / Virchow / CONCH + CLAM。</div><div class="pf-fix" data-lang="en">Use UNI / Virchow / CONCH + CLAM for WSI.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="UNI embedding 用錯 MPP" data-en="UNI embedding at the wrong MPP">UNI embedding 用錯 MPP</span><div class="pf-body" data-lang="zh">UNI 預期 ~0.5 μm/px (20×)；餵 40× silent 降效。</div><div class="pf-body" data-lang="en">UNI expects ~0.5 μm/px (20×); feeding 40× silently degrades.</div><div class="pf-fix" data-lang="zh">讀 OpenSlide mpp metadata 並 downsample 對齊。</div><div class="pf-fix" data-lang="en">Read OpenSlide mpp metadata and downsample to match.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="CONCH 中文 prompt" data-en="CONCH with non-English prompts">CONCH 中文 prompt</span><div class="pf-body" data-lang="zh">CONCH 訓練語料為英文，中文 prompt 效果差。</div><div class="pf-body" data-lang="en">CONCH was trained on English; non-English prompts perform poorly.</div><div class="pf-fix" data-lang="zh">用英文病理術語；如需中文先翻譯。</div><div class="pf-fix" data-lang="en">Use English pathology terms; translate from Chinese first.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="CLAM slide 太少" data-en="CLAM with too few slides">CLAM slide 太少</span><div class="pf-body" data-lang="zh">CLAM 訓練需 100+ slides 才穩定；少於 50 變動劇烈。</div><div class="pf-body" data-lang="en">CLAM needs 100+ slides to stabilize; below 50 it fluctuates wildly.</div><div class="pf-fix" data-lang="zh">收集足夠 slide 或用 cross-validation 避免高估。</div><div class="pf-fix" data-lang="en">Collect enough slides or use cross-validation to avoid over-estimation.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種 FM 使用哲學" data-en="Two FM Usage Philosophies">兩種 FM 使用哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="「直接用原版 SAM 對所有 microscopy」" data-en=""Use raw SAM for all microscopy"">「直接用原版 SAM 對所有 microscopy」</span></h5>
+    <ul>
+      <li data-lang="zh">一鍵 AMG 跑所有資料</li>
+      <li data-lang="zh">沒選對 modality-specific 版本</li>
+      <li data-lang="zh">3D / video 逐 slice 處理</li>
+      <li data-lang="zh">MPP / channel 順序不檢查</li>
+      <li data-lang="zh">輸出直接拿來發表</li>
+      <li data-lang="en">One-click AMG on everything</li>
+      <li data-lang="en">No modality-specific variant selected</li>
+      <li data-lang="en">3-D / video done slice-by-slice</li>
+      <li data-lang="en">Don't check MPP or channel order</li>
+      <li data-lang="en">Publish the output as-is</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="「按 modality 選 μSAM / MedSAM2 / CellSAM / UNI」" data-en=""Pick μSAM / MedSAM2 / CellSAM / UNI by modality"">「按 modality 選 μSAM / MedSAM2 / CellSAM / UNI」</span></h5>
+    <ul>
+      <li data-lang="zh">Light microscopy → Micro-SAM vit_b_lm</li>
+      <li data-lang="zh">EM → Micro-SAM vit_l_em</li>
+      <li data-lang="zh">3D / video → MedSAM2 or Micro-SAM volumetric</li>
+      <li data-lang="zh">Pathology → UNI / Virchow embedding + CLAM</li>
+      <li data-lang="zh">驗證在獨立 held-out test set 上 quantify</li>
+      <li data-lang="en">Light microscopy → Micro-SAM vit_b_lm</li>
+      <li data-lang="en">EM → Micro-SAM vit_l_em</li>
+      <li data-lang="en">3-D / video → MedSAM2 or Micro-SAM volumetric</li>
+      <li data-lang="en">Pathology → UNI / Virchow embedding + CLAM</li>
+      <li data-lang="en">Validate by quantifying on a held-out test set</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 Foundation Model SOTA" data-en="2024–2026 Foundation Model SOTA">2024–2026 Foundation Model SOTA</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="Bioimage FM 進入「modality-specific generalist」時代" data-en="Bioimage FMs enter the 'modality-specific generalist' era">Bioimage FM 進入「modality-specific generalist」時代</h5>
+<p data-lang="zh">2024–2026 foundation model 加速演進：</p>
+<p data-lang="en">Foundation models accelerated through 2024–2026:</p>
+<ul>
+  <li><strong>SAM 2.1 (2024)</strong> <span data-lang="zh">延長記憶 + 更穩定影片追蹤。</span><span data-lang="en">Longer memory + more stable video tracking.</span></li>
+  <li><strong>μSAM v2 (2025)</strong> <span data-lang="zh">加入 text prompts；30+ modality 全面支援。</span><span data-lang="en">Adds text prompts; full support for 30+ modalities.</span></li>
+  <li><strong>MedSAM2 (2025)</strong> <span data-lang="zh">Ma arXiv 2504.03600；3D + video 醫學影像通用 FM。</span><span data-lang="en">Ma arXiv 2504.03600; 3-D + video medical-imaging FM.</span></li>
+  <li><strong>UNI 2 (2025)</strong> <span data-lang="zh">Mahmood Lab；200k slide 訓練，多癌種 SOTA。</span><span data-lang="en">Mahmood Lab; trained on 200k slides; multi-cancer SOTA.</span></li>
+  <li><strong>Prov-GigaPath (2025)</strong> <span data-lang="zh">Microsoft + UW；LongNet slide-level reasoning。</span><span data-lang="en">Microsoft + UW; LongNet slide-level reasoning.</span></li>
+  <li><strong>CONCH-2 (2025)</strong> <span data-lang="zh">Lu — 影像-文字檢索能力強化。</span><span data-lang="en">Lu — image-text retrieval capability boosted.</span></li>
+  <li><strong>PathChat (2024 Nat Med)</strong> <span data-lang="zh">對話式病理 AI；多模態整合。</span><span data-lang="en">Conversational pathology AI; multimodal integration.</span></li>
+  <li><strong>BioImage.IO Chatbot (2024)</strong> <span data-lang="zh">Ouyang Nat Methods 21:1325；community-driven 模型推薦助手。</span><span data-lang="en">Ouyang Nat Methods 21:1325; community-driven model recommender.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Kirillov 2023 ICCV · Archit 2025 Nat Methods · Chen 2024 Nat Med 30:850 · Ma 2024 Nat Commun · Vorontsov 2024 Nat Med</div>
+<div class="an-cite" data-lang="en">Key refs: Kirillov 2023 ICCV · Archit 2025 Nat Methods · Chen 2024 Nat Med 30:850 · Ma 2024 Nat Commun · Vorontsov 2024 Nat Med</div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">2023 年 4 月 Meta AI 發布 SAM 時，本意是為 VR / AR 服務。Anwai Archit 等在 Göttingen 看到 paper 隔週就開始做 Micro-SAM。到 2024 napari plugin 上線、2025 年 2 月 Nat Methods 發表。<strong>不到 24 個月，bioimage 社群把 general-purpose AI 完整領域化。</strong>這是科學社群「快速接力」的經典範例——也說明開源 + 良好接口的力量。</span>
+<span data-lang="en">When Meta released SAM in April 2023, the goal was VR / AR. Anwai Archit's team at Göttingen started Micro-SAM the week the paper dropped. By 2024 the napari plugin was live; by February 2025 it was in Nat Methods. <strong>In under 24 months the bioimage community fully domain-adapted general-purpose AI.</strong> A classic example of scientific 'relay sprinting' — and proof that open source + good interfaces win.</span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>Foundation model 是否取代了你目前的工作流？哪一步取代了，哪一步還沒？</li>
+    <li>你會選擇微調 (fine-tune) 還是 prompt 工程？決策標準是什麼？</li>
+    <li>病理 vs 顯微 FM 你怎麼選？同一個 dataset 兩種模型給不同答案時你怎麼仲裁？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>Have foundation models displaced part of your workflow? Which step has been replaced, which hasn't?</li>
+    <li>Will you fine-tune or prompt-engineer? What's your decision criterion?</li>
+    <li>How do you choose between pathology and microscopy FMs? When they disagree on the same dataset, how do you arbitrate?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">Foundation model 的真正考驗，是你能不能 reproduce 它的決策——prompt 與 fine-tune 都需要嚴格 documentation。</div>
+  <div class="rq-hint" data-lang="en">The real test of foundation models is whether you can reproduce their decisions — both prompts and fine-tunes need rigorous documentation.</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

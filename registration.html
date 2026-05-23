@@ -16,6 +16,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="從 MRI 到 light-sheet：對齊影像 40 年" data-en="From MRI to light-sheet: 40 years of aligning images">從 MRI 到 light-sheet：對齊影像 40 年</h3>
+  <div data-lang="zh"><p>1992 年 Paul Viola 與 William Wells 在 ICCV 發表 Mutual Information，把資訊理論帶進醫學影像對齊——從此跨模態 (MRI vs CT) 配準有了金標準。</p><p>1996 年 Stephan Preibisch 在 Dresden 寫的 Fiji stitching 把同樣的數學帶到顯微 tile scan；2019 BigStitcher 把它延伸到 TB 級 light-sheet。從天文照片 (1980 IRAF) 到大腦圖譜 (Allen Brain Atlas 2017)，align 一直是「讓不同來源的影像說同一種語言」。</p></div>
+  <div data-lang="en"><p>In 1992 Paul Viola and William Wells introduced Mutual Information at ICCV, bringing information theory into medical image registration — the gold standard for cross-modal (MRI ↔ CT) alignment.</p><p>Stephan Preibisch's Fiji stitching (1996) brought the same maths to microscopy tile scans; BigStitcher (2019) scaled it to TB-level light-sheet. From astronomy (IRAF 1980) to the Allen Brain Atlas (2017), registration is always about 'making different images speak the same language.'</p></div>
+  <div class="story-question" data-lang="zh">🤔 如果你只能做一種變換 (translation / rigid / affine / B-spline / SyN)，你的研究會選哪個？為什麼？</div>
+  <div class="story-question" data-lang="en">🤔 If you could only use one transform (translation / rigid / affine / B-spline / SyN), which would your research pick — and why?</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="變換家族" data-en="TRANSFORMS">變換家族</div>
 <h2 data-zh="一、變換 (Transform) 家族" data-en="I. Transformation Family">一、變換家族</h2>
@@ -166,6 +176,183 @@ stack_aligned = sr.register_transform_stack(stack, reference=<span class="str">"
 run(<span class="str">"Grid/Collection stitching"</span>, <span class="str">"type=[Grid: row-by-row] order=[Right &amp; Down] grid_size_x=10 grid_size_y=10 tile_overlap=10 first_file_index_i=0 directory=[/path] file_names=tile_{iii}.tif fusion_method=[Linear Blending] regression_threshold=0.30 max/avg_displacement_threshold=2.50 absolute_displacement_threshold=3.50 computation_parameters=[Save memory (but be slower)] image_output=[Fuse and display]"</span>);</pre></div>
 </div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="配準與拼接核心詞彙" data-en="Core Vocabulary for Registration & Stitching">配準與拼接核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">Translation <span class="en">Translation</span></div><div class="gloss-kid" data-lang="zh">只是把一張圖往左/右挪。</div><div class="gloss-kid" data-lang="en">Just shift the image left/right.</div><div class="gloss-tech" data-lang="zh">2 個參數 (dx, dy)；time-lapse drift 最常用。</div><div class="gloss-tech" data-lang="en">2 parameters (dx, dy); the go-to for time-lapse drift.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Rigid <span class="en">Rigid</span></div><div class="gloss-kid" data-lang="zh">挪 + 轉，但不變形。</div><div class="gloss-kid" data-lang="en">Shift + rotate, no distortion.</div><div class="gloss-tech" data-lang="zh">平移 + 旋轉，3 (2D) / 6 (3D) 參數；同一樣本不同視角。</div><div class="gloss-tech" data-lang="en">Translation + rotation; 3 (2-D) / 6 (3-D) parameters; same sample different view.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Affine <span class="en">Affine</span></div><div class="gloss-kid" data-lang="zh">挪、轉、拉、剪——但平行線仍平行。</div><div class="gloss-kid" data-lang="en">Shift / rotate / stretch / shear — parallel lines stay parallel.</div><div class="gloss-tech" data-lang="zh">6 (2D) / 12 (3D) 參數；跨顯微鏡輕微比例差。</div><div class="gloss-tech" data-lang="en">6 (2-D) / 12 (3-D) parameters; mild scale differences across microscopes.</div></div>
+  <div class="gloss-card"><div class="gloss-term">B-spline 形變 <span class="en">B-spline deformable</span></div><div class="gloss-kid" data-lang="zh">局部可彎曲的「橡皮網」。</div><div class="gloss-kid" data-lang="en">A locally-bendable 'rubber grid.'</div><div class="gloss-tech" data-lang="zh">control point + 內插；百到千參數；組織形變、CLEM 跨樣本對齊。</div><div class="gloss-tech" data-lang="en">Control points + interpolation; hundreds–thousands of parameters; tissue deformation, CLEM.</div></div>
+  <div class="gloss-card"><div class="gloss-term">SyN 微分同胚 <span class="en">SyN diffeomorphic</span></div><div class="gloss-kid" data-lang="zh">保證能正向也能反向變換的高級彎曲。</div><div class="gloss-kid" data-lang="en">Bending that's guaranteed to be invertible both ways.</div><div class="gloss-tech" data-lang="zh">ANTs 招牌；對稱速度場積分；腦圖譜對齊金標準。</div><div class="gloss-tech" data-lang="en">ANTs' flagship; integrates symmetric velocity fields; the brain-atlas gold standard.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Mutual Information <span class="en">Mutual Information (MI)</span></div><div class="gloss-kid" data-lang="zh">兩張圖一起看，「同步亮 / 同步暗」的程度。</div><div class="gloss-kid" data-lang="en">How much two images 'co-light' or 'co-dark' together.</div><div class="gloss-tech" data-lang="zh">資訊理論定義；跨模態配準金標準。</div><div class="gloss-tech" data-lang="en">Information-theoretic; the gold standard for cross-modal registration.</div></div>
+  <div class="gloss-card"><div class="gloss-term">NCC <span class="en">Normalized Cross-Correlation</span></div><div class="gloss-kid" data-lang="zh">扣除亮度差異後的「圖案相似度」。</div><div class="gloss-kid" data-lang="en">'Pattern similarity' after removing brightness differences.</div><div class="gloss-tech" data-lang="zh">同模態 + 亮度差異情境；FFT 計算快。</div><div class="gloss-tech" data-lang="en">Same-modality + intensity-difference cases; FFT-fast.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Phase correlation <span class="en">Phase correlation</span></div><div class="gloss-kid" data-lang="zh">在 FFT 相位域找最佳平移。</div><div class="gloss-kid" data-lang="en">Find best translation in the FFT phase domain.</div><div class="gloss-tech" data-lang="zh">亞像素精度；BigStitcher、stack drift 必備。</div><div class="gloss-tech" data-lang="en">Sub-pixel accuracy; essential for BigStitcher and stack drift.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Pyramid optimization <span class="en">Multi-resolution pyramid</span></div><div class="gloss-kid" data-lang="zh">先粗看再細看，避免迷路。</div><div class="gloss-kid" data-lang="en">Coarse first, fine after — to avoid getting lost.</div><div class="gloss-tech" data-lang="zh">從低解析度逐層精修；避免 local minima。</div><div class="gloss-tech" data-lang="en">Coarse-to-fine; avoids local minima.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Landmark + TPS <span class="en">Landmark + TPS</span></div><div class="gloss-kid" data-lang="zh">手點幾個對應點，剩下用「薄板樣條」插值。</div><div class="gloss-kid" data-lang="en">Hand-pick corresponding points; interpolate with a 'thin-plate spline.'</div><div class="gloss-tech" data-lang="zh">BigWarp 在 Fiji；CLEM 必備。</div><div class="gloss-tech" data-lang="en">BigWarp in Fiji; essential for CLEM.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Multi-view fusion <span class="en">Multi-view fusion</span></div><div class="gloss-kid" data-lang="zh">把不同角度拍到的同一物體融合成完整版。</div><div class="gloss-kid" data-lang="en">Fuse multiple-angle shots of the same object into one complete view.</div><div class="gloss-tech" data-lang="zh">BigStitcher 含 multi-view + content-based fusion + decon。</div><div class="gloss-tech" data-lang="en">BigStitcher does multi-view + content-based fusion + decon.</div></div>
+  <div class="gloss-card"><div class="gloss-term">ASHLAR <span class="en">ASHLAR</span></div><div class="gloss-kid" data-lang="zh">專門對齊「多輪染色」WSI 的工具。</div><div class="gloss-kid" data-lang="en">A tool for aligning 'multi-round-stained' WSIs.</div><div class="gloss-tech" data-lang="zh">Muhlich 2022 Bioinformatics；CyCIF 跨輪 drift 校正。</div><div class="gloss-tech" data-lang="en">Muhlich 2022 Bioinformatics; corrects cross-round CyCIF drift.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="配準與拼接 40 年" data-en="40 Years of Registration & Stitching">配準與拼接 40 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item"><span class="tl-year">1980</span><span class="tl-title" data-zh="Cross-correlation" data-en="Cross-correlation">Cross-correlation</span><div class="tl-body" data-lang="zh">Pratt 早期影像配準的基本指標。</div><div class="tl-body" data-lang="en">Pratt — basic similarity metric for early image registration.</div></div>
+<div class="tl-item milestone"><span class="tl-year">1992</span><span class="tl-title" data-zh="Viola-Wells MI" data-en="Viola-Wells MI">Viola-Wells MI</span><div class="tl-body" data-lang="zh">ICCV — Mutual Information 進入跨模態配準。</div><div class="tl-body" data-lang="en">ICCV — Mutual Information enters cross-modal registration.</div></div>
+<div class="tl-item"><span class="tl-year">1995</span><span class="tl-title" data-zh="Studholme NMI" data-en="Studholme NMI">Studholme NMI</span><div class="tl-body" data-lang="zh">正規化 MI，解決 overlap 變化問題。</div><div class="tl-body" data-lang="en">Normalized MI; solves overlap-variation issues.</div></div>
+<div class="tl-item"><span class="tl-year">1998</span><span class="tl-title" data-zh="Rueckert B-spline" data-en="Rueckert B-spline">Rueckert B-spline</span><div class="tl-body" data-lang="zh">非剛性配準的奠基論文。</div><div class="tl-body" data-lang="en">Foundational paper for non-rigid registration.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2008</span><span class="tl-title" data-zh="ANTs SyN" data-en="ANTs SyN">ANTs SyN</span><div class="tl-body" data-lang="zh">Avants Med Image Anal — 對稱微分同胚變換。</div><div class="tl-body" data-lang="en">Avants Med Image Anal — symmetric diffeomorphic transform.</div></div>
+<div class="tl-item"><span class="tl-year">2009</span><span class="tl-title" data-zh="Fiji Grid stitching" data-en="Fiji Grid stitching">Fiji Grid stitching</span><div class="tl-body" data-lang="zh">Preibisch Bioinformatics — Fiji 的 stitching plugin。</div><div class="tl-body" data-lang="en">Preibisch Bioinformatics — Fiji's stitching plugin.</div></div>
+<div class="tl-item"><span class="tl-year">2017</span><span class="tl-title" data-zh="Allen Brain Atlas CCF" data-en="Allen Brain Atlas CCF">Allen Brain Atlas CCF</span><div class="tl-body" data-lang="zh">Common Coordinate Framework 上線。</div><div class="tl-body" data-lang="en">Common Coordinate Framework launched.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2019</span><span class="tl-title" data-zh="BigStitcher" data-en="BigStitcher">BigStitcher</span><div class="tl-body" data-lang="zh">Hörl Nat Methods 16:870 — TB 級 light-sheet 拼接。</div><div class="tl-body" data-lang="en">Hörl Nat Methods 16:870 — TB-scale light-sheet stitching.</div></div>
+<div class="tl-item"><span class="tl-year">2022</span><span class="tl-title" data-zh="ASHLAR" data-en="ASHLAR">ASHLAR</span><div class="tl-body" data-lang="zh">Muhlich Bioinformatics — CyCIF 跨輪對齊。</div><div class="tl-body" data-lang="en">Muhlich Bioinformatics — cross-round CyCIF alignment.</div></div>
+<div class="tl-item recent"><span class="tl-year">2024</span><span class="tl-title" data-zh="DeepReg PyTorch" data-en="DeepReg PyTorch">DeepReg PyTorch</span><div class="tl-body" data-lang="zh">DL registration toolkit 2024 update。</div><div class="tl-body" data-lang="en">DL registration toolkit 2024 update.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="Trackastra-Register" data-en="Trackastra-Register">Trackastra-Register</span><div class="tl-body" data-lang="zh">Transformer-based registration 出現。</div><div class="tl-body" data-lang="en">Transformer-based registration appears.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="Mutual Information 怎麼算" data-en="How Mutual Information Is Computed">Mutual Information 怎麼算</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">MI(A,B) = Σ p(a,b) · log[ p(a,b) / (p(a)·p(b)) ]</div>
+<div class="sw-step"><strong>① <span data-lang='zh'>聯合直方圖</span><span data-lang='en'>Joint histogram</span></strong> <span data-lang="zh">量化 A、B 強度到 32–64 bin，數每對 (a,b) 出現次數 → 聯合機率 p(a,b)。</span><span data-lang="en">Quantize A and B to 32–64 bins, count (a,b) pair occurrences → joint probability p(a,b).</span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>邊際機率</span><span data-lang='en'>Marginals</span></strong> <span data-lang="zh">p(a) = Σ_b p(a,b)；p(b) = Σ_a p(a,b)。</span><span data-lang="en">p(a) = Σ_b p(a,b); p(b) = Σ_a p(a,b).</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>資訊重疊</span><span data-lang='en'>Information overlap</span></strong> <span data-lang="zh">若 A、B 完全獨立：p(a,b) = p(a)p(b) → log = 0 → MI = 0。對齊好時 MI 最大。</span><span data-lang="en">If A and B are independent: p(a,b) = p(a)p(b) → log = 0 → MI = 0. MI peaks at best alignment.</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>跨模態優勢</span><span data-lang='en'>Cross-modal advantage</span></strong> <span data-lang="zh">DAPI 與 GFP 強度分佈不同但生物結構相同 → SSD 失效但 MI 仍能找到「結構同步」。</span><span data-lang="en">DAPI vs GFP have different intensity distributions but matching biology → SSD fails, MI still finds 'structural sync.'</span></div>
+
+<div class="sw-note" data-lang="zh">為了 robust 化，常用 NMI = (H(A)+H(B)) / H(A,B)。NMI 對 overlap 大小較不敏感，是 BigStitcher 與 SimpleElastix 預設。</div>
+<div class="sw-note" data-lang="en">For robustness, use NMI = (H(A)+H(B)) / H(A,B). NMI is less sensitive to overlap size — the default in BigStitcher and SimpleElastix.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="配準三大爭論" data-en="Three Debates in Registration">配準三大爭論</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. SSD 何時失敗、MI 何時必要？" data-en="A. When does SSD fail and MI become necessary?">A. SSD 何時失敗、MI 何時必要？</h5><div class="disc-q" data-lang="zh">你要對齊「同細胞」的 DAPI 與 GFP。SSD 與 MI 哪個比較合理？</div><div class="disc-q" data-lang="en">Aligning DAPI vs GFP of the same cell — SSD or MI?</div><div class="disc-hint" data-lang="zh">提示：DAPI 強度集中在核、GFP 強度分佈廣，強度差異大。SSD 會被強度主導，MI 抓「結構共同」。</div><div class="disc-hint" data-lang="en">Hint: DAPI is nucleus-centered, GFP is broad. SSD gets dominated by intensities; MI captures 'structural co-occurrence.'</div></div>
+  <div class="discussion-card"><h5 data-zh="B. Stitcher 的 stage metadata 信不過？" data-en="B. Untrustworthy stage metadata?">B. Stitcher 的 stage metadata 信不過？</h5><div class="disc-q" data-lang="zh">你的舊顯微鏡寫的 stage 座標誤差 50 μm。BigStitcher 怎麼用？</div><div class="disc-q" data-lang="en">Your old microscope writes stage coords with 50 μm error. How do you run BigStitcher?</div><div class="disc-hint" data-lang="zh">提示：用 'regular grid' 模式，完全不信 stage，純從影像 phase correlation 計算位置。</div><div class="disc-hint" data-lang="en">Hint: use 'regular grid' mode — distrust stage entirely and compute positions purely from phase correlation.</div></div>
+  <div class="discussion-card"><h5 data-zh="C. CLEM 為何自動方法常失敗？" data-en="C. Why do auto methods often fail at CLEM?">C. CLEM 為何自動方法常失敗？</h5><div class="disc-q" data-lang="zh">光學影像與電子顯微影像對同一細胞拍——自動 MI 配準幾乎不工作。為什麼？</div><div class="disc-q" data-lang="en">Light + electron microscopy of the same cell — automatic MI almost never works. Why?</div><div class="disc-hint" data-lang="zh">提示：兩種模態看到的「結構」完全不同：光只看螢光標誌，EM 看膜邊界。需要 landmark + TPS 手動建立對應。</div><div class="disc-hint" data-lang="en">Hint: the two modalities reveal totally different 'structures' — fluorescence labels vs membrane boundaries. Use landmark + TPS for manual correspondences.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個傳奇配準故事" data-en="Two Legendary Registration Stories">兩個傳奇配準故事</h2>
+<div class="spotlight">
+  <h5 data-zh="① ASHLAR：CyCIF 多輪染色救星" data-en="① ASHLAR: the savior of CyCIF multi-round staining">① ASHLAR：CyCIF 多輪染色救星</h5>
+  <div class="spot-meta">Muhlich et al., Bioinformatics 2022 · DOI: 10.1093/bioinformatics/btac544</div>
+  <p data-lang="zh">CyCIF (Cyclic Immunofluorescence) 在同一張切片做 20+ 輪 staining-imaging-bleaching 循環，但每次取下/放回 sample stage 都會位移幾微米。Sorger Lab 發表 ASHLAR：<strong>自動跨輪對齊 + 拼接</strong>，無需手動標 landmark。從此 multiplex IHC 在臨床病理可行——一張切片同時看 40+ 蛋白標誌。</p>
+  <p data-lang="en">CyCIF (Cyclic Immunofluorescence) runs 20+ stain-image-bleach cycles on one slide, but every stage cycle shifts a few microns. The Sorger Lab released ASHLAR: <strong>automated cross-round alignment + stitching</strong> without manual landmarks. Multiplex IHC in clinical pathology became feasible — 40+ protein markers on one slide.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：把「手動但精準」變成「自動可重現」，往往就是讓一個 assay 進入主流的關鍵。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: turning 'manual but accurate' into 'automatic and reproducible' is often what brings an assay mainstream.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② Allen Brain Atlas：每隻小鼠腦對到「共同座標」" data-en="② Allen Brain Atlas: every mouse brain to a 'common coordinate'">② Allen Brain Atlas：每隻小鼠腦對到「共同座標」</h5>
+  <div class="spot-meta">Allen Institute · Common Coordinate Framework (CCF) v3 2017</div>
+  <p data-lang="zh">Allen Institute 為了讓全球研究者能直接比較「我的腦切片 vs 別人的」，建立 Common Coordinate Framework：每隻小鼠腦切片用 ANTs SyN <strong>非線性配準</strong>到一個 reference brain。從此「左眶額皮質第 V 層」是全球統一座標。連帶 spatial transcriptomics、optogenetics 都受惠。</p>
+  <p data-lang="en">The Allen Institute built the Common Coordinate Framework so labs worldwide can compare 'my brain section vs theirs.' Every mouse brain section is <strong>nonlinearly registered</strong> to a reference brain via ANTs SyN. 'Left orbitofrontal cortex layer V' is now a globally consistent coordinate — benefiting spatial transcriptomics, optogenetics, and more.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：基礎建設層的標準化往往比演算法本身重要——CCF 是神經科學的「通用語」。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: infrastructure-level standardization often matters more than the algorithm itself — CCF is neuroscience's lingua franca.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="配準六大陷阱" data-en="Six Pitfalls of Registration">配準六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="跨通道用 SSD" data-en="SSD for cross-channel">跨通道用 SSD</span><div class="pf-body" data-lang="zh">DAPI vs GFP 強度分佈不同，SSD 會跟著強度梯度走錯方向。</div><div class="pf-body" data-lang="en">DAPI vs GFP have different intensity distributions; SSD chases intensity gradients the wrong way.</div><div class="pf-fix" data-lang="zh">用 Mutual Information；64-bin joint histogram 通常足夠。</div><div class="pf-fix" data-lang="en">Use Mutual Information; 64-bin joint histogram usually suffices.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="Label image 用 linear 內插" data-en="Linear interp of label image">Label image 用 linear 內插</span><div class="pf-body" data-lang="zh">ID 1 與 ID 2 內插成 1.5 → 不存在的細胞。</div><div class="pf-body" data-lang="en">ID 1 and ID 2 get interpolated into 1.5 — a nonexistent cell.</div><div class="pf-fix" data-lang="zh">label image 永遠用 nearest neighbour。</div><div class="pf-fix" data-lang="en">Always use nearest-neighbour for label images.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="Stitch 信任壞 stage" data-en="Trusting a bad stage">Stitch 信任壞 stage</span><div class="pf-body" data-lang="zh">老顯微鏡寫垃圾座標，結果整張拼歪。</div><div class="pf-body" data-lang="en">Old microscopes write garbage coords; the whole mosaic warps.</div><div class="pf-fix" data-lang="zh">用 'regular grid' 模式，純從影像內容 refine。</div><div class="pf-fix" data-lang="en">Use 'regular grid' mode; refine from image content only.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="B-spline 用在 drift" data-en="B-spline for drift">B-spline 用在 drift</span><div class="pf-body" data-lang="zh">drift 只需平移，B-spline 反而 overfit 把細胞「扭」開。</div><div class="pf-body" data-lang="en">Drift only needs translation; B-spline overfits and 'distorts' cells.</div><div class="pf-fix" data-lang="zh">Drift 用 translation；只有真正組織形變才上 B-spline。</div><div class="pf-fix" data-lang="en">Use translation for drift; reach for B-spline only for true tissue deformation.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="SyN 用在剛性配準" data-en="SyN for rigid alignment">SyN 用在剛性配準</span><div class="pf-body" data-lang="zh">用大砲打蚊子；計算昂貴且結果可能不穩。</div><div class="pf-body" data-lang="en">Cannon against a mosquito — expensive and unstable.</div><div class="pf-fix" data-lang="zh">先試 rigid；只有跨樣本/atlas 才用 SyN。</div><div class="pf-fix" data-lang="en">Try rigid first; reserve SyN for cross-sample / atlas work.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="CLEM 強迫用自動" data-en="Forcing auto for CLEM">CLEM 強迫用自動</span><div class="pf-body" data-lang="zh">光與 EM 結構不同，自動 MI 幾乎失敗。</div><div class="pf-body" data-lang="en">Light vs EM see different structures; auto MI almost always fails.</div><div class="pf-fix" data-lang="zh">用 BigWarp 手點 landmark + TPS。</div><div class="pf-fix" data-lang="en">Use BigWarp with landmarks + TPS.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種配準哲學" data-en="Two Registration Philosophies">兩種配準哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="「最強的變換最好」" data-en=""The strongest transform is best"">「最強的變換最好」</span></h5>
+    <ul>
+      <li data-lang="zh">永遠用 SyN，相信能對到完美</li>
+      <li data-lang="zh">不檢查 overlap，直接 confirm</li>
+      <li data-lang="zh">Stitch 完不對驗證</li>
+      <li data-lang="zh">Label image 用 linear 內插</li>
+      <li data-lang="zh">Methods 寫「registered with ANTs」</li>
+      <li data-lang="en">Always use SyN, trust it to align perfectly</li>
+      <li data-lang="en">Don't check overlap, just confirm</li>
+      <li data-lang="en">No verification after stitching</li>
+      <li data-lang="en">Linear interpolation on label images</li>
+      <li data-lang="en">Methods just says 'registered with ANTs'</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="「能用最簡單的就用最簡單的」" data-en=""Simplest that works"">「能用最簡單的就用最簡單的」</span></h5>
+    <ul>
+      <li data-lang="zh">Translation → Rigid → Affine → B-spline 逐步升級</li>
+      <li data-lang="zh">Pyramid optimization 永遠開</li>
+      <li data-lang="zh">Stitch 後肉眼檢查 overlap + 量化 NCC</li>
+      <li data-lang="zh">Label image 用 nearest neighbour</li>
+      <li data-lang="zh">Methods 寫明 transform 類型 + metric + 軟體版本</li>
+      <li data-lang="en">Translation → Rigid → Affine → B-spline, escalating only as needed</li>
+      <li data-lang="en">Always enable multi-resolution pyramid</li>
+      <li data-lang="en">Visually inspect overlap + quantify NCC after stitching</li>
+      <li data-lang="en">Nearest-neighbour for label images</li>
+      <li data-lang="en">Methods documents transform type + metric + software version</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 配準 SOTA" data-en="2024–2026 Registration SOTA">2024–2026 配準 SOTA</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="DL registration 全面登場" data-en="DL registration finally arrives">DL registration 全面登場</h5>
+<p data-lang="zh">2024–2026 配準走向 DL + transformer：</p>
+<p data-lang="en">Registration in 2024–2026 goes DL + transformer:</p>
+<ul>
+  <li><strong>DeepReg 2024 update</strong> <span data-lang="zh">Fu 等 MICCAI workshop；統一 PyTorch DL 配準工具箱。</span><span data-lang="en">Fu et al., MICCAI workshop — unified PyTorch DL registration toolkit.</span></li>
+  <li><strong>VoxelMorph v2 (2024)</strong> <span data-lang="zh">CNN learning-based registration，秒級腦對齊。</span><span data-lang="en">CNN learning-based registration — second-level brain alignment.</span></li>
+  <li><strong>Trackastra-Register (2025)</strong> <span data-lang="zh">Transformer 統一 segmentation + tracking + registration。</span><span data-lang="en">Transformer unifies segmentation + tracking + registration.</span></li>
+  <li><strong>SimpleElastix 仍是 baseline</strong> <span data-lang="zh">古典演算法但 GPU 加速版仍是論文 reproducibility 首選。</span><span data-lang="en">Classical algorithm but GPU-accelerated variant remains the reproducibility baseline.</span></li>
+  <li><strong>ANTs-Diffusion (2024)</strong> <span data-lang="zh">SyN + diffusion prior，臨床醫學影像更穩定。</span><span data-lang="en">SyN + diffusion prior — more stable on clinical imaging.</span></li>
+  <li><strong>BigStitcher Spark (2024)</strong> <span data-lang="zh">BigStitcher 雲端版，TB+ light-sheet 直接在 cluster 跑。</span><span data-lang="en">BigStitcher in the cloud — TB+ light-sheet runs on a cluster.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Viola-Wells 1992 ICCV · Avants 2008 Med Image Anal · Hörl 2019 Nat Methods · Muhlich 2022 Bioinformatics</div>
+<div class="an-cite" data-lang="en">Key refs: Viola-Wells 1992 ICCV · Avants 2008 Med Image Anal · Hörl 2019 Nat Methods · Muhlich 2022 Bioinformatics</div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Viola & Wells 1992 把 MI 從資訊理論搬到醫學影像，靈感來自 Shannon 1948。論文當年只有 12 頁，卻奠定 30 年來醫學/生物影像 cross-modal registration 的根基。其中 Wells 還是 MGH 的影像引導手術 (image-guided surgery) 先驅——MI 真的被用來在手術房對齊術前 MRI 與術中超音波，救命級的應用。</span>
+<span data-lang="en">Viola & Wells (1992) lifted MI from information theory (Shannon 1948) into medical imaging. A 12-page paper that's underpinned 30 years of cross-modal registration. Wells was also an image-guided-surgery pioneer at MGH — MI is literally used in operating rooms to align pre-op MRI with intra-op ultrasound. A life-saving application.</span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>你目前的 pipeline 配準成不成功，如何「量化驗證」？只看視覺對齊夠嗎？</li>
+    <li>SyN diffeomorphism 在你的研究會用嗎？什麼時候需要、什麼時候是 overkill？</li>
+    <li>Landmark-based 與 auto 何時混用？哪些場景純自動失敗的概率高？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>How do you quantify whether your registration succeeded? Is visual inspection enough?</li>
+    <li>Does SyN diffeomorphism fit your research? When is it needed vs overkill?</li>
+    <li>When do you mix landmark-based and auto methods? Which scenarios fail auto-only most often?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">配準錯誤會像漣漪一樣傳遍下游所有量化——驗證的成本永遠值得。</div>
+  <div class="rq-hint" data-lang="en">Registration errors ripple through all downstream quantitation — verification is always worth its cost.</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

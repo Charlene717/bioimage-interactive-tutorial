@@ -16,6 +16,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="從 1957 共軛焦到 2014 lattice light-sheet：4D 影像的崛起" data-en="From 1957 confocal to 2014 lattice light-sheet: the rise of 4-D imaging">從 1957 共軛焦到 2014 lattice light-sheet：4D 影像的崛起</h3>
+  <div data-lang="zh"><p>1957 年 Marvin Minsky 申請共軛焦專利；1985 年第一張共軛焦 Z-stack 拍下；2014 年 Eric Betzig 在 Science 發表 lattice light-sheet，把單細胞動態的 4D imaging 推到 millisecond 與 min 解析度。</p><p>顯微鏡從 2D 切片進化到 5D (X, Y, Z, C, T)，但分析師仍經常忘記「Z 比 XY 大 5 倍」。各向異性、isotropic resampling、N-D viewer、dask out-of-core 是 3D 工作流的四大基石。</p></div>
+  <div data-lang="en"><p>Marvin Minsky filed the confocal patent in 1957; the first confocal Z-stack came in 1985; Eric Betzig published lattice light-sheet in Science 2014, pushing single-cell 4-D imaging to millisecond and minute resolution.</p><p>Microscopy evolved from 2-D slices to 5-D (X, Y, Z, C, T) — yet analysts still forget that 'Z is 5× coarser than XY.' Anisotropy, isotropic resampling, N-D viewers, and dask out-of-core are the four cornerstones of 3-D workflows.</p></div>
+  <div class="story-question" data-lang="zh">🤔 為什麼 confocal 與 light-sheet 的 anisotropy 處理方式不同？這背後反映兩種光學設計的根本差異。</div>
+  <div class="story-question" data-lang="en">🤔 Why do confocal and light-sheet handle anisotropy differently? The answer reflects two fundamental optical-design philosophies.</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="各向異性" data-en="ANISOTROPY">各向異性</div>
 <h2 data-zh="一、各向異性體素 (Anisotropic Voxels)" data-en="I. Anisotropic Voxels">一、各向異性體素</h2>
@@ -170,6 +180,185 @@ arr = g[<span class="num">0</span>]                                  <span class
 chunk = arr[<span class="num">0</span>, <span class="num">0</span>, <span class="num">10</span>:<span class="num">12</span>, <span class="num">100</span>:<span class="num">200</span>, <span class="num">100</span>:<span class="num">200</span>]   <span class="comment"># tiny read</span></pre></div>
 </div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="3D 與多維分析核心詞彙" data-en="Core Vocabulary for 3D & Multi-Dimensional Analysis">3D 與多維分析核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">3D voxel <span class="en">3-D voxel</span></div><div class="gloss-kid" data-lang="zh">3D 影像的最小立方體。</div><div class="gloss-kid" data-lang="en">The smallest cube of a 3-D image.</div><div class="gloss-tech" data-lang="zh">通常各向異性 (dz > dx > dy)；要記得 voxel size。</div><div class="gloss-tech" data-lang="en">Usually anisotropic (dz > dx > dy); track voxel size.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Anisotropy <span class="en">Anisotropy</span></div><div class="gloss-kid" data-lang="zh">立方體不是真的立方體。</div><div class="gloss-kid" data-lang="en">A 'cube' that isn't truly cubic.</div><div class="gloss-tech" data-lang="zh">a = dz / dx；confocal 通常 3–10。</div><div class="gloss-tech" data-lang="en">a = dz / dx; confocal typically 3–10.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Isotropic resampling <span class="en">Isotropic resampling</span></div><div class="gloss-kid" data-lang="zh">把立方體改成「真正立方」。</div><div class="gloss-kid" data-lang="en">Make the cube actually cubic.</div><div class="gloss-tech" data-lang="zh">用 scipy.ndimage.zoom 將 Z 補齊；記憶體變大。</div><div class="gloss-tech" data-lang="en">scipy.ndimage.zoom inflates Z; memory grows.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Z-stack <span class="en">Z-stack</span></div><div class="gloss-kid" data-lang="zh">一堆 2D 切片疊起來。</div><div class="gloss-kid" data-lang="en">A stack of 2-D slices.</div><div class="gloss-tech" data-lang="zh">共軛焦標配；step 通常 0.3–1 μm。</div><div class="gloss-tech" data-lang="en">Confocal standard; step usually 0.3–1 μm.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Confocal optical sectioning <span class="en">Confocal optical sectioning</span></div><div class="gloss-kid" data-lang="zh">用針孔擋住離焦光，只看一層。</div><div class="gloss-kid" data-lang="en">A pinhole blocks out-of-focus light; only one layer visible.</div><div class="gloss-tech" data-lang="zh">提供 ~1 μm 光學 Z 切片；活細胞 friendly。</div><div class="gloss-tech" data-lang="en">Provides ~1 μm optical Z sections; live-cell friendly.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Light-sheet (SPIM/LSFM) <span class="en">Light-sheet (SPIM/LSFM)</span></div><div class="gloss-kid" data-lang="zh">用「光片」從側面照樣本，只激發一層。</div><div class="gloss-kid" data-lang="en">A 'sheet of light' illuminates one layer from the side.</div><div class="gloss-tech" data-lang="zh">低光毒、TB 級資料；BigStitcher 必備。</div><div class="gloss-tech" data-lang="en">Low phototoxicity, TB-scale data; needs BigStitcher.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Lattice light-sheet <span class="en">Lattice light-sheet</span></div><div class="gloss-kid" data-lang="zh">用格狀光片再進化的高解析光片。</div><div class="gloss-kid" data-lang="en">A lattice-pattern light-sheet — higher resolution.</div><div class="gloss-tech" data-lang="zh">Chen 2014 Science；ms 級時間解析度。</div><div class="gloss-tech" data-lang="en">Chen 2014 Science; ms-scale temporal resolution.</div></div>
+  <div class="gloss-card"><div class="gloss-term">do_3D=True <span class="en">do_3D=True</span></div><div class="gloss-kid" data-lang="zh">告訴 Cellpose 用真正 3D 模式。</div><div class="gloss-kid" data-lang="en">Tells Cellpose to use the true 3-D mode.</div><div class="gloss-tech" data-lang="zh">預設逐 slice 2D + IoU stitch；true 3D 更準但慢。</div><div class="gloss-tech" data-lang="en">Defaults to per-slice 2-D + IoU stitch; true 3-D is more accurate but slower.</div></div>
+  <div class="gloss-card"><div class="gloss-term">stitch_threshold <span class="en">stitch_threshold</span></div><div class="gloss-kid" data-lang="zh">跨 z slice 把同一細胞「黏起來」的門檻。</div><div class="gloss-kid" data-lang="en">The IoU threshold for 'gluing' the same cell across z.</div><div class="gloss-tech" data-lang="zh">0.25–0.4 常見；過低多分裂，過高漏黏。</div><div class="gloss-tech" data-lang="en">0.25–0.4 typical; too low over-splits, too high under-merges.</div></div>
+  <div class="gloss-card"><div class="gloss-term">napari N-D viewer <span class="en">napari N-D viewer</span></div><div class="gloss-kid" data-lang="zh">Python 原生的多維互動視覺化。</div><div class="gloss-kid" data-lang="en">Python's native multi-dimensional viewer.</div><div class="gloss-tech" data-lang="zh">支援 image / labels / points / shapes / tracks layers。</div><div class="gloss-tech" data-lang="en">Supports image / labels / points / shapes / tracks layers.</div></div>
+  <div class="gloss-card"><div class="gloss-term">dask / dask-image <span class="en">dask / dask-image</span></div><div class="gloss-kid" data-lang="zh">把大資料切塊，延後執行。</div><div class="gloss-kid" data-lang="en">Chunked, lazy computation for large data.</div><div class="gloss-tech" data-lang="zh">自動並行 + 記憶體友善；TB 影像必備。</div><div class="gloss-tech" data-lang="en">Auto parallel + memory-friendly; essential for TB images.</div></div>
+  <div class="gloss-card"><div class="gloss-term">PlantSeg <span class="en">PlantSeg</span></div><div class="gloss-kid" data-lang="zh">專為植物/動物組織 3D 邊界分割的 DL 工具。</div><div class="gloss-kid" data-lang="en">DL tool for 3-D boundary segmentation in plant/animal tissue.</div><div class="gloss-tech" data-lang="zh">Wolny 2020 eLife；DL + graph partitioning。</div><div class="gloss-tech" data-lang="en">Wolny 2020 eLife; DL + graph partitioning.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="3D 與多維影像 70 年" data-en="70 Years of 3-D & Multi-Dimensional Imaging">3D 與多維影像 70 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item milestone"><span class="tl-year">1957</span><span class="tl-title" data-zh="Minsky confocal patent" data-en="Minsky confocal patent">Minsky confocal patent</span><div class="tl-body" data-lang="zh">共軛焦原理專利申請。</div><div class="tl-body" data-lang="en">Confocal principle filed for patent.</div></div>
+<div class="tl-item"><span class="tl-year">1985</span><span class="tl-title" data-zh="共軛焦 Z-stack 普及" data-en="Confocal Z-stack popularized">共軛焦 Z-stack 普及</span><div class="tl-body" data-lang="zh">Bio-Rad MRC-500 上市。</div><div class="tl-body" data-lang="en">Bio-Rad MRC-500 hits the market.</div></div>
+<div class="tl-item"><span class="tl-year">1994</span><span class="tl-title" data-zh="ImageJ 3D viewer" data-en="ImageJ 3D viewer">ImageJ 3D viewer</span><div class="tl-body" data-lang="zh">Schmid 等開源 ImageJ 的 3D 視覺化。</div><div class="tl-body" data-lang="en">Schmid et al. open-source 3-D visualization in ImageJ.</div></div>
+<div class="tl-item"><span class="tl-year">2003</span><span class="tl-title" data-zh="Huisken SPIM" data-en="Huisken SPIM">Huisken SPIM</span><div class="tl-body" data-lang="zh">Selective Plane Illumination Microscopy 在 Science 發表。</div><div class="tl-body" data-lang="en">Selective Plane Illumination Microscopy in Science.</div></div>
+<div class="tl-item"><span class="tl-year">2008</span><span class="tl-title" data-zh="Stelzer light-sheet" data-en="Stelzer light-sheet">Stelzer light-sheet</span><div class="tl-body" data-lang="zh">Annual Rev. Biomed. Eng. 綜述。</div><div class="tl-body" data-lang="en">Annual Rev. Biomed. Eng. review.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2014</span><span class="tl-title" data-zh="Chen lattice LSFM" data-en="Chen lattice LSFM">Chen lattice LSFM</span><div class="tl-body" data-lang="zh">Science 346:1257998 — ms 解析度 4D。</div><div class="tl-body" data-lang="en">Science 346:1257998 — ms-scale 4-D.</div></div>
+<div class="tl-item"><span class="tl-year">2017</span><span class="tl-title" data-zh="Sofroniew napari v0.1" data-en="Sofroniew napari v0.1">Sofroniew napari v0.1</span><div class="tl-body" data-lang="zh">Janelia — Python N-D viewer 誕生。</div><div class="tl-body" data-lang="en">Janelia — Python N-D viewer is born.</div></div>
+<div class="tl-item"><span class="tl-year">2019</span><span class="tl-title" data-zh="Hörl BigStitcher" data-en="Hörl BigStitcher">Hörl BigStitcher</span><div class="tl-body" data-lang="zh">Nat Methods — TB-scale light-sheet 拼接。</div><div class="tl-body" data-lang="en">Nat Methods — TB-scale light-sheet stitching.</div></div>
+<div class="tl-item"><span class="tl-year">2020</span><span class="tl-title" data-zh="Wolny PlantSeg" data-en="Wolny PlantSeg">Wolny PlantSeg</span><div class="tl-body" data-lang="zh">eLife — 植物 3D cell-boundary segmentation。</div><div class="tl-body" data-lang="en">eLife — plant 3-D cell-boundary segmentation.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2021</span><span class="tl-title" data-zh="OME-Zarr v0.4 NGFF" data-en="OME-Zarr v0.4 NGFF">OME-Zarr v0.4 NGFF</span><div class="tl-body" data-lang="zh">Moore Nat Methods — 雲端原生分塊金字塔。</div><div class="tl-body" data-lang="en">Moore Nat Methods — cloud-native chunked pyramid.</div></div>
+<div class="tl-item recent"><span class="tl-year">2024</span><span class="tl-title" data-zh="BigStitcher Spark" data-en="BigStitcher Spark">BigStitcher Spark</span><div class="tl-body" data-lang="zh">雲端版 BigStitcher 上線。</div><div class="tl-body" data-lang="en">Cloud-version BigStitcher launches.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="mobie 2.0 web viewer" data-en="mobie 2.0 web viewer">mobie 2.0 web viewer</span><div class="tl-body" data-lang="zh">瀏覽器互動 TB-scale 影像。</div><div class="tl-body" data-lang="en">Browser-interactive TB-scale imaging.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="3D 體積與球度公式" data-en="3-D Volume and Sphericity Formulas">3D 體積與球度公式</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">V = voxel_count × dx × dy × dz  &nbsp;|&nbsp;  sphericity = π<sup>1/3</sup> · (6V)<sup>2/3</sup> / A</div>
+<div class="sw-step"><strong>① <span data-lang='zh'>體積</span><span data-lang='en'>Volume</span></strong> <span data-lang="zh">V = 體素數 × dx · dy · dz。<strong>不傳 voxel size = 報告 voxel count 而非 μm³</strong>。</span><span data-lang="en">V = voxel_count × dx · dy · dz. <strong>Without voxel size you're reporting counts, not μm³.</strong></span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>表面積</span><span data-lang='en'>Surface area</span></strong> <span data-lang="zh">用 marching cubes 萃取 mesh，三角面積求和。</span><span data-lang="en">Extract a mesh with marching cubes; sum triangle areas.</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>球度</span><span data-lang='en'>Sphericity</span></strong> <span data-lang="zh">完美球 = 1；不規則形 &lt; 1。各向異性影響三維 sphericity。</span><span data-lang="en">Perfect sphere = 1; irregular &lt; 1. Anisotropy distorts 3-D sphericity.</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>3D 距離</span><span data-lang='en'>3-D distance</span></strong> <span data-lang="zh">d = √((dx·Δx)² + (dy·Δy)² + (dz·Δz)²)；anisotropy 影響顯著。</span><span data-lang="en">d = √((dx·Δx)² + (dy·Δy)² + (dz·Δz)²); anisotropy matters here.</span></div>
+
+<div class="sw-note" data-lang="zh">推論：所有 3D 形態學特徵都「逃不過 voxel size」。要 cross-study 比較必須報告 voxel size 與 isotropic resampling 流程。</div>
+<div class="sw-note" data-lang="en">Implication: every 3-D morphology feature 'depends on voxel size.' Cross-study comparison requires reporting voxel size and any isotropic resampling.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="3D 多維三大爭論" data-en="Three Debates in 3D / Multi-Dim">3D 多維三大爭論</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. 為什麼 lattice LSFM 需要 multi-view fusion？" data-en="A. Why does lattice LSFM need multi-view fusion?">A. 為什麼 lattice LSFM 需要 multi-view fusion？</h5><div class="disc-q" data-lang="zh">單視角光片解析度受限，6 視角融合後變 isotropic。背後的物理是？</div><div class="disc-q" data-lang="en">Single-view LSFM has limited resolution; 6 views fused → isotropic. What's the physics?</div><div class="disc-hint" data-lang="zh">提示：每個視角在「沿光片方向」最差。多視角覆蓋不同方向後，融合提升各方向解析度。</div><div class="disc-hint" data-lang="en">Hint: each view is worst 'along the sheet direction.' Multi-view covers different directions; fusion lifts all-directional resolution.</div></div>
+  <div class="discussion-card"><h5 data-zh="B. napari vs Fiji BigDataViewer 何時用哪個？" data-en="B. napari vs Fiji BigDataViewer — which when?">B. napari vs Fiji BigDataViewer 何時用哪個？</h5><div class="disc-q" data-lang="zh">TB-scale 影像可視化你會選哪個？</div><div class="disc-q" data-lang="en">For TB-scale visualization, which would you pick?</div><div class="disc-hint" data-lang="zh">提示：BigDataViewer 仍是 Fiji 生態大資料王者；napari 在 Python + ML 整合場景更靈活。可並用。</div><div class="disc-hint" data-lang="en">Hint: BigDataViewer remains king in the Fiji big-data ecosystem; napari is more flexible for Python + ML. Use both.</div></div>
+  <div class="discussion-card"><h5 data-zh="C. PlantSeg 與 Cellpose 3D 哪個更通用？" data-en="C. PlantSeg vs Cellpose 3D — which is more general?">C. PlantSeg 與 Cellpose 3D 哪個更通用？</h5><div class="disc-q" data-lang="zh">「邊界式」(PlantSeg) vs 「中心式」(Cellpose) 在 3D 各有強項？</div><div class="disc-q" data-lang="en">Boundary-based (PlantSeg) vs centre-based (Cellpose) — strengths?</div><div class="disc-hint" data-lang="zh">提示：PlantSeg 對 cell-boundary 清楚的組織強（植物、上皮）；Cellpose 對形態異質、無明顯邊界的細胞 (immune cell, fibroblast) 強。</div><div class="disc-hint" data-lang="en">Hint: PlantSeg shines for tissues with clear boundaries (plants, epithelia); Cellpose shines for heterogeneous, edge-less cells (immune cells, fibroblasts).</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個 3D 多維傳奇" data-en="Two 3-D Multi-Dim Legends">兩個 3D 多維傳奇</h2>
+<div class="spotlight">
+  <h5 data-zh="① Janelia LightSheet Pipeline" data-en="① Janelia LightSheet Pipeline">① Janelia LightSheet Pipeline</h5>
+  <div class="spot-meta">HHMI Janelia · lattice LSFM + dask + OME-Zarr</div>
+  <p data-lang="zh">Janelia 的 lattice LSFM 一個小鼠胚胎 30 分鐘掃描產 1 TB 資料。Pipeline 完全採用 <strong>dask + OME-Zarr</strong>，沒有任何步驟整檔載入記憶體。從 raw → multi-view fusion → decon → 分割 → tracking 全部 lazy 處理。一張 4D 胚胎影像 14 個小時內處理完畢，是現代大資料 bioimage 的標竿。</p>
+  <p data-lang="en">Janelia's lattice LSFM produces 1 TB of data from a 30-minute mouse-embryo scan. The pipeline is fully <strong>dask + OME-Zarr</strong>, with no step loading the file whole. raw → multi-view fusion → decon → segmentation → tracking are all lazy. A 4-D embryo dataset is processed in under 14 hours — the modern big-data bioimage benchmark.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：lazy 與分塊不是「奢侈」，是「必須」。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: lazy + chunked is not 'luxury' — it's necessary.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② PlantSeg：植物細胞邊界 SOTA" data-en="② PlantSeg: SOTA in plant cell-boundary segmentation">② PlantSeg：植物細胞邊界 SOTA</h5>
+  <div class="spot-meta">Wolny et al., eLife 9:e57613 (2020) · github.com/hci-unihd/plant-seg</div>
+  <p data-lang="zh">Adrian Wolny 等 2020 在 eLife 發表 PlantSeg：<strong>DL 邊界檢測 + graph partitioning</strong>。在 Arabidopsis 根尖、葉表皮等 3D 共軛焦資料把細胞邊界切得比手工還準。EMBL Heidelberg 與 Yale 廣泛使用，<strong>植物器官 morphogenesis 研究的事實工具</strong>。後也被應用到動物上皮（如 Drosophila wing disc）。</p>
+  <p data-lang="en">Adrian Wolny et al. (eLife 2020) released PlantSeg: <strong>DL boundary detection + graph partitioning</strong>. Cells in Arabidopsis root tips and leaf epidermis are segmented more accurately than by hand. Widely used at EMBL Heidelberg and Yale — the <strong>de facto tool for plant-organ morphogenesis</strong>. Later extended to animal epithelia (e.g., Drosophila wing disc).</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：領域特化的工具仍有不可替代的價值，generalist 不會吃掉所有 niche。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: domain-specialized tools still have irreplaceable value; generalists won't eat every niche.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="3D 多維六大陷阱" data-en="Six Pitfalls of 3D / Multi-Dim">3D 多維六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="忽略 anisotropy" data-en="Ignoring anisotropy">忽略 anisotropy</span><div class="pf-body" data-lang="zh">Cellpose 3D 沒傳 anisotropy → cell 變扁。</div><div class="pf-body" data-lang="en">Cellpose 3D without anisotropy= → flattened cells.</div><div class="pf-fix" data-lang="zh">傳 anisotropy=dz/dxy 或先 resample 到 isotropic。</div><div class="pf-fix" data-lang="en">Pass anisotropy=dz/dxy or resample to isotropic first.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="tifffile.imread 整 stack" data-en="tifffile.imread on whole stack">tifffile.imread 整 stack</span><div class="pf-body" data-lang="zh">TB 級資料直接 OOM。</div><div class="pf-body" data-lang="en">TB-scale data → OOM.</div><div class="pf-fix" data-lang="zh">用 dask-image / OME-Zarr 分塊讀取。</div><div class="pf-fix" data-lang="en">Use dask-image / OME-Zarr chunked reads.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="resample 用 linear 在 label" data-en="Linear interp on label image">resample 用 linear 在 label</span><div class="pf-body" data-lang="zh">ID 1 與 ID 2 內插成 1.5 → 不存在 ID。</div><div class="pf-body" data-lang="en">ID 1 + ID 2 → 1.5 — a nonexistent ID.</div><div class="pf-fix" data-lang="zh">label image 永遠用 nearest neighbour。</div><div class="pf-fix" data-lang="en">Always nearest-neighbour for label images.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="3D Gaussian σ 沒考慮 voxel size" data-en="3-D Gaussian σ ignoring voxel size">3D Gaussian σ 沒考慮 voxel size</span><div class="pf-body" data-lang="zh">σ=2 在 XY 與 Z 含義完全不同。</div><div class="pf-body" data-lang="en">σ=2 means very different things in XY vs Z.</div><div class="pf-fix" data-lang="zh">用 (σ_z, σ_y, σ_x) 各自設定，依 voxel size 比例調整。</div><div class="pf-fix" data-lang="en">Use (σ_z, σ_y, σ_x) tuple scaled by voxel size.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="用 mean projection 替真 3D" data-en="Mean projection in place of 3-D">用 mean projection 替真 3D</span><div class="pf-body" data-lang="zh">2D 結果丟失 z 資訊。</div><div class="pf-body" data-lang="en">2-D projections lose z information.</div><div class="pf-fix" data-lang="zh">真的需要 3D 就用 Cellpose 3D / StarDist 3D / PlantSeg。</div><div class="pf-fix" data-lang="en">If you really need 3-D, use Cellpose 3D / StarDist 3D / PlantSeg.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="單 GPU 跑 200 GB stack" data-en="Single GPU on a 200 GB stack">單 GPU 跑 200 GB stack</span><div class="pf-body" data-lang="zh">GPU memory 爆掉。</div><div class="pf-body" data-lang="en">GPU memory blows up.</div><div class="pf-fix" data-lang="zh">切 tile + dask；或用多 GPU。</div><div class="pf-fix" data-lang="en">Tile + dask, or use multi-GPU.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種 3D 處理哲學" data-en="Two 3-D Processing Philosophies">兩種 3D 處理哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="「逐 slice 2D 當作 3D 結果」" data-en=""2-D per slice as the 3-D result"">「逐 slice 2D 當作 3D 結果」</span></h5>
+    <ul>
+      <li data-lang="zh">imread 整檔載入</li>
+      <li data-lang="zh">每片獨立 2D segment</li>
+      <li data-lang="zh">結果直接堆疊</li>
+      <li data-lang="zh">不傳 anisotropy</li>
+      <li data-lang="zh">Methods 寫「3D analysis」一句帶過</li>
+      <li data-lang="en">Load the whole file</li>
+      <li data-lang="en">Segment each slice in 2-D</li>
+      <li data-lang="en">Just stack the results</li>
+      <li data-lang="en">No anisotropy info</li>
+      <li data-lang="en">Methods says '3-D analysis'</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="「dask + OME-Zarr + true 3D + isotropic 校正」" data-en=""dask + OME-Zarr + true 3-D + isotropic correction"">「dask + OME-Zarr + true 3D + isotropic 校正」</span></h5>
+    <ul>
+      <li data-lang="zh">OME-Zarr 分塊存取</li>
+      <li data-lang="zh">Cellpose 3D do_3D=True + anisotropy=</li>
+      <li data-lang="zh">Resample 到 isotropic 算 morphology</li>
+      <li data-lang="zh">dask 惰性運算 + GPU</li>
+      <li data-lang="zh">Methods 寫明 voxel size + anisotropy 處理</li>
+      <li data-lang="en">OME-Zarr chunked access</li>
+      <li data-lang="en">Cellpose 3D do_3D=True + anisotropy=</li>
+      <li data-lang="en">Resample to isotropic for morphology</li>
+      <li data-lang="en">dask lazy compute + GPU</li>
+      <li data-lang="en">Methods documents voxel size + anisotropy handling</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 3D / Multi-Dim SOTA" data-en="2024–2026 3-D / Multi-Dim SOTA">2024–2026 3D / Multi-Dim SOTA</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="雲端 + GPU + foundation model 三合一" data-en="Cloud + GPU + foundation models in one">雲端 + GPU + foundation model 三合一</h5>
+<p data-lang="zh">2024–2026 3D 領域急速進化：</p>
+<p data-lang="en">3-D analysis evolved fast in 2024–2026:</p>
+<ul>
+  <li><strong>ome-zarr-py 2.0 (2024)</strong> <span data-lang="zh">支援 v0.5 multiscale，HCS 與 spatial omics 標配。</span><span data-lang="en">Supports v0.5 multiscale; standard for HCS and spatial omics.</span></li>
+  <li><strong>dask-image GPU backend (2024)</strong> <span data-lang="zh">cupy 加速；可在 GPU 上跑 dask pipeline。</span><span data-lang="en">cupy-accelerated; dask pipelines on GPU.</span></li>
+  <li><strong>napari 0.5 (2025)</strong> <span data-lang="zh">WebGL renderer + vispy 嵌入；瀏覽器互動顯示。</span><span data-lang="en">WebGL renderer + vispy embed; browser-interactive.</span></li>
+  <li><strong>mobie 2.0 (2025)</strong> <span data-lang="zh">公開 cloud 3D viewer；無需安裝。</span><span data-lang="en">Cloud 3-D viewer; no installation needed.</span></li>
+  <li><strong>PlantSeg++ (2025)</strong> <span data-lang="zh">attention U-Net 升級；對 animal tissue 更穩。</span><span data-lang="en">Attention U-Net upgrade; more robust on animal tissue.</span></li>
+  <li><strong>SAM2 + MedSAM2 3D 互動 (2025)</strong> <span data-lang="zh">互動式 3D 分割成為主流。</span><span data-lang="en">Interactive 3-D segmentation becomes mainstream.</span></li>
+  <li><strong>BioImage Archive 5 PB (2026)</strong> <span data-lang="zh">EMBL-EBI 突破 PB 級 3D 公開資料。</span><span data-lang="en">EMBL-EBI surpasses PB-scale 3-D public data.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Chen 2014 Science 346:1257998 · Wolny 2020 eLife · Hörl 2019 Nat Methods · Sofroniew napari Zenodo · Moore 2021 Nat Methods</div>
+<div class="an-cite" data-lang="en">Key refs: Chen 2014 Science 346:1257998 · Wolny 2020 eLife · Hörl 2019 Nat Methods · Sofroniew napari Zenodo · Moore 2021 Nat Methods</div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Marvin Minsky 1957 申請共軛焦專利時，被認為「商業前景渺茫」。他自己後來在自傳寫：「<em>nobody bought my license — but the idea was good</em>」。30 年後共軛焦才成為生物學家的標配。Light-sheet 也經歷類似 Valley of Death：Huisken 2003 在 Science 發表後，又等 11 年才有 Betzig 的 lattice LSFM 達到實用解析度。<strong>科學裡的好點子常常需要 30 年才能成熟。</strong></span>
+<span data-lang="en">When Marvin Minsky filed the confocal patent in 1957, observers said the 'commercial outlook was bleak.' He later wrote in his memoir: '<em>nobody bought my license — but the idea was good.</em>' It took 30 years before confocal became standard biology gear. Light-sheet walked a similar Valley of Death: 11 years from Huisken's 2003 Science paper to Betzig's practical lattice LSFM. <strong>Good scientific ideas often need 30 years to mature.</strong></span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>你的 3D 資料目前怎麼存？切換到 OME-Zarr 的成本與收益？</li>
+    <li>哪些 step 可以從整檔載入轉成 dask 化？這對你的 reproducibility 有何影響？</li>
+    <li>你最想學 napari 哪個 plugin？這個 plugin 解決你的什麼具體痛點？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>How is your 3-D data stored today? What are the costs / benefits of switching to OME-Zarr?</li>
+    <li>Which steps could move from 'load whole file' to dask? How does that change reproducibility?</li>
+    <li>Which napari plugin do you most want to learn? What concrete pain does it address?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">3D 工作流的真正挑戰，是讓「實驗者、軟體、儲存」三者步調一致。一個慢，全部慢。</div>
+  <div class="rq-hint" data-lang="en">The real challenge of 3-D workflows is keeping 'experimentalist, software, storage' in step. If one is slow, the whole pipeline is.</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

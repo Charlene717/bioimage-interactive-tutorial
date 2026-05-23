@@ -16,6 +16,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="從 Anne Carpenter 1997 到 JUMP-CP 3M 影像：HCS 30 年" data-en="From Anne Carpenter 1997 to JUMP-CP's 3M images: 30 years of HCS">從 Anne Carpenter 1997 到 JUMP-CP 3M 影像：HCS 30 年</h3>
+  <div data-lang="zh"><p>1997 年 Anne Carpenter 在 MIT 寫了 CellProfiler 第一版，命名為「給生物學家用的 Matlab」；2015 年 Cell Painting v2 protocol 上線；2017 Caicedo 把 Cell Painting 升為標準 assay；2024 年 JUMP-CP 公佈 12,602 化合物 + 8,069 基因擾動 + 300 萬張影像——這是迄今最大公開表型篩選。</p><p>HCS 不只是「拍很多細胞」，是把生物學變成 ~1,000 維度向量。挑戰從「分割這張」變成「在大規模上建可重現 pipeline、跨 plate 正規化、做表型 profile」。</p></div>
+  <div data-lang="en"><p>In 1997 Anne Carpenter wrote CellProfiler's first version at MIT, calling it 'Matlab for biologists.' 2015 Cell Painting v2 protocol launched; 2017 Caicedo elevated Cell Painting to a standard assay; 2024 JUMP-CP released 12,602 compounds + 8,069 genetic perturbations + 3 million images — the largest public phenotypic screen ever.</p><p>HCS isn't 'imaging lots of cells' — it's turning biology into ~1,000-dimensional vectors. The challenge shifts from 'segment this image' to 'build a reproducible pipeline at scale, normalize across plates, do profile matching.'</p></div>
+  <div class="story-question" data-lang="zh">🤔 為什麼 plate edge effect 比 row/column gradient 更危險？兩者背後的物理 / 化學原因不同。</div>
+  <div class="story-question" data-lang="en">🤔 Why is plate edge effect more dangerous than a row/column gradient? The physics / chemistry causes are different.</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="HCS 架構" data-en="HCS LAYOUT">HCS 架構</div>
 <h2 data-zh="一、HCS 資料層次" data-en="I. HCS Data Hierarchy">一、HCS 資料層次</h2>
@@ -176,6 +186,185 @@ cellprofiler --run-headless \
 <span class="comment">#     shell: "cellprofiler --run-headless ..."</span></pre></div>
 </div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="HCS 核心詞彙" data-en="Core Vocabulary for HCS">HCS 核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">HCS <span class="en">High-Content Screening</span></div><div class="gloss-kid" data-lang="zh">大量自動拍細胞 + 分析。</div><div class="gloss-kid" data-lang="en">Automated imaging and analysis of many cells.</div><div class="gloss-tech" data-lang="zh">96 / 384 / 1536-well plate，每 well 多 site / channel。</div><div class="gloss-tech" data-lang="en">96 / 384 / 1536-well plates, multiple sites / channels per well.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Plate <span class="en">Plate</span></div><div class="gloss-kid" data-lang="zh">96 個小杯子排成的塑膠板。</div><div class="gloss-kid" data-lang="en">A plastic plate of small wells.</div><div class="gloss-tech" data-lang="zh">標準 96 / 384 / 1536 well 格式；每板獨立批次。</div><div class="gloss-tech" data-lang="en">Standard 96 / 384 / 1536-well; each plate is an independent batch.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Site / Field <span class="en">Site / Field</span></div><div class="gloss-kid" data-lang="zh">同一 well 內拍的不同位置。</div><div class="gloss-kid" data-lang="en">Different positions inside the same well.</div><div class="gloss-tech" data-lang="zh">通常 4–25 sites/well；增加細胞數抑制 well 內變異。</div><div class="gloss-tech" data-lang="en">Usually 4–25 sites/well; reduces intra-well variance.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Cell Painting <span class="en">Cell Painting</span></div><div class="gloss-kid" data-lang="zh">5 個通道、6 個染料畫遍細胞主要區室。</div><div class="gloss-kid" data-lang="en">5 channels, 6 dyes covering the cell's major compartments.</div><div class="gloss-tech" data-lang="zh">DNA / RNA / ER / Golgi-PM / Actin / Mito。</div><div class="gloss-tech" data-lang="en">DNA / RNA / ER / Golgi-PM / Actin / Mito.</div></div>
+  <div class="gloss-card"><div class="gloss-term">DMSO control <span class="en">DMSO control</span></div><div class="gloss-kid" data-lang="zh">加溶劑但不加藥的「對照組」。</div><div class="gloss-kid" data-lang="en">Wells with solvent but no drug — the 'controls.'</div><div class="gloss-tech" data-lang="zh">per-plate baseline；正規化基準。</div><div class="gloss-tech" data-lang="en">Per-plate baseline; the normalization reference.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Edge effect <span class="en">Edge effect</span></div><div class="gloss-kid" data-lang="zh">外圈 well 因蒸發 / 溫度差而異常。</div><div class="gloss-kid" data-lang="en">Outer wells behave differently due to evaporation / temperature.</div><div class="gloss-tech" data-lang="zh">HCS 最常見系統偏差；無法事後校正完全。</div><div class="gloss-tech" data-lang="en">The most common HCS systematic bias; can't be fully fixed post-hoc.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Robust z-score <span class="en">Robust z-score</span></div><div class="gloss-kid" data-lang="zh">用 median + MAD 算的「離 control 多遠」。</div><div class="gloss-kid" data-lang="en">'How far from control' using median + MAD.</div><div class="gloss-tech" data-lang="zh">z = (x − median_DMSO) / MAD_DMSO；per-plate。</div><div class="gloss-tech" data-lang="en">z = (x − median_DMSO) / MAD_DMSO; per-plate.</div></div>
+  <div class="gloss-card"><div class="gloss-term">MAD <span class="en">Median Absolute Deviation</span></div><div class="gloss-kid" data-lang="zh">中位數版的「標準差」。</div><div class="gloss-kid" data-lang="en">The median version of standard deviation.</div><div class="gloss-tech" data-lang="zh">= median(|x − median|)；抗 outlier。</div><div class="gloss-tech" data-lang="en">= median(|x − median|); outlier-robust.</div></div>
+  <div class="gloss-card"><div class="gloss-term">TVN <span class="en">Typical Variation Normalization</span></div><div class="gloss-kid" data-lang="zh">用 control 樣本估「正常的變化」，扣掉。</div><div class="gloss-kid" data-lang="en">Estimate 'typical variation' from controls and subtract.</div><div class="gloss-tech" data-lang="zh">sphering on DMSO controls；移除 plate-batch 共同雜訊。</div><div class="gloss-tech" data-lang="en">Sphering on DMSO controls; removes plate-batch common noise.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Percent-replicating <span class="en">Percent-replicating</span></div><div class="gloss-kid" data-lang="zh">同樣處理的 replicate「相似度顯著高於亂猜」的比例。</div><div class="gloss-kid" data-lang="en">Fraction of perturbations whose replicates 'beat random.'</div><div class="gloss-tech" data-lang="zh">assay reproducibility 黃金指標；常見 60–80%。</div><div class="gloss-tech" data-lang="en">Gold-standard for assay reproducibility; typical 60–80%.</div></div>
+  <div class="gloss-card"><div class="gloss-term">pycytominer <span class="en">pycytominer</span></div><div class="gloss-kid" data-lang="zh">Broad 出品的 HCS 後處理 Python 套件。</div><div class="gloss-kid" data-lang="en">Broad's Python toolkit for HCS post-processing.</div><div class="gloss-tech" data-lang="zh">normalize / feature_select / aggregate 三步驟標配。</div><div class="gloss-tech" data-lang="en">Standard triad: normalize / feature_select / aggregate.</div></div>
+  <div class="gloss-card"><div class="gloss-term">JUMP-CP <span class="en">JUMP-CP</span></div><div class="gloss-kid" data-lang="zh">12 institution 聯盟釋出的 3M Cell Painting 影像庫。</div><div class="gloss-kid" data-lang="en">A 12-institution consortium releasing 3M Cell Painting images.</div><div class="gloss-tech" data-lang="zh">Chandrasekaran 2024 Nat Methods 21:1114；公開資源最大。</div><div class="gloss-tech" data-lang="en">Chandrasekaran 2024 Nat Methods 21:1114; the largest public resource.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="HCS 30 年" data-en="30 Years of HCS">HCS 30 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item"><span class="tl-year">1997</span><span class="tl-title" data-zh="CellProfiler 第一版" data-en="CellProfiler v1">CellProfiler 第一版</span><div class="tl-body" data-lang="zh">Anne Carpenter at MIT — 「給生物學家用的 Matlab」。</div><div class="tl-body" data-lang="en">Anne Carpenter at MIT — 'Matlab for biologists.'</div></div>
+<div class="tl-item milestone"><span class="tl-year">2006</span><span class="tl-title" data-zh="CellProfiler Genome Biology" data-en="CellProfiler Genome Biology">CellProfiler Genome Biology</span><div class="tl-body" data-lang="zh">Carpenter — 首篇 CP 論文，350+ 引用立刻。</div><div class="tl-body" data-lang="en">Carpenter — the first CP paper, 350+ citations almost immediately.</div></div>
+<div class="tl-item"><span class="tl-year">2009</span><span class="tl-title" data-zh="HCS Cytometry" data-en="HCS Cytometry">HCS Cytometry</span><div class="tl-body" data-lang="zh">Sailem 等發表 HCS 應用綜述。</div><div class="tl-body" data-lang="en">Sailem et al. — HCS-application review.</div></div>
+<div class="tl-item"><span class="tl-year">2013</span><span class="tl-title" data-zh="BBBC051" data-en="BBBC051">BBBC051</span><div class="tl-body" data-lang="zh">Broad Bioimage Benchmark Collection 上線。</div><div class="tl-body" data-lang="en">Broad Bioimage Benchmark Collection launches.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2015</span><span class="tl-title" data-zh="Cell Painting Nat Protocols" data-en="Cell Painting Nat Protocols">Cell Painting Nat Protocols</span><div class="tl-body" data-lang="zh">Bray Nat Protoc — 5/6 染料 protocol 正式化。</div><div class="tl-body" data-lang="en">Bray Nat Protoc — the 5/6-dye protocol becomes official.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2017</span><span class="tl-title" data-zh="Caicedo Nat Methods" data-en="Caicedo Nat Methods">Caicedo Nat Methods</span><div class="tl-body" data-lang="zh">Cell profiling 策略；至今 1,500+ 引用。</div><div class="tl-body" data-lang="en">Cell profiling strategies; 1,500+ citations today.</div></div>
+<div class="tl-item"><span class="tl-year">2021</span><span class="tl-title" data-zh="CellProfiler 4 BMC" data-en="CellProfiler 4 BMC">CellProfiler 4 BMC</span><div class="tl-body" data-lang="zh">Stirling — 速度與穩定性大升級。</div><div class="tl-body" data-lang="en">Stirling — major speed and stability upgrade.</div></div>
+<div class="tl-item"><span class="tl-year">2022</span><span class="tl-title" data-zh="JUMP-CP 啟動" data-en="JUMP-CP launches">JUMP-CP 啟動</span><div class="tl-body" data-lang="zh">12 institution 聯盟啟動 JUMP-CP。</div><div class="tl-body" data-lang="en">12-institution consortium kicks off.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2024</span><span class="tl-title" data-zh="JUMP-CP 3M Nat Methods" data-en="JUMP-CP 3M Nat Methods">JUMP-CP 3M Nat Methods</span><div class="tl-body" data-lang="zh">Chandrasekaran — 3,072,156 images。</div><div class="tl-body" data-lang="en">Chandrasekaran — 3,072,156 images.</div></div>
+<div class="tl-item"><span class="tl-year">2024</span><span class="tl-title" data-zh="pycytominer v2" data-en="pycytominer v2">pycytominer v2</span><div class="tl-body" data-lang="zh">Mabey 更新；新增 plate-map normalization。</div><div class="tl-body" data-lang="en">Mabey update; adds plate-map normalization.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="starrynight reference pipeline" data-en="starrynight reference pipeline">starrynight reference pipeline</span><div class="tl-body" data-lang="zh">JUMP 官方 reference 重新整理。</div><div class="tl-body" data-lang="en">Official JUMP reference pipeline reorganized.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="DeepProfiler v2" data-en="DeepProfiler v2">DeepProfiler v2</span><div class="tl-body" data-lang="zh">用 UNI embedding 取代 CP 1,700 features。</div><div class="tl-body" data-lang="en">UNI embeddings replace CP's 1,700 features.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="Robust z-score 與 percent-replicating" data-en="Robust z-score and percent-replicating">Robust z-score 與 percent-replicating</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">z<sub>i</sub> = (x<sub>i</sub> − median<sub>DMSO</sub>) / MAD<sub>DMSO</sub></div>
+<div class="sw-step"><strong>① <span data-lang='zh'>per-plate normalization</span><span data-lang='en'>per-plate normalization</span></strong> <span data-lang="zh">每 plate 獨立計算 median 與 MAD；DMSO controls 為 baseline。</span><span data-lang="en">Compute median and MAD per plate; DMSO controls are the baseline.</span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>robust 抗 outlier</span><span data-lang='en'>Robust to outliers</span></strong> <span data-lang="zh">median + MAD 比 mean + std 抗極端值，CP heavy-tailed 必用。</span><span data-lang="en">Median + MAD beats mean + std on heavy-tailed CP distributions.</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>cosine similarity</span><span data-lang='en'>Cosine similarity</span></strong> <span data-lang="zh">Profile A 與 B 的「角度相似度」：cos(A,B) = A·B / (|A||B|)。</span><span data-lang="en">Profile A vs B 'angular similarity': cos(A,B) = A·B / (|A||B|).</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>Percent-replicating</span><span data-lang='en'>Percent-replicating</span></strong> <span data-lang="zh">#(replicate pair 相似度 &gt; 95% null) / total — 衡量 assay reproducibility。</span><span data-lang="en">#(replicate pairs above the 95% null) / total — measures assay reproducibility.</span></div>
+
+<div class="sw-note" data-lang="zh">推論：plate-wise z-score 是 HCS pipeline 的核心。沒做正規化的 raw value 不能跨 plate 比較。Percent-replicating 60–80% 為良好 assay；&lt;50% 通常需重新檢視。</div>
+<div class="sw-note" data-lang="en">Implication: per-plate z-score is the core of every HCS pipeline. Raw values without it can't be compared across plates. Percent-replicating 60–80% is a good assay; &lt;50% usually needs a rework.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="HCS 三大爭論" data-en="Three Debates in HCS">HCS 三大爭論</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. Edge effect 比 row/column gradient 危險？" data-en="A. Is edge effect more dangerous than row/column gradients?">A. Edge effect 比 row/column gradient 危險？</h5><div class="disc-q" data-lang="zh">兩者都是 plate 效應，差異在哪？</div><div class="disc-q" data-lang="en">Both are plate effects — what differs?</div><div class="disc-hint" data-lang="zh">提示：edge 涉及蒸發 / 溫度差，難用 linear regression 模型；gradient 通常是液移誤差，較易校正。</div><div class="disc-hint" data-lang="en">Hint: edges involve evaporation / temperature — hard to model linearly; gradients are liquid-handler errors and easier to correct.</div></div>
+  <div class="discussion-card"><h5 data-zh="B. Cell Painting 真的「unbiased」嗎？" data-en="B. Is Cell Painting truly 'unbiased'?">B. Cell Painting 真的「unbiased」嗎？</h5><div class="disc-q" data-lang="zh">5 個染料怎麼選的？是否真的看到所有 phenotype？</div><div class="disc-q" data-lang="en">How were the 5 dyes chosen? Does it really capture all phenotypes?</div><div class="disc-hint" data-lang="zh">提示：Cell Painting 染料是經驗選擇，涵蓋核 / RNA / ER / Golgi / Actin / Mito。沒染到的 phenotype（如代謝產物）看不到。</div><div class="disc-hint" data-lang="en">Hint: the dye set is empirical, covering nucleus / RNA / ER / Golgi / Actin / Mito. Phenotypes outside that (e.g., metabolites) won't be captured.</div></div>
+  <div class="discussion-card"><h5 data-zh="C. DeepProfiler 取代 CP features 的 trade-off？" data-en="C. The DeepProfiler-vs-CP-features trade-off?">C. DeepProfiler 取代 CP features 的 trade-off？</h5><div class="disc-q" data-lang="zh">UNI embedding 比 1,700 CP features 強，但可解釋性差？</div><div class="disc-q" data-lang="en">UNI embeddings beat 1,700 CP features but lose interpretability?</div><div class="disc-hint" data-lang="zh">提示：UNI 性能高但黑箱；CP 每個 feature 都可解釋（area, intensity, texture）。生產用 UNI、論文圖 CP，是常見折衷。</div><div class="disc-hint" data-lang="en">Hint: UNI is high-performance but black-box; CP features are each interpretable (area, intensity, texture). Use UNI for production and CP for figures — a common compromise.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個 HCS 領域的傳奇" data-en="Two HCS Legends">兩個 HCS 領域的傳奇</h2>
+<div class="spotlight">
+  <h5 data-zh="① Anne Carpenter：image-based profiling 的 godmother" data-en="① Anne Carpenter: the godmother of image-based profiling">① Anne Carpenter：image-based profiling 的 godmother</h5>
+  <div class="spot-meta">MIT 1997 → Broad 2007 → BIP director · CellProfiler 4,000+ 論文</div>
+  <p data-lang="zh">Anne Carpenter 1997 還在 MIT 大學生時寫了 CellProfiler 第一版；2007 加入 Broad 成立 Imaging Platform；2018 成為 Broad Imaging Platform director；2022 領導 JUMP-CP 聯盟發行 3M Cell Painting 影像。<strong>CellProfiler 被用於 4,000+ 論文</strong>，pycytominer / DeepProfiler 等下游工具皆出自她實驗室。</p>
+  <p data-lang="en">Anne Carpenter wrote CellProfiler's first version in 1997 as an MIT undergrad; joined Broad in 2007 and founded its Imaging Platform; became BIP director in 2018; led the JUMP-CP consortium that released 3M Cell Painting images in 2022. <strong>CellProfiler powers 4,000+ papers</strong> — pycytominer, DeepProfiler, and friends all came from her group.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：一個人 + 一個工具 + 30 年堅持，可以改變一整個領域。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: one person + one tool + 30 years of persistence can change an entire field.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② JUMP-CP：12 institution、3M 影像的共筆" data-en="② JUMP-CP: a 12-institution, 3M-image co-authored study">② JUMP-CP：12 institution、3M 影像的共筆</h5>
+  <div class="spot-meta">Chandrasekaran et al., Nat Methods 21:1114 (2024) · jump-cellpainting.broadinstitute.org</div>
+  <p data-lang="zh">Broad + 11 製藥/學術夥伴（Janssen, Pfizer, GSK, Bayer, Recursion 等）2022–2024 共同產生 <strong>3,072,156 張 Cell Painting 影像</strong> × 12,602 化合物 + 8,069 基因擾動。全部資料、code、protocols 公開於 jump-cellpainting.broadinstitute.org。<strong>製藥業首次把競爭資料公開為基礎建設</strong>，背後是「open science 成本低於私有重做」的覺悟。</p>
+  <p data-lang="en">Broad + 11 pharma/academic partners (Janssen, Pfizer, GSK, Bayer, Recursion …) jointly produced (2022–2024) <strong>3,072,156 Cell Painting images</strong> × 12,602 compounds + 8,069 genetic perturbations. All data, code, and protocols are open at jump-cellpainting.broadinstitute.org. <strong>Pharma open-sourced competitive data as infrastructure</strong> — the realization that 'open science costs less than private duplication.'</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：當資料量需要 12 個機構合作時，「合作 → 開源」變成最理性的選擇。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: when data scale demands 12-institution effort, 'collaborate → open-source' becomes the rational option.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="HCS 六大陷阱" data-en="Six Pitfalls of HCS">HCS 六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="Edge well 不過濾" data-en="Edge wells not filtered">Edge well 不過濾</span><div class="pf-body" data-lang="zh">蒸發造成「全是 hit」假象。</div><div class="pf-body" data-lang="en">Evaporation creates 'everything is a hit.'</div><div class="pf-fix" data-lang="zh">邊圈 well 通常排除，或單獨建模 edge effect。</div><div class="pf-fix" data-lang="en">Drop outer wells or model edge effect separately.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="mean + std 替代 median + MAD" data-en="mean + std instead of median + MAD">mean + std 替代 median + MAD</span><div class="pf-body" data-lang="zh">CP heavy-tailed 分佈被 outlier 拉走。</div><div class="pf-body" data-lang="en">Heavy-tailed CP distributions get yanked by outliers.</div><div class="pf-fix" data-lang="zh">robust z = (x − median) / MAD。</div><div class="pf-fix" data-lang="en">Robust z = (x − median) / MAD.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="不分 plate 正規化" data-en="No per-plate normalization">不分 plate 正規化</span><div class="pf-body" data-lang="zh">跨 plate 比較看到的是 batch effect 而非 biology。</div><div class="pf-body" data-lang="en">Cross-plate comparison shows batch effects, not biology.</div><div class="pf-fix" data-lang="zh">每 plate 獨立 robust z；TVN / sphering 進一步去 batch。</div><div class="pf-fix" data-lang="en">Robust z per plate; TVN / sphering for further batch removal.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="未做 percent-replicating null" data-en="No percent-replicating null">未做 percent-replicating null</span><div class="pf-body" data-lang="zh">沒有統計顯著性，「相似」與「亂猜」分不清。</div><div class="pf-body" data-lang="en">No statistical significance — 'similar' vs 'random' can't be told apart.</div><div class="pf-fix" data-lang="zh"> Random null distribution 計算 95% threshold。</div><div class="pf-fix" data-lang="en">Compute a random null and a 95% threshold.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="Feature correlation &gt; 0.95 沒過濾" data-en="No filter on feature correlation">Feature correlation &gt; 0.95 沒過濾</span><div class="pf-body" data-lang="zh">高相關 feature 雙重計分，PCA 結果偏。</div><div class="pf-body" data-lang="en">Highly correlated features double-count and bias PCA.</div><div class="pf-fix" data-lang="zh">用 pycytominer feature_select 過濾 r &gt; 0.95。</div><div class="pf-fix" data-lang="en">Use pycytominer feature_select to drop r &gt; 0.95.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="CellProfiler GUI 跑 plate-scale" data-en="CellProfiler GUI at plate-scale">CellProfiler GUI 跑 plate-scale</span><div class="pf-body" data-lang="zh">384-well GUI 慢且容易 crash。</div><div class="pf-body" data-lang="en">384-well in the GUI is slow and crash-prone.</div><div class="pf-fix" data-lang="zh">headless CLI + Snakemake / Nextflow 上叢集。</div><div class="pf-fix" data-lang="en">Use the headless CLI + Snakemake / Nextflow on a cluster.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種 HCS 哲學" data-en="Two HCS Philosophies">兩種 HCS 哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="「未正規化 raw plate readouts」" data-en=""Compare raw plate readouts"">「未正規化 raw plate readouts」</span></h5>
+    <ul>
+      <li data-lang="zh">Edge well 不檢查</li>
+      <li data-lang="zh">不分 plate 正規化</li>
+      <li data-lang="zh">mean + std aggregate</li>
+      <li data-lang="zh">沒做 percent-replicating null</li>
+      <li data-lang="zh">Methods 寫「analyzed with CellProfiler」</li>
+      <li data-lang="en">No edge-well check</li>
+      <li data-lang="en">No per-plate normalization</li>
+      <li data-lang="en">mean + std aggregation</li>
+      <li data-lang="en">No percent-replicating null</li>
+      <li data-lang="en">Methods says 'analyzed with CellProfiler'</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="「per-plate robust z + feature select + percent-replicating」" data-en=""per-plate robust z + feature select + percent-replicating"">「per-plate robust z + feature select + percent-replicating」</span></h5>
+    <ul>
+      <li data-lang="zh">Edge well 過濾或單獨模型</li>
+      <li data-lang="zh">每 plate 獨立 robust z-score</li>
+      <li data-lang="zh">median + MAD aggregate</li>
+      <li data-lang="zh">percent-replicating 95% null</li>
+      <li data-lang="zh">Methods 列出 pycytominer 設定與 plate-map</li>
+      <li data-lang="en">Filter or separately model edge wells</li>
+      <li data-lang="en">Robust z-score per plate</li>
+      <li data-lang="en">median + MAD aggregation</li>
+      <li data-lang="en">percent-replicating with 95% null</li>
+      <li data-lang="en">Methods lists pycytominer settings and the plate map</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 HCS SOTA" data-en="2024–2026 HCS SOTA">2024–2026 HCS SOTA</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="DL embedding + cloud + 共享資料" data-en="DL embeddings + cloud + open data">DL embedding + cloud + 共享資料</h5>
+<p data-lang="zh">HCS 2024–2026 急速進化：</p>
+<p data-lang="en">HCS evolved rapidly through 2024–2026:</p>
+<ul>
+  <li><strong>starrynight (2024)</strong> <span data-lang="zh">JUMP 官方 reference pipeline 整合 CellProfiler + pycytominer。</span><span data-lang="en">Official JUMP reference pipeline integrating CellProfiler + pycytominer.</span></li>
+  <li><strong>DeepProfiler v2 (2024)</strong> <span data-lang="zh">Broad — UNI embedding 取代 CP 手工 1700 features。</span><span data-lang="en">Broad — UNI embeddings replace CP's 1,700 hand-crafted features.</span></li>
+  <li><strong>pycytominer v3 (2025)</strong> <span data-lang="zh">加入 cell-level subsampling 與 dose-response 工具。</span><span data-lang="en">Adds cell-level subsampling and dose-response tools.</span></li>
+  <li><strong>Cell Painting 2.0 protocol (2025)</strong> <span data-lang="zh">新 dye 集合 + 改進 imaging schedule。</span><span data-lang="en">New dye set + improved imaging schedule.</span></li>
+  <li><strong>HCS OME-Zarr layout (2025)</strong> <span data-lang="zh">plate-layout 標準化，cloud-native 存取。</span><span data-lang="en">Plate-layout standardized; cloud-native access.</span></li>
+  <li><strong>Recursion BioMap (2025)</strong> <span data-lang="zh">商業 phenotype map 整合 18M+ 影像。</span><span data-lang="en">Commercial phenotype map integrating 18M+ images.</span></li>
+  <li><strong>PhenoProfiler / OpenPhenom (2025)</strong> <span data-lang="zh">新興 phenotype foundation model 開源化。</span><span data-lang="en">Emerging phenotype foundation models go open source.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Stirling 2021 BMC 22:433 · Caicedo 2017 Nat Methods · Chandrasekaran 2024 Nat Methods 21:1114 · Cimini 2024 Nat Methods 22:51</div>
+<div class="an-cite" data-lang="en">Key refs: Stirling 2021 BMC 22:433 · Caicedo 2017 Nat Methods · Chandrasekaran 2024 Nat Methods 21:1114 · Cimini 2024 Nat Methods 22:51</div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Anne Carpenter 1997 還是 MIT 大學生時就開始寫 CellProfiler，當時她以為「只是個小工具」。到 2024 JUMP-CP 釋出 3M 影像時，CellProfiler 已被全球 4,000+ 論文使用，並成為製藥業的標配。她 2018 創立 Broad Imaging Platform 並擔任 director，是 image-based profiling 領域當之無愧的 godmother。<strong>有時候一個 undergraduate project 會成長成一整個學科。</strong></span>
+<span data-lang="en">Anne Carpenter started CellProfiler as an MIT undergrad in 1997, expecting 'just a small tool.' By 2024 when JUMP-CP released 3M images, CellProfiler powered 4,000+ papers and had become a pharma standard. She founded the Broad Imaging Platform in 2018 and serves as its director — the rightful godmother of image-based profiling. <strong>Sometimes an undergraduate project becomes an entire discipline.</strong></span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>你做過 HCS 嗎？若沒，JUMP-CP 哪個 dataset 可以拿來練手？</li>
+    <li>你會用 CellProfiler 還是 DeepProfiler？trade-off 你怎麼決定？</li>
+    <li>Percent-replicating 你會在你的論文中報告嗎？這對 reviewer 與讀者的價值？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>Have you done HCS? If not, which JUMP-CP dataset would you practice with?</li>
+    <li>Would you use CellProfiler or DeepProfiler? How do you weigh the trade-off?</li>
+    <li>Will you report percent-replicating in your paper? What's its value to reviewers and readers?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">HCS 的真正功夫在「跨 plate 一致性」與「reproducibility metric」，而不是花俏的 segmenter。</div>
+  <div class="rq-hint" data-lang="en">The real craft of HCS is cross-plate consistency and reproducibility metrics — not fancy segmenters.</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

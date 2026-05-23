@@ -17,6 +17,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="從 NASA 月球影像到活細胞去噪" data-en="From NASA's Moon Photos to Live-Cell Denoising">從 NASA 月球影像到活細胞去噪</h3>
+  <div data-lang="zh"><p>1968 年 NASA 阿波羅任務的影像工程師為了「看清楚月球表面」發明了 image processing 學科——Gaussian filter、median、histogram equalization 都從這時期成形。</p><p>半世紀後，同樣的數學救活了無數 live-cell 影像。雜訊的本質從未改變：Poisson（光子計數抖動）、Gaussian（讀取電路熱雜訊）、固定花紋（相機缺陷）。要區分「真實生物訊號」與「相機抖動」是這一章的核心。</p></div>
+  <div data-lang="en"><p>In 1968, NASA's Apollo image engineers invented the field of image processing to make the Moon's surface readable — Gaussian filters, medians, histogram equalization all came from that era.</p><p>Half a century later, the same maths is what rescues live-cell movies. Noise sources never changed: Poisson (photon-counting jitter), Gaussian (camera read noise), fixed-pattern (sensor defects). Separating real signal from camera shake is what this chapter is about.</p></div>
+  <div class="story-question" data-lang="zh">🤔 你會在「降噪」與「保留訊息」之間怎麼取捨？對螢光定量論文來說，哪一邊妥協更危險？</div>
+  <div class="story-question" data-lang="en">🤔 How do you trade off denoising vs. information preservation? For a fluorescence quantification paper, which side is more dangerous to compromise?</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="概覽" data-en="OVERVIEW">概覽</div>
 <h2 data-zh="為什麼預處理重要？" data-en="Why does preprocessing matter?">為什麼預處理重要？</h2>
@@ -199,6 +209,184 @@ masks, flows, styles, restored_img = mdl.eval(noisy_img, diameter=<span class="n
 <span data-lang="en"><strong>Recommended order:</strong> (1) Dark-frame subtraction (if available)<br>(2) Flat-field correction (BaSiC)<br>(3) Hot-pixel fix (small median)<br>(4) DL denoise only if SNR demands it<br>(5) Quantify on unfiltered or consistently filtered images</span>
 </div></div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="去噪與預處理的核心詞彙" data-en="Core Vocabulary for Preprocessing & Denoising">去噪與預處理的核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">Poisson 雜訊 <span class="en">Poisson (shot) noise</span></div><div class="gloss-kid" data-lang="zh">光子是會「抖動」的——亮的地方抖比較大。</div><div class="gloss-kid" data-lang="en">Photons jitter — and brighter spots jitter more.</div><div class="gloss-tech" data-lang="zh">σ = √N，N 是光子數。低光時主導；高光時相對佔比下降。</div><div class="gloss-tech" data-lang="en">σ = √N where N is photon count. Dominant in low light; relatively smaller in bright signal.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Gaussian 讀取雜訊 <span class="en">Gaussian read noise</span></div><div class="gloss-kid" data-lang="zh">相機電路本身的「嗡嗡聲」。</div><div class="gloss-kid" data-lang="en">The camera circuit's own background hum.</div><div class="gloss-tech" data-lang="zh">σ_read 固定為相機規格，sCMOS 通常 1–2 e⁻；EMCCD 可 <0.5。</div><div class="gloss-tech" data-lang="en">σ_read is a fixed camera spec — sCMOS ≈ 1–2 e⁻; EMCCD < 0.5.</div></div>
+  <div class="gloss-card"><div class="gloss-term">SNR <span class="en">Signal-to-Noise Ratio</span></div><div class="gloss-kid" data-lang="zh">訊號比雜訊大多少倍。越大畫面越清楚。</div><div class="gloss-kid" data-lang="en">How many times the signal exceeds noise. Bigger = cleaner image.</div><div class="gloss-tech" data-lang="zh">SNR = N / √(N + σ_read²)。光子限定區域受 Poisson 主導。</div><div class="gloss-tech" data-lang="en">SNR = N / √(N + σ_read²). In photon-limited regimes Poisson dominates.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Median filter <span class="en">Median filter</span></div><div class="gloss-kid" data-lang="zh">在每個小鄰域裡挑「中間值」當代表，極端值被擋掉。</div><div class="gloss-kid" data-lang="en">Pick the median in each neighbourhood; outliers get rejected.</div><div class="gloss-tech" data-lang="zh">非線性、保邊緣；對 salt-and-pepper、hot pixel 最有效。</div><div class="gloss-tech" data-lang="en">Non-linear, edge-preserving; best for salt-and-pepper and hot pixels.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Gaussian filter <span class="en">Gaussian filter</span></div><div class="gloss-kid" data-lang="zh">用鐘形權重把鄰居平均一下。</div><div class="gloss-kid" data-lang="en">Bell-curve weighted neighbourhood averaging.</div><div class="gloss-tech" data-lang="zh">線性低通，σ 控制平滑量；對連續訊號好、會模糊邊界。</div><div class="gloss-tech" data-lang="en">Linear low-pass; σ controls smoothing; good for continuous signal, blurs edges.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Non-local Means <span class="en">NLM</span></div><div class="gloss-kid" data-lang="zh">找整張圖中「長得像我」的小區塊一起平均。</div><div class="gloss-kid" data-lang="en">Average across patches across the whole image that look similar to me.</div><div class="gloss-tech" data-lang="zh">Buades 2005，patch-similarity weighting；保紋理優於 Gaussian。</div><div class="gloss-tech" data-lang="en">Buades 2005; patch-similarity weighting preserves texture better than Gaussian.</div></div>
+  <div class="gloss-card"><div class="gloss-term">BM3D <span class="en">BM3D</span></div><div class="gloss-kid" data-lang="zh">先把相似的小塊堆起來，再一起去雜訊。</div><div class="gloss-kid" data-lang="en">Stack similar patches first, then denoise them together.</div><div class="gloss-tech" data-lang="zh">Block-Matching 3D + collaborative filtering；2007 SOTA 傳統演算法。</div><div class="gloss-tech" data-lang="en">Block-Matching 3D + collaborative filtering; the 2007 classical SOTA.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Rolling-ball <span class="en">Rolling-ball background</span></div><div class="gloss-kid" data-lang="zh">想像一顆球在影像「3D 地形」下滾，球心軌跡就是背景。</div><div class="gloss-kid" data-lang="en">Roll a ball under the image's 3-D landscape; the ball-centre is the background.</div><div class="gloss-tech" data-lang="zh">Sternberg 1983；半徑通常設為「最大物件直徑 × 1.5」。</div><div class="gloss-tech" data-lang="en">Sternberg 1983; radius ≈ 1.5 × largest object diameter.</div></div>
+  <div class="gloss-card"><div class="gloss-term">BaSiC 平場校正 <span class="en">BaSiC flat-field</span></div><div class="gloss-kid" data-lang="zh">用同批的多張影像聯合學會「邊角為何比較暗」。</div><div class="gloss-kid" data-lang="en">Learn 'why corners are dim' jointly from a batch of images.</div><div class="gloss-tech" data-lang="zh">Peng 2017 Nat Commun；同時估 flatfield + darkfield，HCS 必備。</div><div class="gloss-tech" data-lang="en">Peng 2017 Nat Commun; jointly estimates flatfield + darkfield, essential for HCS.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Noise2Void (N2V) <span class="en">Noise2Void</span></div><div class="gloss-kid" data-lang="zh">自己訓練自己——不用 clean 標準答案。</div><div class="gloss-kid" data-lang="en">Self-supervised — needs no clean ground truth.</div><div class="gloss-tech" data-lang="zh">Krull 2019 CVPR；假設雜訊像素獨立，從中心像素隱蔽訓練。</div><div class="gloss-tech" data-lang="en">Krull 2019 CVPR; assumes pixel-independent noise via masked-pixel training.</div></div>
+  <div class="gloss-card"><div class="gloss-term">CARE <span class="en">Content-Aware Restoration</span></div><div class="gloss-kid" data-lang="zh">用 noisy/clean 配對訓練 CNN 還原；準到比真實還銳。</div><div class="gloss-kid" data-lang="en">Train a CNN on noisy/clean pairs — can be sharper than the original.</div><div class="gloss-tech" data-lang="zh">Weigert 2018 Nat Methods；isotropic / decon / denoise 三合一。</div><div class="gloss-tech" data-lang="en">Weigert 2018 Nat Methods; isotropic / decon / denoise unified.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Cellpose 3 restoration <span class="en">Cellpose 3 restoration</span></div><div class="gloss-kid" data-lang="zh">一鍵 denoise / deblur / 升解析。</div><div class="gloss-kid" data-lang="en">One click: denoise / deblur / upsample.</div><div class="gloss-tech" data-lang="zh">Stringer 2025 Nat Methods；含 cyto3 super-generalist 後端。</div><div class="gloss-tech" data-lang="en">Stringer 2025 Nat Methods; ships with the cyto3 super-generalist backbone.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Photobleaching <span class="en">Photobleaching</span></div><div class="gloss-kid" data-lang="zh">螢光被光「燒掉」，越照越暗。</div><div class="gloss-kid" data-lang="en">Fluorophores get 'burned' by light — they dim with exposure.</div><div class="gloss-tech" data-lang="zh">光子化學破壞，time-lapse 必須校正 (exponential fit)。</div><div class="gloss-tech" data-lang="en">Photochemical destruction; time-lapses need correction (exponential fit).</div></div>
+  <div class="gloss-card"><div class="gloss-term">Phototoxicity <span class="en">Phototoxicity</span></div><div class="gloss-kid" data-lang="zh">光照太久細胞會「中暑」死掉。</div><div class="gloss-kid" data-lang="en">Too much light gives cells 'heat stroke.'</div><div class="gloss-tech" data-lang="zh">ROS 累積；live-cell 必須最低照射 + N2V/denoise 救低 SNR。</div><div class="gloss-tech" data-lang="en">ROS accumulation; live-cell needs minimum illumination + N2V/denoise to rescue low SNR.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="預處理與去噪 60 年" data-en="60 Years of Preprocessing & Denoising">預處理與去噪 60 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item"><span class="tl-year">1968</span><span class="tl-title" data-zh="NASA image processing" data-en="NASA image processing">NASA image processing</span><div class="tl-body" data-lang="zh">Anderson 等在 JPL 把 pixel arithmetic 帶進科學影像。</div><div class="tl-body" data-lang="en">Anderson and colleagues at JPL bring pixel arithmetic into scientific imaging.</div></div>
+<div class="tl-item milestone"><span class="tl-year">1979</span><span class="tl-title" data-zh="Otsu 閾值" data-en="Otsu thresholding">Otsu 閾值</span><div class="tl-body" data-lang="zh">Nobuyuki Otsu IEEE 論文，雙峰直方圖自動閾值。</div><div class="tl-body" data-lang="en">Nobuyuki Otsu's IEEE paper — automatic threshold for bimodal histograms.</div></div>
+<div class="tl-item"><span class="tl-year">1983</span><span class="tl-title" data-zh="Sternberg rolling-ball" data-en="Sternberg rolling-ball">Sternberg rolling-ball</span><div class="tl-body" data-lang="zh">Sternberg 在 Computer Magazine 提出滾球減背景，Fiji 至今仍叫它 Sternberg。</div><div class="tl-body" data-lang="en">Sternberg in Computer Magazine introduces rolling-ball background subtraction — Fiji still calls it that.</div></div>
+<div class="tl-item"><span class="tl-year">1995</span><span class="tl-title" data-zh="Buades NLM" data-en="Buades NLM">Buades NLM</span><div class="tl-body" data-lang="zh">Non-local Means denoising，跨距離 patch 相似度。</div><div class="tl-body" data-lang="en">Non-local Means denoising — patch similarity across the whole image.</div></div>
+<div class="tl-item"><span class="tl-year">2007</span><span class="tl-title" data-zh="Dabov BM3D" data-en="Dabov BM3D">Dabov BM3D</span><div class="tl-body" data-lang="zh">Block-Matching 3D 成為傳統演算法的 PSNR 冠軍。</div><div class="tl-body" data-lang="en">Block-Matching 3D becomes the classical PSNR champion.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2017</span><span class="tl-title" data-zh="BaSiC Peng" data-en="BaSiC Peng">BaSiC Peng</span><div class="tl-body" data-lang="zh">Nat Commun 8:14836，flatfield + darkfield 聯合估計。</div><div class="tl-body" data-lang="en">Nat Commun 8:14836 — joint flat-field + dark-field estimation.</div></div>
+<div class="tl-item"><span class="tl-year">2018</span><span class="tl-title" data-zh="Noise2Noise" data-en="Noise2Noise">Noise2Noise</span><div class="tl-body" data-lang="zh">Lehtinen ICML，僅需兩張 noisy 觀測即可訓練去噪。</div><div class="tl-body" data-lang="en">Lehtinen ICML — train denoisers using only two noisy views.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2019</span><span class="tl-title" data-zh="Noise2Void" data-en="Noise2Void">Noise2Void</span><div class="tl-body" data-lang="zh">Krull CVPR，自監督去噪首見實用化。</div><div class="tl-body" data-lang="en">Krull CVPR — self-supervised denoising becomes practical.</div></div>
+<div class="tl-item"><span class="tl-year">2020</span><span class="tl-title" data-zh="Probabilistic N2V" data-en="Probabilistic N2V">Probabilistic N2V</span><div class="tl-body" data-lang="zh">建模雜訊不確定性，提升 fluorescence 表現。</div><div class="tl-body" data-lang="en">Models noise uncertainty for better fluorescence performance.</div></div>
+<div class="tl-item recent"><span class="tl-year">2024</span><span class="tl-title" data-zh="SUPPORT for fluorescence" data-en="SUPPORT for fluorescence">SUPPORT for fluorescence</span><div class="tl-body" data-lang="zh">Choi 等 Nat Methods，self-supervised denoising 專為 live-cell 設計。</div><div class="tl-body" data-lang="en">Choi et al. Nat Methods — self-supervised denoising tuned for live-cell.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="Cellpose 3 restoration" data-en="Cellpose 3 restoration">Cellpose 3 restoration</span><div class="tl-body" data-lang="zh">Stringer Nat Methods 22:592，denoise + deblur + upsample 整合進分割流程。</div><div class="tl-body" data-lang="en">Stringer Nat Methods 22:592 — denoise + deblur + upsample fused into segmentation.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="光子預算與 SNR 公式" data-en="Photon Budget and the SNR Formula">光子預算與 SNR 公式</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">SNR = N / √(N + σ<sub>read</sub>²)</div>
+<div class="sw-step"><strong>① <span data-lang='zh'>訊號 N</span><span data-lang='en'>Signal N</span></strong> <span data-lang="zh">= 真實光子數。曝光時間 ×2 → N 約 ×2。</span><span data-lang="en">= true photon count. Doubling exposure ≈ doubles N.</span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>Poisson 雜訊</span><span data-lang='en'>Poisson noise</span></strong> <span data-lang="zh">= √N。亮的地方雜訊大，但訊雜比仍進步。</span><span data-lang="en">= √N. Bright areas have more noise — but SNR still improves.</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>讀取雜訊 σ_read</span><span data-lang='en'>Read noise σ_read</span></strong> <span data-lang="zh">= 固定相機規格。低光時主導，sCMOS 1–2 e⁻、EMCCD &lt;0.5 e⁻。</span><span data-lang="en">= a fixed camera spec. Dominates in low light; sCMOS 1–2 e⁻, EMCCD &lt;0.5 e⁻.</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>實例</span><span data-lang='en'>Example</span></strong> <span data-lang="zh">N=100, σ_read=2 → SNR = 100/√104 ≈ 9.8。N=1000, σ_read=2 → SNR ≈ 31.6。亮 10× 光，SNR 進步 ~3.2× = √10（Poisson 主導）。</span><span data-lang="en">N=100, σ_read=2 → SNR = 100/√104 ≈ 9.8. N=1000, σ_read=2 → SNR ≈ 31.6. Ten times brighter → SNR up √10 (Poisson-dominated regime).</span></div>
+
+<div class="sw-note" data-lang="zh">推論：要訊雜比加倍，光子數需要四倍（√4=2）。所以 live-cell 為了避免光毒性常被困在「不夠亮」的角落——這正是 N2V / CARE / Cellpose3 restoration 真正的用武之地。</div>
+<div class="sw-note" data-lang="en">Conclusion: doubling SNR needs 4× photons (√4 = 2). Live-cell experiments are stuck in 'too dim' to avoid phototoxicity — this is exactly where N2V / CARE / Cellpose3 restoration earn their keep.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="三個容易爭論的去噪問題" data-en="Three Contentious Questions in Denoising">三個容易爭論的去噪問題</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. Gaussian σ 該設多少？" data-en="A. What σ should Gaussian use?">A. Gaussian σ 該設多少？</h5><div class="disc-q" data-lang="zh">你的細胞直徑約 30 px。σ=1 vs σ=3 vs σ=5，哪個 SNR 最高？哪個邊界保留最好？這背後的 trade-off 是什麼？</div><div class="disc-q" data-lang="en">Cells are ~30 px wide. σ=1 vs σ=3 vs σ=5 — which gives highest SNR? Which preserves edges best? What's the trade-off?</div><div class="disc-hint" data-lang="zh">提示：σ ≈ 細胞直徑/10 是常見起點；超過細胞直徑/3 就會嚴重模糊邊界。</div><div class="disc-hint" data-lang="en">Hint: σ ≈ cell diameter/10 is a common start; above cell diameter/3 will blur boundaries.</div></div>
+  <div class="discussion-card"><h5 data-zh="B. N2V 為何在 stripe 雜訊上失敗？" data-en="B. Why does N2V fail on stripe noise?">B. N2V 為何在 stripe 雜訊上失敗？</h5><div class="disc-q" data-lang="zh">你的 sCMOS 影像有橫向 stripe artifact。N2V 跑完還是有 stripe，為什麼？</div><div class="disc-q" data-lang="en">Your sCMOS image has horizontal stripe artifacts. N2V leaves them — why?</div><div class="disc-hint" data-lang="zh">提示：N2V 假設「像素間雜訊獨立」。stripe = 結構化雜訊（跨像素相關），違反前提。改用 Structured N2V 或先用 BaSiC 校正。</div><div class="disc-hint" data-lang="en">Hint: N2V assumes pixel-independent noise. Stripes are structured (cross-pixel correlated), violating the assumption. Use Structured N2V or correct with BaSiC first.</div></div>
+  <div class="discussion-card"><h5 data-zh="C. HCS 不做平場校正會怎樣？" data-en="C. What if HCS skips flat-field correction?">C. HCS 不做平場校正會怎樣？</h5><div class="disc-q" data-lang="zh">96-well plate 每張影像中央亮、邊角暗。不做 BaSiC，下游「per-well 中位數強度」會有什麼系統性偏差？</div><div class="disc-q" data-lang="en">96-well plates show brightness gradients. Without BaSiC, what systematic bias appears in per-well median intensity?</div><div class="disc-hint" data-lang="zh">提示：邊緣 well 顯得偏暗，DMSO control 本身就分佈不均，後續 robust z-score 失效。BaSiC 等於救命。</div><div class="disc-hint" data-lang="en">Hint: edge wells look dim, DMSO controls themselves vary, downstream robust z-score breaks. BaSiC is the rescue.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個改變預處理的傳奇" data-en="Two Legendary Preprocessing Stories">兩個改變預處理的傳奇</h2>
+<div class="spotlight">
+  <h5 data-zh="① Noise2Void：自監督去噪的誕生" data-en="① Noise2Void: birth of self-supervised denoising">① Noise2Void：自監督去噪的誕生</h5>
+  <div class="spot-meta">Krull, Buchholz, Jug (CVPR 2019) · DOI: 10.1109/CVPR.2019.00223</div>
+  <p data-lang="zh">2019 年 Alex Krull 等在 CVPR 提出 Noise2Void：<strong>無需 clean ground truth</strong> 也能訓練 denoiser。原理：把中心像素「遮住」用周圍像素預測——只要雜訊在像素間獨立，模型就只能學到訊號而不是雜訊。對 live-cell imaging 是革命：第一次能在「永遠拿不到 clean 影像」的場景訓練專屬模型。</p>
+  <p data-lang="en">In 2019 Alex Krull and colleagues proposed Noise2Void at CVPR: train a denoiser <strong>without clean ground truth</strong>. Trick: mask the centre pixel and predict it from neighbours — as long as noise is pixel-independent, the model can only learn signal, not noise. A revolution for live-cell imaging: train custom denoisers where you can never get a clean reference.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：「沒有 ground truth」不一定是死路。重新設計訓練目標往往比硬找標準答案聰明。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: 'no ground truth' isn't always a dead end. Redesigning the training objective is often smarter than hunting for labels.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② BaSiC：拯救 HCS 的平場校正" data-en="② BaSiC: the flat-field tool that rescued HCS">② BaSiC：拯救 HCS 的平場校正</h5>
+  <div class="spot-meta">Peng et al., Nature Communications 8:14836 (2017) · used in JUMP-CP</div>
+  <p data-lang="zh">Tingying Peng 等 2017 年 Nat Commun 發表 BaSiC：<strong>同時估出 flatfield + darkfield</strong>，且不需要拍空背景。原理：把多張影像當「同一光源 × 不同 sample」的混合，用 SVD-like 分解。Broad Institute 的 JUMP-CP（300 萬張 Cell Painting）全部用 BaSiC 預處理——若無此工具，跨 plate 比較根本不可能。</p>
+  <p data-lang="en">Peng et al. published BaSiC in Nat Commun 2017: jointly estimate <strong>flatfield + darkfield</strong> with no blank background needed. Trick: treat many images as 'one illumination × varying samples' and decompose via SVD-like factorization. Broad's JUMP-CP (3M Cell Painting images) was preprocessed entirely with BaSiC — cross-plate comparison would be impossible without it.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：好的演算法不只是準，是讓「不可能的實驗變可能」。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: a good algorithm doesn't just improve accuracy — it turns impossible experiments into possible ones.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="預處理六大陷阱" data-en="Six Pitfalls of Preprocessing">預處理六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="量化前任意濾波" data-en="Casual filtering before quantification">量化前任意濾波</span><div class="pf-body" data-lang="zh">Gaussian 會降低訊號峰值、改變共定位 Pearson。論文審稿熱門被砲。</div><div class="pf-body" data-lang="en">Gaussian lowers peaks and shifts colocalization Pearson — a reviewer hotspot.</div><div class="pf-fix" data-lang="zh">量化前只做能寫進 methods 的步驟（背景減除 + 平場校正）。</div><div class="pf-fix" data-lang="en">Before quantitation, do only steps you can defend in methods (background + flat-field).</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="N2V 用在 structured noise" data-en="N2V on structured noise">N2V 用在 structured noise</span><div class="pf-body" data-lang="zh">sCMOS 直線雜訊、固定花紋違反像素獨立假設。</div><div class="pf-body" data-lang="en">sCMOS line noise / fixed pattern violates the pixel-independence assumption.</div><div class="pf-fix" data-lang="zh">改用 Structured N2V 或先 BaSiC 平場校正。</div><div class="pf-fix" data-lang="en">Use Structured N2V, or fix with BaSiC first.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="Rolling-ball 半徑過小" data-en="Rolling-ball radius too small">Rolling-ball 半徑過小</span><div class="pf-body" data-lang="zh">侵蝕真實細胞訊號當背景減掉。</div><div class="pf-body" data-lang="en">Erodes real cell signal into 'background.'</div><div class="pf-fix" data-lang="zh">半徑 = 1.5 × 最大物件直徑；先試小樣本看效果。</div><div class="pf-fix" data-lang="en">Radius = 1.5× largest object diameter; test on a small sample first.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="Median 半徑過大模糊邊界" data-en="Median radius too large blurs edges">Median 半徑過大模糊邊界</span><div class="pf-body" data-lang="zh">半徑 5+ 會把細胞邊界一起平均掉。</div><div class="pf-body" data-lang="en">Radius 5+ averages cell boundaries away.</div><div class="pf-fix" data-lang="zh">Hot pixel 用 1–2；正常 denoise 用 NLM / BM3D / N2V。</div><div class="pf-fix" data-lang="en">Use radius 1–2 for hot pixels; pick NLM / BM3D / N2V for general denoise.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="HCS 不做平場校正" data-en="HCS without flat-field">HCS 不做平場校正</span><div class="pf-body" data-lang="zh">Edge well 與 center well 強度系統性偏差。</div><div class="pf-body" data-lang="en">Edge vs centre wells get systematically biased.</div><div class="pf-fix" data-lang="zh">用 BaSiC 整批估 flatfield；如果只有單張影像則無法救。</div><div class="pf-fix" data-lang="en">Use BaSiC over the whole batch; a single image can't be saved.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="Dark current 沒減" data-en="Skipping dark current">Dark current 沒減</span><div class="pf-body" data-lang="zh">熱雜訊累積，曝光久了背景升高。</div><div class="pf-body" data-lang="en">Thermal noise accumulates — long exposure raises background.</div><div class="pf-fix" data-lang="zh">拍 dark frame (相同曝光、無光) 後減掉；BaSiC 可同時估。</div><div class="pf-fix" data-lang="en">Acquire a dark frame and subtract; BaSiC can estimate it simultaneously.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種去噪哲學" data-en="Two Denoising Philosophies">兩種去噪哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="過度去噪 + 信任 fancy DL" data-en="Over-denoise + trust the fancy DL">過度去噪 + 信任 fancy DL</span></h5>
+    <ul>
+      <li data-lang="zh">Gaussian σ=10 抽掉雜訊「順便」抽掉細胞</li>
+      <li data-lang="zh">直接套 N2V 預訓練模型，不檢查 noise model</li>
+      <li data-lang="zh">Rolling-ball 半徑亂設</li>
+      <li data-lang="zh">處理完不留 raw 給審稿</li>
+      <li data-lang="zh">論文 methods 寫「after denoising」一句帶過</li>
+      <li data-lang="en">Gaussian σ=10 wipes both noise and cells</li>
+      <li data-lang="en">Drop in a pretrained N2V model without checking the noise model</li>
+      <li data-lang="en">Rolling-ball radius set blindly</li>
+      <li data-lang="en">No raw image kept for review</li>
+      <li data-lang="en">Methods just says 'after denoising'</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="最少干預 + 文獻可重現" data-en="Minimal intervention + reproducible parameters">最少干預 + 文獻可重現</span></h5>
+    <ul>
+      <li data-lang="zh">先估 SNR 與 noise model 再決定方法</li>
+      <li data-lang="zh">把參數（σ、radius、epochs）寫進 methods 與程式碼</li>
+      <li data-lang="zh">量化用未濾波或一致濾波的影像</li>
+      <li data-lang="zh">提供 raw + denoised 並列圖給審稿</li>
+      <li data-lang="zh">用 BaSiC 平場校正多 plate 一致化</li>
+      <li data-lang="en">Estimate SNR and noise model before choosing a method</li>
+      <li data-lang="en">Document parameters (σ, radius, epochs) in methods and code</li>
+      <li data-lang="en">Quantify on unfiltered or consistently-filtered images</li>
+      <li data-lang="en">Provide side-by-side raw vs denoised figures for review</li>
+      <li data-lang="en">Use BaSiC to align flat-field across plates</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 去噪新前沿" data-en="2024–2026 Frontiers in Denoising">2024–2026 去噪新前沿</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="從自監督到擴散模型：去噪走向「不需任何 clean 資料」的時代" data-en="From self-supervised to diffusion: denoising heads to the 'no clean data ever' era">從自監督到擴散模型：去噪走向「不需任何 clean 資料」的時代</h5>
+<p data-lang="zh">2024–2026 去噪 / restoration 的方向是：</p>
+<p data-lang="en">Denoising / restoration directions in 2024–2026:</p>
+<ul>
+  <li><strong>SUPPORT (2024)</strong> <span data-lang="zh">Choi 等 Nat Methods，<code>structure-preserving</code> self-supervised denoising，特別針對活細胞 fluorescence。</span><span data-lang="en">Choi et al. Nat Methods — structure-preserving self-supervised denoising tuned for live-cell fluorescence.</span></li>
+  <li><strong>DivBlurring (2024)</strong> <span data-lang="zh">Self-supervised low-light enhancement，無需配對。</span><span data-lang="en">Self-supervised low-light enhancement without paired data.</span></li>
+  <li><strong>Cellpose 3 (2025)</strong> <span data-lang="zh">Stringer Nat Methods 22:592，denoise + deblur + upsample 與分割整合於一個 API。</span><span data-lang="en">Stringer Nat Methods 22:592 — denoise + deblur + upsample fused with segmentation in one API.</span></li>
+  <li><strong>DiffBIR / DiffMicro (2024–2025)</strong> <span data-lang="zh">擴散模型 (Diffusion) 應用到顯微影像 restoration，PSNR 再次跳升。</span><span data-lang="en">Diffusion-based restoration arrives in microscopy; PSNR jumps again.</span></li>
+  <li><strong>BLINK (2025)</strong> <span data-lang="zh">NPC + diffusion denoising，無配對訓練 zero-shot 推論。</span><span data-lang="en">NPC + diffusion denoising; zero-shot inference with no paired training.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Krull 2019 CVPR；Peng 2017 Nat Commun；Stringer 2025 Nat Methods · <a href="https://csbdeep.bioimagecomputing.com">csbdeep.bioimagecomputing.com</a></div>
+<div class="an-cite" data-lang="en">Key refs: Krull 2019 CVPR; Peng 2017 Nat Commun; Stringer 2025 Nat Methods · <a href="https://csbdeep.bioimagecomputing.com">csbdeep.bioimagecomputing.com</a></div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Sternberg 1983 在 IEEE Computer Magazine 用一張<em>手繪</em>滾球示意圖介紹「rolling-ball background subtraction」，整篇文章只有 4 頁，沒有任何花俏理論。但這個簡單的幾何方法救了 40 年的螢光影像分析。Fiji 至今仍把它叫做 <code>Subtract Background...</code> — 預設半徑 50，與 Sternberg 1983 的圖示完全一致。好演算法的壽命，比所有 DL 模型都長。</span>
+<span data-lang="en">Sternberg's 1983 IEEE Computer Magazine article introduced 'rolling-ball background subtraction' with a <em>hand-drawn</em> ball diagram. Four pages, no fancy theory. That simple geometric trick has rescued fluorescence analysis for 40 years. Fiji still calls it <code>Subtract Background...</code>, default radius 50 — identical to Sternberg's 1983 figure. A good algorithm outlives every DL model.</span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>你下次 acquisition 會優先優化「光子預算」哪個層面（laser 強度、曝光、binning）？為什麼？</li>
+    <li>你會在哪一步做平場校正？acquisition、預處理 pipeline 第一行、或量化前？</li>
+    <li>論文 methods 寫到哪一行才算「完整可重現」？σ、radius、epochs 三項你會明確列出嗎？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>What part of your photon budget would you optimize next (laser power, exposure, binning)? Why?</li>
+    <li>At which step would you apply flat-field correction — acquisition, first line of preprocessing, or right before quantification?</li>
+    <li>What level of detail in your methods section counts as 'reproducible' — would you list σ, radius, and epochs explicitly?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">去噪參數本身就是 hyper-parameter；論文必須當作 hyper-parameter 來報告。</div>
+  <div class="rq-hint" data-lang="en">Denoising parameters are hyper-parameters; papers must report them as such.</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

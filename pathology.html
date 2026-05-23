@@ -16,6 +16,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="從 1838 細胞理論到 2024 病理 foundation model：186 年" data-en="From 1838 Cell Theory to 2024 pathology foundation models: 186 years">從 1838 細胞理論到 2024 病理 foundation model：186 年</h3>
+  <div data-lang="zh"><p>1838 年 Schleiden / Schwann 在染色木屑上看見「細胞理論」開啟了組織學；1986 年 Aperio 推出第一台 whole-slide scanner，玻片變成 giga-pixel 影像；2017 年 Peter Bankhead 一個人在 Belfast 寫完 QuPath，把 IHC 分析從 ImageJ macro 解放出來。</p><p>2024 年 UNI / Virchow / CONCH 三大病理基礎模型登場，slide-level 分類進入 foundation-model 時代。一張 H&E 切片有 80,000×80,000 pixel，背後是一整個世紀的方法演進。</p></div>
+  <div data-lang="en"><p>Schleiden and Schwann's 1838 cell theory (from stained wood shavings) opened histology; Aperio's 1986 whole-slide scanner turned glass slides into gigapixel images; Peter Bankhead single-handedly wrote QuPath in Belfast in 2017, freeing IHC analysis from ImageJ macros.</p><p>In 2024 the three pathology foundation models — UNI, Virchow, CONCH — arrived; slide-level classification entered the foundation-model era. One H&E slide is 80,000×80,000 pixels, and behind it sits a century of methodological evolution.</p></div>
+  <div class="story-question" data-lang="zh">🤔 跨醫院 H&E DL 模型部署的首要前處理是染色正規化——這個 trade-off 背後揭露了 DL 模型的脆弱本質。</div>
+  <div class="story-question" data-lang="en">🤔 Stain normalization is the top preprocessing for cross-hospital H&E DL deployment — the trade-off reveals DL models' fragile nature.</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="WSI 基礎" data-en="WSI BASICS">WSI 基礎</div>
 <h2 data-zh="一、WSI 格式與分塊存取" data-en="I. WSI Formats &amp; Tiled Access">一、WSI 格式</h2>
@@ -173,6 +183,186 @@ runPlugin(<span class="str">"qupath.imagej.detect.cells.PositiveCellDetection"</
 saveDetectionMeasurements(<span class="str">"results.csv"</span>);</pre></div>
 </div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="數位病理核心詞彙" data-en="Core Vocabulary for Digital Pathology">數位病理核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">WSI <span class="en">Whole-Slide Image</span></div><div class="gloss-kid" data-lang="zh">整張病理玻片的 giga-pixel 影像。</div><div class="gloss-kid" data-lang="en">A gigapixel image of an entire pathology slide.</div><div class="gloss-tech" data-lang="zh">.svs/.ndpi/.mrxs/.tiff 等金字塔格式；20 mm × 20 mm 切片 @ 40× = 80k × 80k pixel ≈ 數 GB。</div><div class="gloss-tech" data-lang="en">.svs/.ndpi/.mrxs/.tiff pyramidal; 20×20 mm slide @ 40× = 80k × 80k pixels ≈ several GB.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Pyramid <span class="en">Pyramid</span></div><div class="gloss-kid" data-lang="zh">同一張影像多種解析度疊起來。</div><div class="gloss-kid" data-lang="en">Multiple resolutions of the same image stacked together.</div><div class="gloss-tech" data-lang="zh">level 0 原解析度；level 1, 2…逐層縮小 2x。</div><div class="gloss-tech" data-lang="en">Level 0 native; levels 1, 2… each ½ the resolution.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Tile / Patch <span class="en">Tile / Patch</span></div><div class="gloss-kid" data-lang="zh">從 WSI 切出來的小方塊。</div><div class="gloss-kid" data-lang="en">A small square cut from a WSI.</div><div class="gloss-tech" data-lang="zh">通常 256×256 / 512×512；DL 推論單位。</div><div class="gloss-tech" data-lang="en">Usually 256×256 / 512×512; the DL inference unit.</div></div>
+  <div class="gloss-card"><div class="gloss-term">MPP <span class="en">Microns Per Pixel</span></div><div class="gloss-kid" data-lang="zh">每個像素代表幾微米。</div><div class="gloss-kid" data-lang="en">How many microns one pixel covers.</div><div class="gloss-tech" data-lang="zh">20× ≈ 0.5 μm/px；40× ≈ 0.25 μm/px；FM 對 MPP 敏感。</div><div class="gloss-tech" data-lang="en">20× ≈ 0.5 μm/px; 40× ≈ 0.25 μm/px; FMs are MPP-sensitive.</div></div>
+  <div class="gloss-card"><div class="gloss-term">H&E <span class="en">H&E</span></div><div class="gloss-kid" data-lang="zh">病理最常見的紫粉染色。</div><div class="gloss-kid" data-lang="en">The most common purple-pink pathology stain.</div><div class="gloss-tech" data-lang="zh">Hematoxylin（核紫）+ Eosin（胞質粉）。</div><div class="gloss-tech" data-lang="en">Hematoxylin (nucleus purple) + Eosin (cytoplasm pink).</div></div>
+  <div class="gloss-card"><div class="gloss-term">IHC <span class="en">Immunohistochemistry</span></div><div class="gloss-kid" data-lang="zh">用抗體染特定蛋白。</div><div class="gloss-kid" data-lang="en">Antibody staining of a specific protein.</div><div class="gloss-tech" data-lang="zh">DAB / AEC 等酶顯色；QuPath 標配 cell detection。</div><div class="gloss-tech" data-lang="en">DAB / AEC enzymatic chromogens; QuPath's standard cell-detection.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Macenko / Reinhard / Vahadane <span class="en">Macenko / Reinhard / Vahadane</span></div><div class="gloss-kid" data-lang="zh">三種把不同醫院的「紫紅色」統一的方法。</div><div class="gloss-kid" data-lang="en">Three methods that unify 'purple-pink' across hospitals.</div><div class="gloss-tech" data-lang="zh">Macenko 是事實標準（OD space）；Vahadane 更準但慢。</div><div class="gloss-tech" data-lang="en">Macenko is the de facto standard (OD space); Vahadane more accurate but slower.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Optical Density <span class="en">Optical Density</span></div><div class="gloss-kid" data-lang="zh">亮度的對數倒數，染料越濃 OD 越高。</div><div class="gloss-kid" data-lang="en">Negative log-brightness; deeper stain = higher OD.</div><div class="gloss-tech" data-lang="zh">OD = −log10(I/I0)；stain absorption 在此空間線性。</div><div class="gloss-tech" data-lang="en">OD = −log10(I/I0); stain absorption is linear in this space.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Tissue mask <span class="en">Tissue mask</span></div><div class="gloss-kid" data-lang="zh">區分「有組織」與「玻片空白」的 mask。</div><div class="gloss-kid" data-lang="en">A mask separating 'tissue' from 'blank slide.'</div><div class="gloss-tech" data-lang="zh">HSV saturation threshold 或 GrandQC DL 模型。</div><div class="gloss-tech" data-lang="en">HSV saturation threshold or the GrandQC DL model.</div></div>
+  <div class="gloss-card"><div class="gloss-term">MIL <span class="en">Multiple Instance Learning</span></div><div class="gloss-kid" data-lang="zh">用整袋 slide-level 標籤學習。</div><div class="gloss-kid" data-lang="en">Learn from bag-level slide labels.</div><div class="gloss-tech" data-lang="zh">ABMIL / CLAM / TransMIL / DSMIL；patch level 無 GT。</div><div class="gloss-tech" data-lang="en">ABMIL / CLAM / TransMIL / DSMIL; no patch-level GT.</div></div>
+  <div class="gloss-card"><div class="gloss-term">CLAM <span class="en">CLAM</span></div><div class="gloss-kid" data-lang="zh">用「注意力 + 集群」學 slide 標籤。</div><div class="gloss-kid" data-lang="en">Attention + clustering for slide labels.</div><div class="gloss-tech" data-lang="zh">Lu 2021 Nat BME；attention heatmap 標示重要 tiles。</div><div class="gloss-tech" data-lang="en">Lu 2021 Nat BME; attention heatmaps highlight important tiles.</div></div>
+  <div class="gloss-card"><div class="gloss-term">UNI / Virchow / CONCH <span class="en">UNI / Virchow / CONCH</span></div><div class="gloss-kid" data-lang="zh">三大病理基礎模型。</div><div class="gloss-kid" data-lang="en">The three pathology foundation models.</div><div class="gloss-tech" data-lang="zh">DINOv2 預訓練 patch embedding；100M+ patches。</div><div class="gloss-tech" data-lang="en">DINOv2-pretrained patch embeddings; 100M+ patches.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="數位病理 180 年" data-en="180 Years of Digital Pathology">數位病理 180 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item milestone"><span class="tl-year">1838</span><span class="tl-title" data-zh="Schleiden-Schwann 細胞理論" data-en="Schleiden-Schwann cell theory">Schleiden-Schwann 細胞理論</span><div class="tl-body" data-lang="zh">染色木屑上看見細胞結構，組織學起點。</div><div class="tl-body" data-lang="en">Cells observed in stained wood shavings — birth of histology.</div></div>
+<div class="tl-item milestone"><span class="tl-year">1986</span><span class="tl-title" data-zh="Aperio 第一台 WSI scanner" data-en="Aperio's first WSI scanner">Aperio 第一台 WSI scanner</span><div class="tl-body" data-lang="zh">玻片變成 giga-pixel 數位影像。</div><div class="tl-body" data-lang="en">Glass slides became gigapixel digital images.</div></div>
+<div class="tl-item"><span class="tl-year">2009</span><span class="tl-title" data-zh="Macenko ISBI" data-en="Macenko ISBI">Macenko ISBI</span><div class="tl-body" data-lang="zh">ISBI — H&E 染色正規化的奠基論文。</div><div class="tl-body" data-lang="en">ISBI — foundational H&E stain-normalization paper.</div></div>
+<div class="tl-item"><span class="tl-year">2013</span><span class="tl-title" data-zh="TCGA WSI release" data-en="TCGA WSI release">TCGA WSI release</span><div class="tl-body" data-lang="zh">Goode 等發布 The Cancer Genome Atlas WSI 集。</div><div class="tl-body" data-lang="en">Goode et al. release The Cancer Genome Atlas WSI collection.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2017</span><span class="tl-title" data-zh="Bankhead QuPath" data-en="Bankhead QuPath">Bankhead QuPath</span><div class="tl-body" data-lang="zh">Sci. Rep. 7:16878 — 全球病理研究標配。</div><div class="tl-body" data-lang="en">Sci. Rep. 7:16878 — the global pathology workhorse.</div></div>
+<div class="tl-item"><span class="tl-year">2019</span><span class="tl-title" data-zh="Graham HoVer-Net" data-en="Graham HoVer-Net">Graham HoVer-Net</span><div class="tl-body" data-lang="zh">Med. Image Anal. — 同時 nucleus instance + class。</div><div class="tl-body" data-lang="en">Med. Image Anal. — nucleus instance segmentation + classification together.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2021</span><span class="tl-title" data-zh="Lu CLAM" data-en="Lu CLAM">Lu CLAM</span><div class="tl-body" data-lang="zh">Nat. BME 5:555 — 弱監督 slide-level 分類。</div><div class="tl-body" data-lang="en">Nat. BME 5:555 — weakly-supervised slide-level classification.</div></div>
+<div class="tl-item"><span class="tl-year">2022</span><span class="tl-title" data-zh="TIA Toolbox" data-en="TIA Toolbox">TIA Toolbox</span><div class="tl-body" data-lang="zh">Pocock Comm. Med. — end-to-end WSI pipeline。</div><div class="tl-body" data-lang="en">Pocock Comm. Med. — end-to-end WSI pipeline.</div></div>
+<div class="tl-item"><span class="tl-year">2022</span><span class="tl-title" data-zh="PathML" data-en="PathML">PathML</span><div class="tl-body" data-lang="zh">Rosenthal Mol. Cancer Res. — brightfield+IF+spatial omics 統一 API。</div><div class="tl-body" data-lang="en">Rosenthal Mol. Cancer Res. — brightfield+IF+spatial omics unified API.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2024</span><span class="tl-title" data-zh="UNI Nat Medicine" data-en="UNI Nat Medicine">UNI Nat Medicine</span><div class="tl-body" data-lang="zh">Chen Nat. Med. 30:850 — Mahmood Lab 病理 FM。</div><div class="tl-body" data-lang="en">Chen Nat. Med. 30:850 — Mahmood Lab's pathology FM.</div></div>
+<div class="tl-item"><span class="tl-year">2024</span><span class="tl-title" data-zh="Virchow / CONCH" data-en="Virchow / CONCH">Virchow / CONCH</span><div class="tl-body" data-lang="zh">MSKCC + Mahmood — 兩條病理 FM 路線並起。</div><div class="tl-body" data-lang="en">MSKCC + Mahmood — two pathology FM tracks rise in parallel.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="UNI 2 / Prov-GigaPath" data-en="UNI 2 / Prov-GigaPath">UNI 2 / Prov-GigaPath</span><div class="tl-body" data-lang="zh">200k+ slide 訓練；slide-level LongNet。</div><div class="tl-body" data-lang="en">Trained on 200k+ slides; slide-level LongNet.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="Macenko 染色正規化步驟" data-en="Macenko Stain Normalization Steps">Macenko 染色正規化步驟</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">OD = −log10(I / I<sub>0</sub>)</div>
+<div class="sw-step"><strong>① <span data-lang='zh'>RGB → OD</span><span data-lang='en'>RGB → OD</span></strong> <span data-lang="zh">所有像素轉到光學密度空間，stain 在此線性疊加。</span><span data-lang="en">Convert every pixel to OD space — stains are linear there.</span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>PCA on OD</span><span data-lang='en'>PCA on OD</span></strong> <span data-lang="zh">在 OD 空間做 PCA 取前 2 個主成分（對應 H 與 E 軸）。</span><span data-lang="en">PCA in OD space — top 2 components correspond to H and E axes.</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>百分位數定軸</span><span data-lang='en'>Percentile axes</span></strong> <span data-lang="zh">在主成分平面取 1%, 99% 角度，定 H / E stain vector。</span><span data-lang="en">Take 1% and 99% angles in the PC plane to define H / E stain vectors.</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>投影到參考</span><span data-lang='en'>Project to reference</span></strong> <span data-lang="zh">把目標影像 stain vector 投影到參考 slide 的 stain space。</span><span data-lang="en">Project target stain vectors into the reference slide's stain space.</span></div>
+<div class="sw-step"><strong>⑤ <span data-lang='zh'>反轉到 RGB</span><span data-lang='en'>Back to RGB</span></strong> <span data-lang="zh">I_norm = I_0 · exp(−OD_norm)，得到正規化影像。</span><span data-lang="en">I_norm = I_0 · exp(−OD_norm) returns the normalized image.</span></div>
+
+<div class="sw-note" data-lang="zh">為何 Macenko 必須在 OD 空間？因為 stain 透光率呈指數，在 OD 空間線性。RGB 空間直接 PCA 會給錯誤 stain vector。</div>
+<div class="sw-note" data-lang="en">Why must Macenko run in OD space? Because stain transmittance is exponential — it linearizes in OD. Running PCA directly in RGB yields wrong stain vectors.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="數位病理三大爭論" data-en="Three Debates in Digital Pathology">數位病理三大爭論</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. 為什麼跨醫院顏色差異殺死 DL 模型？" data-en="A. Why does cross-hospital colour drift kill DL?">A. 為什麼跨醫院顏色差異殺死 DL 模型？</h5><div class="disc-q" data-lang="zh">你的模型在訓練醫院 AUC 0.95，部署到另一家醫院剩 0.65。為什麼？</div><div class="disc-q" data-lang="en">Your model has AUC 0.95 at the training hospital, drops to 0.65 elsewhere. Why?</div><div class="disc-hint" data-lang="zh">提示：H&E 染色配方、機器、抹片厚度差異 → 顏色分佈大不同。DL 看顏色多於形狀。Macenko 正規化或 StainGAN 必做。</div><div class="disc-hint" data-lang="en">Hint: H&E recipes, machines, and section thicknesses differ → colour distributions diverge. DL relies on colour more than shape. Always Macenko-normalize or use StainGAN.</div></div>
+  <div class="discussion-card"><h5 data-zh="B. UNI 與 Cellpose 在病理 pipeline 順序？" data-en="B. UNI vs Cellpose in a pathology pipeline order?">B. UNI 與 Cellpose 在病理 pipeline 順序？</h5><div class="disc-q" data-lang="zh">兩者用途不同，但在同一研究怎麼用？</div><div class="disc-q" data-lang="en">Their uses differ — how do they coexist in one study?</div><div class="disc-hint" data-lang="zh">提示：Cellpose / HoVer-Net 做 nucleus instance segmentation；UNI 抽 patch embedding → CLAM MIL 做 slide-level cancer 分類。兩條 path 並行。</div><div class="disc-hint" data-lang="en">Hint: Cellpose / HoVer-Net for nucleus instance; UNI patch embedding → CLAM MIL for slide-level cancer classification. Two parallel paths.</div></div>
+  <div class="discussion-card"><h5 data-zh="C. 弱監督 MIL 需要多少 slide？" data-en="C. How many slides does weak-supervision MIL need?">C. 弱監督 MIL 需要多少 slide？</h5><div class="disc-q" data-lang="zh">&lt;100 slide 訓練 CLAM 為何不穩？</div><div class="disc-q" data-lang="en">Why is CLAM training unstable with &lt;100 slides?</div><div class="disc-hint" data-lang="zh">提示：MIL 每個 bag 只 1 label，需要很多 bags 才能學到 stable attention。&lt;100 slides 改用 foundation model 抽 embedding + linear classifier 更穩。</div><div class="disc-hint" data-lang="en">Hint: each bag has just 1 label; MIL needs many bags to learn stable attention. With &lt;100 slides, use FM embeddings + a linear classifier for stability.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個改寫病理的故事" data-en="Two Stories That Reshaped Pathology">兩個改寫病理的故事</h2>
+<div class="spotlight">
+  <h5 data-zh="① QuPath：一個人寫的全球病理工具" data-en="① QuPath: a global pathology tool written by one person">① QuPath：一個人寫的全球病理工具</h5>
+  <div class="spot-meta">Bankhead et al., Sci. Rep. 7:16878 (2017) · qupath.github.io</div>
+  <p data-lang="zh">Peter Bankhead 2017 在 Queen's University Belfast 為了博士論文寫 QuPath，原本只給自己用。<strong>Sci. Rep. 2017 論文被引 6,000+ 次</strong>，QuPath 成為全球 10,000+ 病理學家的標配。它的 Groovy scripting + viewer 整合，把「IHC 量化」從 ImageJ macro 解放出來，又支援 multiplex IF / CyCIF。2025 年 QuPath 仍是病理開源軟體 #1。</p>
+  <p data-lang="en">Peter Bankhead wrote QuPath at Queen's University Belfast (2017) — initially for his own PhD work. The <strong>Sci. Rep. 2017 paper has 6,000+ citations</strong>; QuPath is now the workhorse for 10,000+ pathologists globally. Its Groovy scripting + viewer freed 'IHC quantitation' from ImageJ macros and supports multiplex IF / CyCIF. As of 2025, QuPath is the #1 open-source pathology software.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：一個人的 PhD project 也可能變成整個領域的工具。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: a single PhD project can become a field's standard tool.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② UNI：100M patch 訓出病理通用嵌入" data-en="② UNI: a universal pathology embedding trained on 100M patches">② UNI：100M patch 訓出病理通用嵌入</h5>
+  <div class="spot-meta">Chen et al., Nat. Medicine 30:850 (2024) · Mahmood Lab DFCI</div>
+  <p data-lang="zh">Richard Chen 等在 Dana-Farber Mahmood Lab 用 DINOv2 訓練 UNI：<strong>~100M 病理 patches、ViT-L backbone、自監督預訓練</strong>。在 ~30 個下游任務（cancer 分類、生物標誌預測、prognosis 預測）平均超越 ImageNet pretrained baseline 約 <strong>20%</strong>。UNI 2 (2025) 進一步擴展到 200k slides，重塑整個 computational pathology。</p>
+  <p data-lang="en">Richard Chen et al. (DFCI Mahmood Lab) trained UNI with DINOv2: <strong>~100M pathology patches, ViT-L backbone, self-supervised</strong>. On ~30 downstream tasks (cancer classification, biomarker prediction, prognosis) it beats ImageNet baselines by ~<strong>20%</strong> on average. UNI 2 (2025) extended to 200k slides, reshaping computational pathology entirely.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：在「特殊視覺領域」自訓 foundation model 仍有顯著價值。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: in 'specialized visual domains,' training a dedicated foundation model still pays.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="數位病理六大陷阱" data-en="Six Pitfalls of Digital Pathology">數位病理六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="跨醫院不做 stain normalize" data-en="No cross-hospital stain normalization">跨醫院不做 stain normalize</span><div class="pf-body" data-lang="zh">顏色差異殺 DL 模型；AUC 從 0.95 → 0.65。</div><div class="pf-body" data-lang="en">Colour drift kills DL; AUC drops 0.95 → 0.65.</div><div class="pf-fix" data-lang="zh">Macenko (預設) 或 Vahadane (更精準) 或 StainGAN (DL)。</div><div class="pf-fix" data-lang="en">Macenko (default) or Vahadane (more accurate) or StainGAN (DL).</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="UNI 用錯 MPP" data-en="UNI at the wrong MPP">UNI 用錯 MPP</span><div class="pf-body" data-lang="zh">UNI 預期 ~0.5 μm/px；餵 40× silent 降效。</div><div class="pf-body" data-lang="en">UNI expects ~0.5 μm/px; feeding 40× silently degrades performance.</div><div class="pf-fix" data-lang="zh">讀 OpenSlide mpp metadata 並 downsample。</div><div class="pf-fix" data-lang="en">Read OpenSlide mpp metadata and downsample.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="CLAM &lt;100 slides 訓練" data-en="CLAM trained on &lt;100 slides">CLAM &lt;100 slides 訓練</span><div class="pf-body" data-lang="zh">MIL 不穩；attention 模式劇烈變動。</div><div class="pf-body" data-lang="en">MIL is unstable; attention patterns swing wildly.</div><div class="pf-fix" data-lang="zh">用 UNI embedding + linear classifier 替代。</div><div class="pf-fix" data-lang="en">Replace with UNI embedding + linear classifier.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="HoVer-Net 用在 IF" data-en="HoVer-Net on IF">HoVer-Net 用在 IF</span><div class="pf-body" data-lang="zh">HoVer-Net 訓練於 H&E，IF 表現差。</div><div class="pf-body" data-lang="en">HoVer-Net trained on H&E performs poorly on IF.</div><div class="pf-fix" data-lang="zh">IF 用 Mesmer / Cellpose；HoVer-Net 留給 H&E。</div><div class="pf-fix" data-lang="en">Use Mesmer / Cellpose for IF; HoVer-Net stays for H&E.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="忘記 tissue detection" data-en="No tissue detection">忘記 tissue detection</span><div class="pf-body" data-lang="zh">90% tile 是玻片空白，浪費 GPU。</div><div class="pf-body" data-lang="en">90% of tiles are blank slide — wasted GPU.</div><div class="pf-fix" data-lang="zh">HSV saturation threshold 或 GrandQC 預先過濾。</div><div class="pf-fix" data-lang="en">Pre-filter with HSV saturation threshold or GrandQC.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh=".ndpi 用 tifffile 載入" data-en="Loading .ndpi with tifffile">.ndpi 用 tifffile 載入</span><div class="pf-body" data-lang="zh">tifffile 不熟 .ndpi 私有金字塔。</div><div class="pf-body" data-lang="en">tifffile doesn't understand the .ndpi proprietary pyramid.</div><div class="pf-fix" data-lang="zh">用 OpenSlide / TiffSlide tile-based 存取。</div><div class="pf-fix" data-lang="en">Use OpenSlide / TiffSlide for tile-based access.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種病理 DL 哲學" data-en="Two Pathology DL Philosophies">兩種病理 DL 哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="「.svs 直接餵 ImageNet ResNet」" data-en=""Drop .svs into an ImageNet ResNet"">「.svs 直接餵 ImageNet ResNet」</span></h5>
+    <ul>
+      <li data-lang="zh">不做 tissue detection</li>
+      <li data-lang="zh">不做 stain normalize</li>
+      <li data-lang="zh">ImageNet pretrained ResNet 直接 fine-tune</li>
+      <li data-lang="zh">不做 cross-site validation</li>
+      <li data-lang="zh">Methods 寫「trained on TCGA」一句</li>
+      <li data-lang="en">No tissue detection</li>
+      <li data-lang="en">No stain normalization</li>
+      <li data-lang="en">Fine-tune an ImageNet-pretrained ResNet directly</li>
+      <li data-lang="en">No cross-site validation</li>
+      <li data-lang="en">Methods says 'trained on TCGA'</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="「Tissue detection → Macenko → UNI → CLAM」 5-step" data-en=""Tissue detection → Macenko → UNI → CLAM" 5-step">「Tissue detection → Macenko → UNI → CLAM」 5-step</span></h5>
+    <ul>
+      <li data-lang="zh">HSV saturation / GrandQC tissue detection</li>
+      <li data-lang="zh">Macenko / Vahadane stain normalize</li>
+      <li data-lang="zh">MPP-aligned tile (e.g. 0.5 μm/px)</li>
+      <li data-lang="zh">UNI / Virchow patch embedding</li>
+      <li data-lang="zh">CLAM MIL slide-level + cross-site test</li>
+      <li data-lang="en">HSV saturation / GrandQC tissue detection</li>
+      <li data-lang="en">Macenko / Vahadane stain normalization</li>
+      <li data-lang="en">MPP-aligned tiles (e.g., 0.5 μm/px)</li>
+      <li data-lang="en">UNI / Virchow patch embedding</li>
+      <li data-lang="en">CLAM MIL slide-level + cross-site test</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 數位病理 SOTA" data-en="2024–2026 Digital Pathology SOTA">2024–2026 數位病理 SOTA</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="病理 FM 進入「2 代 + slide-level reasoning」" data-en="Pathology FMs enter 'gen-2 + slide-level reasoning'">病理 FM 進入「2 代 + slide-level reasoning」</h5>
+<p data-lang="zh">病理 2024–2026 急速進化：</p>
+<p data-lang="en">Pathology evolved rapidly in 2024–2026:</p>
+<ul>
+  <li><strong>UNI 2 (2025)</strong> <span data-lang="zh">Mahmood Lab；200k+ slide 訓練；多癌種 SOTA。</span><span data-lang="en">Mahmood Lab; trained on 200k+ slides; multi-cancer SOTA.</span></li>
+  <li><strong>Virchow 2 (2024)</strong> <span data-lang="zh">MSKCC；3+ 萬 slide 訓練擴展。</span><span data-lang="en">MSKCC; trained on 3+ tens of thousands of slides.</span></li>
+  <li><strong>Prov-GigaPath (2025)</strong> <span data-lang="zh">Microsoft + UW；LongNet slide-level reasoning。</span><span data-lang="en">Microsoft + UW; LongNet slide-level reasoning.</span></li>
+  <li><strong>CONCH 2 (2025)</strong> <span data-lang="zh">Lu — 影像-文字檢索能力強化。</span><span data-lang="en">Lu — image-text retrieval capability boosted.</span></li>
+  <li><strong>PathChat (2024 Nat Med)</strong> <span data-lang="zh">對話式病理 AI；多模態整合。</span><span data-lang="en">Conversational pathology AI; multimodal integration.</span></li>
+  <li><strong>PathProfiler (2025)</strong> <span data-lang="zh">HoVer-Net + Cellpose + UNI 整合 SOTA pipeline。</span><span data-lang="en">HoVer-Net + Cellpose + UNI integration; SOTA pipeline.</span></li>
+  <li><strong>CRDL / AbMIL / TransMIL (2024)</strong> <span data-lang="zh">Cohort 級分類超越人類專家。</span><span data-lang="en">Cohort-level classification surpassing human experts.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Bankhead 2017 Sci Rep 7:16878 · Lu 2021 Nat BME 5:555 · Chen 2024 Nat Med 30:850 · Macenko 2009 ISBI · Graham 2019 Med Image Anal · Vorontsov 2024 Nat Med</div>
+<div class="an-cite" data-lang="en">Key refs: Bankhead 2017 Sci Rep 7:16878 · Lu 2021 Nat BME 5:555 · Chen 2024 Nat Med 30:850 · Macenko 2009 ISBI · Graham 2019 Med Image Anal · Vorontsov 2024 Nat Med</div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Peter Bankhead 2017 在 Belfast 為了博士論文寫 QuPath，原本只給自己用。<em>Sci Rep 2017 paper 被引 6,000+ 次</em>，QuPath 成為全球病理研究標配。2018 他加入 Edinburgh 大學繼續維護。2022 他寫一篇博客「Why open-source matters」說：「<em>I never planned for QuPath to be this big — I just wanted my own PhD to be done</em>」。<strong>有時候「做好自己的事」比「想著做大事」更能改變世界。</strong></span>
+<span data-lang="en">Peter Bankhead wrote QuPath at Belfast in 2017 for his PhD. The <em>Sci Rep 2017 paper has 6,000+ citations</em>; QuPath is now the global pathology standard. He moved to Edinburgh in 2018 and kept maintaining it. In a 2022 blog post 'Why open-source matters' he said: '<em>I never planned for QuPath to be this big — I just wanted my own PhD to be done.</em>' <strong>Sometimes 'doing your own thing well' changes the world more than 'planning to do something big.'</strong></span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>你做過 WSI 分析嗎？stain normalization 你會用 Macenko / Vahadane / StainGAN 哪個？</li>
+    <li>UNI vs HoVer-Net 你怎麼選？哪些 task 你會並行兩條 path？</li>
+    <li>你會在你的論文 reporting cross-site validation 嗎？這對讀者的價值？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>Have you done WSI analysis? Which stain normalization — Macenko / Vahadane / StainGAN?</li>
+    <li>How do you choose between UNI and HoVer-Net? Which tasks would you run both in parallel?</li>
+    <li>Will you report cross-site validation in your paper? What's its value to readers?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">數位病理的真正考驗，不是訓練集 AUC，是「在從未看過的醫院」AUC。</div>
+  <div class="rq-hint" data-lang="en">The real test in digital pathology isn't AUC on the training set — it's AUC at a hospital you've never seen.</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

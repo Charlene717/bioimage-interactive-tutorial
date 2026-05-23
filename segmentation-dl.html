@@ -16,6 +16,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="U-Net 2015：被審稿人說「沒新意」的曠世論文" data-en="U-Net 2015: the historic paper reviewers called 'unoriginal'">U-Net 2015：被審稿人說「沒新意」的曠世論文</h3>
+  <div data-lang="zh"><p>2015 年 Ronneberger 等投稿 MICCAI 的 U-Net 論文，據傳審稿人之一寫「another encoder-decoder, not novel」差點被拒。十年後 U-Net 被引 <strong>100,000+ 次</strong>，是醫學影像 DL 最被引論文，從 CNN 到 transformer 後代仍以它為骨幹。</p><p>2020 Stringer 等把 U-Net 改造成「流場輸出」的 Cellpose；2022 加入 human-in-the-loop；2025 Cellpose-SAM 把 SAM ViT backbone 接上 Cellpose head，<strong>單一通用模型橫掃多種顯微術式</strong>。零訓練泛化的時代來臨。</p></div>
+  <div data-lang="en"><p>Ronneberger's 2015 U-Net submission to MICCAI reportedly had a reviewer write 'another encoder-decoder, not novel' and almost got rejected. Ten years later, U-Net has <strong>100,000+ citations</strong>, the most-cited paper in medical-imaging DL — every CNN-to-transformer descendant still uses it as backbone.</p><p>In 2020 Stringer's Cellpose recast U-Net as 'flow-field output'; 2022 added human-in-the-loop; 2025 Cellpose-SAM swapped in a SAM ViT backbone with Cellpose's head, <strong>one generalist model dominating most microscopy modalities</strong>. The zero-shot generalization era has arrived.</p></div>
+  <div class="story-question" data-lang="zh">🤔 如果你只能訓練一個模型，你會選 generalist 還是 specialist？這個選擇如何影響你的研究 reproducibility？</div>
+  <div class="story-question" data-lang="en">🤔 If you could only train one model, generalist or specialist? How does that choice shape your reproducibility?</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="觀念" data-en="CONCEPT">觀念</div>
 <h2 data-zh="一、語意 / 實例 / 全景分割" data-en="I. Semantic / Instance / Panoptic">一、語意 / 實例 / 全景</h2>
@@ -176,6 +186,183 @@ nnUNetv2_predict -i imagesTs/ -o pred/ -d <span class="num">1</span> -c 2d -f <s
 nnUNetv2_find_best_configuration <span class="num">1</span> -c 2d 3d_fullres</pre></div>
 </div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="DL 分割核心詞彙" data-en="Core Vocabulary for DL Segmentation">DL 分割核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">U-Net <span class="en">U-Net</span></div><div class="gloss-kid" data-lang="zh">先把影像「壓縮」再「展開」的 U 字形 CNN。</div><div class="gloss-kid" data-lang="en">A U-shaped CNN: encode-then-decode the image.</div><div class="gloss-tech" data-lang="zh">Ronneberger 2015 MICCAI；encoder-decoder + skip connections。</div><div class="gloss-tech" data-lang="en">Ronneberger 2015 MICCAI; encoder-decoder + skip connections.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Encoder-Decoder <span class="en">Encoder-Decoder</span></div><div class="gloss-kid" data-lang="zh">先看大局、再回到細節。</div><div class="gloss-kid" data-lang="en">See the big picture first, then return to detail.</div><div class="gloss-tech" data-lang="zh">下採樣 + 上採樣對稱結構；許多 DL 架構共用。</div><div class="gloss-tech" data-lang="en">Symmetric down/up sampling; shared by many DL architectures.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Skip connection <span class="en">Skip connection</span></div><div class="gloss-kid" data-lang="zh">從淺層「複製貼上」到深層，避免細節遺失。</div><div class="gloss-kid" data-lang="en">Copy-paste from shallow to deep layers — preserves detail.</div><div class="gloss-tech" data-lang="zh">U-Net 標誌特徵；後成為 ResNet 等架構的基石。</div><div class="gloss-tech" data-lang="en">U-Net's signature; later became foundational in ResNet etc.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Semantic segmentation <span class="en">Semantic segmentation</span></div><div class="gloss-kid" data-lang="zh">每個像素標一個類別（細胞 / 背景），不分個體。</div><div class="gloss-kid" data-lang="en">Per-pixel class label (cell / background), no individual identity.</div><div class="gloss-tech" data-lang="zh">輸出機率圖；不能直接得到 cell count。</div><div class="gloss-tech" data-lang="en">Outputs probability maps; can't directly give cell counts.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Instance segmentation <span class="en">Instance segmentation</span></div><div class="gloss-kid" data-lang="zh">每個物件給一個獨立 ID。</div><div class="gloss-kid" data-lang="en">Each object gets a unique ID.</div><div class="gloss-tech" data-lang="zh">下游量化必要前提；Cellpose / StarDist / Mesmer 都輸出 instance。</div><div class="gloss-tech" data-lang="en">Required for downstream quantitation; Cellpose / StarDist / Mesmer all output instances.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Cellpose flow field <span class="en">Cellpose flow field</span></div><div class="gloss-kid" data-lang="zh">預測每個像素「往細胞中心走」的方向。</div><div class="gloss-kid" data-lang="en">Predict each pixel's 'direction toward cell centre.'</div><div class="gloss-tech" data-lang="zh">Stringer 2021 Nat Methods；無形狀假設、跨形態通用。</div><div class="gloss-tech" data-lang="en">Stringer 2021 Nat Methods; shape-agnostic, modality-agnostic.</div></div>
+  <div class="gloss-card"><div class="gloss-term">StarDist polygon <span class="en">StarDist polygon</span></div><div class="gloss-kid" data-lang="zh">細胞 = 從中心放射 N 條光線形成的多邊形。</div><div class="gloss-kid" data-lang="en">A cell = polygon from N radial rays at its centre.</div><div class="gloss-tech" data-lang="zh">Schmidt 2018 MICCAI；對密集圓核最強。</div><div class="gloss-tech" data-lang="en">Schmidt 2018 MICCAI; strongest for dense round nuclei.</div></div>
+  <div class="gloss-card"><div class="gloss-term">nnU-Net <span class="en">nnU-Net</span></div><div class="gloss-kid" data-lang="zh">自己配置自己——不用手調 hyper-parameter。</div><div class="gloss-kid" data-lang="en">Self-configures — no manual hyperparameter tuning.</div><div class="gloss-tech" data-lang="zh">Isensee 2021 Nat Methods；醫學影像 benchmark 事實標準。</div><div class="gloss-tech" data-lang="en">Isensee 2021 Nat Methods; de facto medical-imaging benchmark.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Mesmer <span class="en">Mesmer</span></div><div class="gloss-kid" data-lang="zh">專為「多重染色組織」設計的核 + 膜雙通道分割。</div><div class="gloss-kid" data-lang="en">Tailored for 'multiplex tissue' with nucleus + membrane channels.</div><div class="gloss-tech" data-lang="zh">Greenwald 2022 Nat Biotechnol；ch0=核, ch1=膜固定順序。</div><div class="gloss-tech" data-lang="en">Greenwald 2022 Nat Biotechnol; fixed ch0=nucleus, ch1=membrane.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Omnipose <span class="en">Omnipose</span></div><div class="gloss-kid" data-lang="zh">Cellpose 的姊妹，對細長分支型態加強。</div><div class="gloss-kid" data-lang="en">Cellpose's sibling, tuned for elongated/branching shapes.</div><div class="gloss-tech" data-lang="zh">Cutler 2022 Nat Methods；細菌、神經元最強。</div><div class="gloss-tech" data-lang="en">Cutler 2022 Nat Methods; best for bacteria and neurons.</div></div>
+  <div class="gloss-card"><div class="gloss-term">IoU <span class="en">Intersection over Union</span></div><div class="gloss-kid" data-lang="zh">預測與真值的「重疊比例」。</div><div class="gloss-kid" data-lang="en">Overlap ratio between prediction and ground truth.</div><div class="gloss-tech" data-lang="zh">= |A∩B| / |A∪B|；常見閾值 0.5 / 0.75。</div><div class="gloss-tech" data-lang="en">= |A∩B| / |A∪B|; common thresholds 0.5 / 0.75.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Cellpose-SAM <span class="en">Cellpose-SAM (Cellpose 4)</span></div><div class="gloss-kid" data-lang="zh">SAM 的 backbone + Cellpose 的 head = 通用分割王。</div><div class="gloss-kid" data-lang="en">SAM backbone + Cellpose head = the generalist king.</div><div class="gloss-tech" data-lang="zh">Pachitariu 2025 bioRxiv；零訓練橫掃多 modality。</div><div class="gloss-tech" data-lang="en">Pachitariu 2025 bioRxiv; zero-shot across modalities.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="DL 分割 10 年" data-en="10 Years of DL Segmentation">DL 分割 10 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item milestone"><span class="tl-year">2015</span><span class="tl-title" data-zh="U-Net MICCAI" data-en="U-Net MICCAI">U-Net MICCAI</span><div class="tl-body" data-lang="zh">Ronneberger MICCAI — 100,000+ citations。</div><div class="tl-body" data-lang="en">Ronneberger MICCAI — 100,000+ citations.</div></div>
+<div class="tl-item"><span class="tl-year">2017</span><span class="tl-title" data-zh="Mask R-CNN" data-en="Mask R-CNN">Mask R-CNN</span><div class="tl-body" data-lang="zh">He ICCV — instance segmentation 通用框架。</div><div class="tl-body" data-lang="en">He ICCV — general instance-segmentation framework.</div></div>
+<div class="tl-item"><span class="tl-year">2018</span><span class="tl-title" data-zh="StarDist MICCAI" data-en="StarDist MICCAI">StarDist MICCAI</span><div class="tl-body" data-lang="zh">Schmidt — star-convex polygon for dense nuclei。</div><div class="tl-body" data-lang="en">Schmidt — star-convex polygon for dense nuclei.</div></div>
+<div class="tl-item"><span class="tl-year">2019</span><span class="tl-title" data-zh="Falk U-Net biomedical" data-en="Falk U-Net biomedical">Falk U-Net biomedical</span><div class="tl-body" data-lang="zh">Falk Nat Methods — Fiji-friendly U-Net 普及。</div><div class="tl-body" data-lang="en">Falk Nat Methods — Fiji-friendly U-Net popularization.</div></div>
+<div class="tl-item"><span class="tl-year">2020</span><span class="tl-title" data-zh="Cellpose bioRxiv" data-en="Cellpose bioRxiv">Cellpose bioRxiv</span><div class="tl-body" data-lang="zh">Stringer — 流場輸出概念出爐。</div><div class="tl-body" data-lang="en">Stringer — the flow-field output concept appears.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2021</span><span class="tl-title" data-zh="Cellpose Nat Methods" data-en="Cellpose Nat Methods">Cellpose Nat Methods</span><div class="tl-body" data-lang="zh">Stringer Nat Methods 18:100 — generalist 分割王。</div><div class="tl-body" data-lang="en">Stringer Nat Methods 18:100 — the generalist king of segmentation.</div></div>
+<div class="tl-item"><span class="tl-year">2021</span><span class="tl-title" data-zh="nnU-Net Nat Methods" data-en="nnU-Net Nat Methods">nnU-Net Nat Methods</span><div class="tl-body" data-lang="zh">Isensee — 自配置 pipeline。</div><div class="tl-body" data-lang="en">Isensee — self-configuring pipeline.</div></div>
+<div class="tl-item"><span class="tl-year">2022</span><span class="tl-title" data-zh="Cellpose 2 + Mesmer" data-en="Cellpose 2 + Mesmer">Cellpose 2 + Mesmer</span><div class="tl-body" data-lang="zh">Pachitariu / Greenwald — human-in-the-loop / multiplex 雙劍合璧。</div><div class="tl-body" data-lang="en">Pachitariu / Greenwald — human-in-the-loop / multiplex one-two punch.</div></div>
+<div class="tl-item"><span class="tl-year">2022</span><span class="tl-title" data-zh="Omnipose Nat Methods" data-en="Omnipose Nat Methods">Omnipose Nat Methods</span><div class="tl-body" data-lang="zh">Cutler — 細菌與神經元 SOTA。</div><div class="tl-body" data-lang="en">Cutler — bacteria and neuron SOTA.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="Cellpose 3 (restoration)" data-en="Cellpose 3 (restoration)">Cellpose 3 (restoration)</span><div class="tl-body" data-lang="zh">Stringer Nat Methods 22:592 — 一鍵 denoise+segment。</div><div class="tl-body" data-lang="en">Stringer Nat Methods 22:592 — one-click denoise+segment.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="Cellpose-SAM (Cellpose 4)" data-en="Cellpose-SAM (Cellpose 4)">Cellpose-SAM (Cellpose 4)</span><div class="tl-body" data-lang="zh">Pachitariu bioRxiv — SAM transformer backbone。</div><div class="tl-body" data-lang="en">Pachitariu bioRxiv — SAM transformer backbone.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="Cellpose 流場運算" data-en="Cellpose's Flow-Field Math">Cellpose 流場運算</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">(dY, dX) = ∇<sub>centroid</sub>(image)</div>
+<div class="sw-step"><strong>① <span data-lang='zh'>CNN 預測</span><span data-lang='en'>CNN prediction</span></strong> <span data-lang="zh">U-Net 輸出每個像素的 (dY, dX) 向量（指向細胞中心）+ cell probability。</span><span data-lang="en">U-Net outputs each pixel's (dY, dX) vector (pointing to the cell centre) + cell probability.</span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>歐拉積分</span><span data-lang='en'>Euler integration</span></strong> <span data-lang="zh">每像素沿流場「走 N 步」: x_new = x + Δt · (dY, dX)；通常 N≈200 步。</span><span data-lang="en">Each pixel walks N steps along the flow: x_new = x + Δt · (dY, dX); usually N≈200.</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>群聚收斂</span><span data-lang='en'>Clustering convergence</span></strong> <span data-lang="zh">收斂到同一個 attractor (sink) 的像素 → 同一個 cell ID。</span><span data-lang="en">Pixels converging to the same attractor (sink) → same cell ID.</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>過濾</span><span data-lang='en'>Filter</span></strong> <span data-lang="zh">非物件像素流向圖框外（pseudo-attractor）；用 cellprob_threshold 過濾。</span><span data-lang="en">Non-object pixels flow off-frame (pseudo-attractor); filter with cellprob_threshold.</span></div>
+
+<div class="sw-note" data-lang="zh">比 semantic mask 多了「跑到中心」的物理直覺，因此對相黏細胞特別擅長。Cellpose-SAM 把流場 head 接到 SAM ViT-H backbone 後，泛化能力再提升一個量級。</div>
+<div class="sw-note" data-lang="en">Adds the 'flow to centre' physical intuition over semantic masks — excellent at touching cells. Cellpose-SAM connects this head to a SAM ViT-H backbone, lifting generalization another order of magnitude.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="DL 分割三大爭論" data-en="Three Debates in DL Segmentation">DL 分割三大爭論</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. StarDist 對神經元為何不好？" data-en="A. Why is StarDist weak on neurons?">A. StarDist 對神經元為何不好？</h5><div class="disc-q" data-lang="zh">你試 StarDist 分割神經元 axon——結果只抓到 cell body。為什麼？</div><div class="disc-q" data-lang="en">You tried StarDist on neurons — only the cell body got picked up. Why?</div><div class="disc-hint" data-lang="zh">提示：StarDist 假設物件為 star-convex（從中心放射，無凹陷）。神經元有長軸與分支，違反假設。改用 Omnipose 或 Cellpose-SAM。</div><div class="disc-hint" data-lang="en">Hint: StarDist assumes star-convexity (no concavities). Neurons have axons and branches — breaks the assumption. Use Omnipose or Cellpose-SAM.</div></div>
+  <div class="discussion-card"><h5 data-zh="B. Cellpose-SAM 真能取代 Mesmer？" data-en="B. Does Cellpose-SAM really replace Mesmer?">B. Cellpose-SAM 真能取代 Mesmer？</h5><div class="disc-q" data-lang="zh">Mesmer 專為 CODEX / IMC 設計，cyto3 號稱泛化。實務上你怎麼選？</div><div class="disc-q" data-lang="en">Mesmer is built for CODEX/IMC; cyto3 claims to generalize. How do you choose in practice?</div><div class="disc-hint" data-lang="zh">提示：multiplex tissue 仍建議 Mesmer (channel-order 嚴格、訓練資料專一)；其他情境 Cellpose-SAM 為通用首選。</div><div class="disc-hint" data-lang="en">Hint: for multiplex tissue, prefer Mesmer (strict channel order, dedicated training data); otherwise Cellpose-SAM is the generalist default.</div></div>
+  <div class="discussion-card"><h5 data-zh="C. 標多少 mask 才夠 fine-tune？" data-en="C. How many masks suffice for fine-tuning?">C. 標多少 mask 才夠 fine-tune？</h5><div class="disc-q" data-lang="zh">你的特殊樣本 Cellpose-SAM 零訓練不夠好。你會標幾張？</div><div class="disc-q" data-lang="en">Your sample doesn't work zero-shot. How many do you label?</div><div class="disc-hint" data-lang="zh">提示：human-in-the-loop 通常 30–100 張 mask 就有顯著提升；大規模重訓 (full fine-tune) 才需要 500+。</div><div class="disc-hint" data-lang="en">Hint: human-in-the-loop usually shows big gains at 30–100 masks; full retraining starts to matter beyond 500.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個重塑分割的故事" data-en="Two Stories That Reshaped Segmentation">兩個重塑分割的故事</h2>
+<div class="spotlight">
+  <h5 data-zh="① Cellpose human-in-the-loop" data-en="① Cellpose's human-in-the-loop revolution">① Cellpose human-in-the-loop</h5>
+  <div class="spot-meta">Pachitariu et al., Nat Methods 19:1634 (2022) · cellpose.org GUI</div>
+  <p data-lang="zh">2022 年 Cellpose 2.0 在 Nat Methods 引入 <strong>human-in-the-loop fine-tuning GUI</strong>：跑零訓練 → 用戶修正錯誤 → 模型自動 fine-tune → 再跑。整個循環 5 分鐘內可重複，<strong>50 張影像即可訓練出 SOTA 領域模型</strong>。Stringer Lab 把 ML 變成「拖滑鼠」——讓沒有任何 DL 背景的生物學家也能訓練自己的分割器。</p>
+  <p data-lang="en">Cellpose 2.0 (Nat Methods 2022) introduced a <strong>human-in-the-loop fine-tuning GUI</strong>: run zero-shot → user corrects errors → model auto-fine-tunes → run again. The whole loop is repeatable in 5 minutes, and <strong>50 labelled images suffice to train a SOTA domain model</strong>. Stringer Lab turned ML into 'dragging a mouse' — biologists with zero DL background train their own segmenters.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：好工具不只強大，更要讓非專家也能用。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: great tools aren't just powerful — they're usable by non-experts.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② nnU-Net 連刷 BraTS 五年第一" data-en="② nnU-Net's five straight BraTS wins">② nnU-Net 連刷 BraTS 五年第一</h5>
+  <div class="spot-meta">Isensee et al., Nat Methods 18:203 (2021) · BraTS / KiTS / Medical Segmentation Decathlon</div>
+  <p data-lang="zh">Fabian Isensee 等 2021 在 Nat Methods 發表 nnU-Net：核心理念是 <strong>「don't tune; auto-configure」</strong>——自動決定預處理、3D vs 2D、loss、optimizer。結果：在 BraTS（腦腫瘤）、KiTS（腎臟）、Medical Decathlon 等十多項挑戰連續多年第一。證明「精心調的 baseline > 花俏的新架構」。</p>
+  <p data-lang="en">Isensee et al. (Nat Methods 2021) released nnU-Net with one credo: <strong>'don't tune; auto-configure.'</strong> The framework auto-decides preprocessing, 2D vs 3D, loss, optimizer. Result: top-1 on BraTS, KiTS, the Medical Decathlon, and a dozen other challenges for years. Proof that 'a well-tuned baseline beats fancy new architectures.'</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：別搶著發新模型，先把現有的好好調。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: don't rush to publish a new model — tune the existing one properly first.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="DL 分割六大陷阱" data-en="Six Pitfalls of DL Segmentation">DL 分割六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="Mesmer 通道順序顛倒" data-en="Mesmer channel swap">Mesmer 通道順序顛倒</span><div class="pf-body" data-lang="zh">ch0 應為核、ch1 為膜；順序錯不報錯但完全分割錯誤。</div><div class="pf-body" data-lang="en">ch0=nucleus, ch1=membrane; swapping silently breaks segmentation.</div><div class="pf-fix" data-lang="zh">讀檔後印 channel_names 並肉眼對照。</div><div class="pf-fix" data-lang="en">Always print channel_names and visually verify.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="訓練集眼睛驗證" data-en="Eyeballing the training set">訓練集眼睛驗證</span><div class="pf-body" data-lang="zh">訓練集看起來「完美」，獨立 test set 卻爆炸。</div><div class="pf-body" data-lang="en">Looks perfect on training set, explodes on the held-out test.</div><div class="pf-fix" data-lang="zh">保留 20% 為 test set；在它上面算 IoU/AP。</div><div class="pf-fix" data-lang="en">Hold out 20% for testing; compute IoU/AP there.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="小資料過度 fit" data-en="Overfit on small data">小資料過度 fit</span><div class="pf-body" data-lang="zh">只 30 張影像就跑 500 epochs，模型背下訓練集。</div><div class="pf-body" data-lang="en">30 images × 500 epochs → the model memorizes training set.</div><div class="pf-fix" data-lang="zh">Augmentation + 早停 + transfer learning。</div><div class="pf-fix" data-lang="en">Use augmentation, early stopping, and transfer learning.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="忽略 anisotropy 在 3D" data-en="Ignoring anisotropy in 3-D">忽略 anisotropy 在 3D</span><div class="pf-body" data-lang="zh">Cellpose 3D 不傳 anisotropy → cell 變扁。</div><div class="pf-body" data-lang="en">Cellpose 3D without anisotropy= → flattened cells.</div><div class="pf-fix" data-lang="zh">傳 anisotropy=dz/dxy；或先 resample 到 isotropic。</div><div class="pf-fix" data-lang="en">Pass anisotropy=dz/dxy or resample to isotropic first.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="Dice 0.95 = 完美？" data-en="Dice 0.95 = perfect?">Dice 0.95 = 完美？</span><div class="pf-body" data-lang="zh">小物件 missing 10% 也可能 Dice 仍 0.95（被大物件主導）。</div><div class="pf-body" data-lang="en">Even 10% missing small objects can keep Dice at 0.95 (dominated by large objects).</div><div class="pf-fix" data-lang="zh">算 per-object F1、AP@0.5/0.75；用 Cell Tracking Challenge SEG。</div><div class="pf-fix" data-lang="en">Compute per-object F1, AP@0.5/0.75; use CTC SEG metric.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="盲目訓練自己模型" data-en="Blind self-training">盲目訓練自己模型</span><div class="pf-body" data-lang="zh">沒先試 pretrained generalist 就重訓。</div><div class="pf-body" data-lang="en">Retrain without first trying a pretrained generalist.</div><div class="pf-fix" data-lang="zh">先試 Cellpose-SAM cyto3 / StarDist versatile；不夠才訓練。</div><div class="pf-fix" data-lang="en">Try Cellpose-SAM cyto3 / StarDist versatile first; only retrain if needed.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種 DL 分割哲學" data-en="Two DL Segmentation Philosophies">兩種 DL 分割哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="「從零訓練自己的 U-Net」" data-en=""Train my own U-Net from scratch"">「從零訓練自己的 U-Net」</span></h5>
+    <ul>
+      <li data-lang="zh">收集 1000 張標註 → 訓練 100 epochs</li>
+      <li data-lang="zh">hyper-parameter 手調</li>
+      <li data-lang="zh">無 augmentation 與 early stopping</li>
+      <li data-lang="zh">僅在訓練集眼睛驗證</li>
+      <li data-lang="zh">Methods 寫「U-Net trained」</li>
+      <li data-lang="en">Label 1,000 images → 100 epochs</li>
+      <li data-lang="en">Manual hyperparameter tuning</li>
+      <li data-lang="en">No augmentation or early stopping</li>
+      <li data-lang="en">Visual validation on training set only</li>
+      <li data-lang="en">Methods says 'U-Net trained'</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="「Pretrained generalist → human-in-the-loop」" data-en=""Pretrained generalist → human-in-the-loop"">「Pretrained generalist → human-in-the-loop」</span></h5>
+    <ul>
+      <li data-lang="zh">先試 Cellpose-SAM cyto3 / StarDist versatile_fluo</li>
+      <li data-lang="zh">不夠 → 標 30–100 張 → human-in-the-loop fine-tune</li>
+      <li data-lang="zh">Augmentation + early stopping + cross-validation</li>
+      <li data-lang="zh">held-out test set 算 IoU / AP / per-object F1</li>
+      <li data-lang="zh">Methods 寫明 model checkpoint / params / metrics</li>
+      <li data-lang="en">Start with Cellpose-SAM cyto3 / StarDist versatile_fluo</li>
+      <li data-lang="en">If not enough → label 30–100 images → human-in-the-loop fine-tune</li>
+      <li data-lang="en">Augmentation + early stopping + cross-validation</li>
+      <li data-lang="en">Held-out test set: IoU / AP / per-object F1</li>
+      <li data-lang="en">Methods documents checkpoint / params / metrics</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 DL 分割 SOTA" data-en="2024–2026 DL Segmentation SOTA">2024–2026 DL 分割 SOTA</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="Foundation model 化 + 通用化" data-en="Foundation-model-ification + generalization">Foundation model 化 + 通用化</h5>
+<p data-lang="zh">DL 分割 2024–2026 重要進展：</p>
+<p data-lang="en">DL segmentation in 2024–2026:</p>
+<ul>
+  <li><strong>Cellpose 4 (Cellpose-SAM) 2025</strong> <span data-lang="zh">Pachitariu bioRxiv — SAM ViT backbone + 流場 head；零訓練橫掃多 modality。</span><span data-lang="en">Pachitariu bioRxiv — SAM ViT backbone + flow head; zero-shot across modalities.</span></li>
+  <li><strong>CellViT++ (2024)</strong> <span data-lang="zh">Hörst — transformer 加強病理 nucleus instance + class。</span><span data-lang="en">Hörst — transformer-boosted pathology nucleus instance + classification.</span></li>
+  <li><strong>SAMRefiner (2024 ICLR)</strong> <span data-lang="zh">Wei — 用 SAM 改進現有分割器邊界。</span><span data-lang="en">Wei — uses SAM to refine boundaries of existing segmenters.</span></li>
+  <li><strong>Mesmer 2.0 (2025)</strong> <span data-lang="zh">DeepCell — 整合 spatial omics 與 CODEX 升級。</span><span data-lang="en">DeepCell — upgraded for spatial omics and CODEX.</span></li>
+  <li><strong>PathProfiler (2025)</strong> <span data-lang="zh">HoVer-Net + Cellpose + UNI 整合的病理 SOTA pipeline。</span><span data-lang="en">HoVer-Net + Cellpose + UNI integration; pathology SOTA pipeline.</span></li>
+  <li><strong>μSAM 已支援 30+ 顯微 modality (2025)</strong> <span data-lang="zh">Micro-SAM 持續擴展，3D / video / EM 全面覆蓋。</span><span data-lang="en">Micro-SAM keeps expanding; 3D / video / EM all covered.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Ronneberger 2015 MICCAI · Stringer 2021 Nat Methods · Pachitariu 2025 bioRxiv 2025.04.28.651001 · Isensee 2021 Nat Methods · Greenwald 2022 Nat Biotechnol</div>
+<div class="an-cite" data-lang="en">Key refs: Ronneberger 2015 MICCAI · Stringer 2021 Nat Methods · Pachitariu 2025 bioRxiv · Isensee 2021 Nat Methods · Greenwald 2022 Nat Biotechnol</div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Ronneberger 等 2015 投稿 MICCAI 時，U-Net 的核心想法很「無聊」：encoder-decoder + skip connection 都不是新東西。但他們把這個架構應用到 EM 影像神經元分割並達到 SOTA。早期審稿人據傳寫了「another encoder-decoder, not novel」差點被拒。今天 U-Net 不只是醫學 DL 的標誌，更是<em>所有</em> bioimage DL 分割的基因組。<strong>新意不只是新架構——更是「在對的問題上應用對的工具」。</strong></span>
+<span data-lang="en">When Ronneberger submitted U-Net to MICCAI 2015, the core ideas were 'boring': encoder-decoder + skip connections were old news. But they applied them to EM neuron segmentation with SOTA results. An early reviewer reportedly wrote 'another encoder-decoder, not novel' and nearly killed the paper. Today U-Net is not just a medical-DL signature — it's the genome of <em>all</em> bioimage DL segmentation. <strong>Novelty isn't only new architecture — it's also 'applying the right tool to the right problem.'</strong></span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>你的下個 segmenter 你會用哪個？決策的關鍵因素是什麼（速度、準確度、訓練資料）？</li>
+    <li>標 50 張 mask 還是 500 張的差別在哪？對 reproducibility 的影響？</li>
+    <li>什麼時候你會放棄 pretrained generalist 而自己訓練？這個門檻會隨時間改變嗎？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>What segmenter will you pick next? What drives the decision (speed, accuracy, training data)?</li>
+    <li>What's the difference between 50 vs 500 labelled masks? What's the impact on reproducibility?</li>
+    <li>When do you give up on a pretrained generalist and train your own? Does that threshold change over time?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">Foundation model 越強，「自己訓練」的門檻越高——這是好事，也意味著 prompt 工程的重要性上升。</div>
+  <div class="rq-hint" data-lang="en">As foundation models get stronger, the bar for 'train your own' rises — that's good news, and it means prompt engineering matters more.</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

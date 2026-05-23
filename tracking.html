@@ -16,6 +16,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="從 1965 Hungarian 算法到 2024 Transformer 追蹤" data-en="From the 1965 Hungarian algorithm to 2024 transformer tracking">從 1965 Hungarian 算法到 2024 Transformer 追蹤</h3>
+  <div data-lang="zh"><p>1996 年 John Crocker 與 Eric Weeks 在膠體物理發明了 nearest-neighbour particle tracking (TrackPy 前身)；2008 年 Khuloud Jaqaman 在 Nat Methods 把 1965 Kuhn-Munkres 的 <strong>Linear Assignment Problem (LAP)</strong> 帶入 cell tracking。</p><p>2024 年 Trackastra Transformer 拿下 Cell Tracking Challenge 冠軍——但它依賴的數學基礎仍是匈牙利算法。從追蹤一個分子在膜上的擴散，到追蹤胚胎中每個細胞 5 代分裂，「跨時間連起來」是動態生物學唯一的入口。</p></div>
+  <div data-lang="en"><p>In 1996 John Crocker and Eric Weeks invented nearest-neighbour particle tracking in colloidal physics (the predecessor of TrackPy); in 2008 Khuloud Jaqaman brought the <strong>Linear Assignment Problem (LAP)</strong> from Kuhn-Munkres (1965) into cell tracking via Nat Methods.</p><p>In 2024 Trackastra (Transformer-based) won the Cell Tracking Challenge — but its math still rests on the Hungarian algorithm. From a molecule diffusing on a membrane to every cell in an embryo across 5 division generations, 'linking across time' is the only doorway to dynamic biology.</p></div>
+  <div class="story-question" data-lang="zh">🤔 5% detection FN 為何造成 30% ID switch？這個放大關係背後的數學是什麼？</div>
+  <div class="story-question" data-lang="en">🤔 Why does a 5% detection FN cause ~30% ID switches? What's the math behind that amplification?</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="兩大範式" data-en="PARADIGMS">兩大範式</div>
 <h2 data-zh="一、Tracking-by-Detection vs. 聯合偵測追蹤" data-en="I. Tracking-by-Detection vs. Joint Detection-Tracking">一、兩大範式</h2>
@@ -149,6 +159,184 @@ data, properties, graph = graph_to_napari_tracks(track_graph)
 ctc_tools.write_ctc_data(track_graph, out_dir=<span class="str">"results/"</span>)</pre></div>
 </div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="細胞追蹤核心詞彙" data-en="Core Vocabulary for Cell Tracking">細胞追蹤核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">Detection <span class="en">Detection</span></div><div class="gloss-kid" data-lang="zh">先找出每一張影像有哪些細胞。</div><div class="gloss-kid" data-lang="en">First find every cell in each frame.</div><div class="gloss-tech" data-lang="zh">每幀獨立做 segmentation / detection；是 tracking 的前提。</div><div class="gloss-tech" data-lang="en">Per-frame segmentation/detection; the prerequisite for tracking.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Linking <span class="en">Linking</span></div><div class="gloss-kid" data-lang="zh">把不同幀的細胞「連起來」。</div><div class="gloss-kid" data-lang="en">Connect cells across frames.</div><div class="gloss-tech" data-lang="zh">基於 LAP / Kalman / graph 的 association 演算法。</div><div class="gloss-tech" data-lang="en">Association algorithms via LAP / Kalman / graph.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Tracking-by-detection <span class="en">Tracking-by-detection</span></div><div class="gloss-kid" data-lang="zh">先偵測再連結的兩階段法。</div><div class="gloss-kid" data-lang="en">Two-stage: detect first, then link.</div><div class="gloss-tech" data-lang="zh">TrackMate / btrack / ilastik 都屬此類。</div><div class="gloss-tech" data-lang="en">TrackMate / btrack / ilastik all follow this.</div></div>
+  <div class="gloss-card"><div class="gloss-term">LAP <span class="en">Linear Assignment Problem</span></div><div class="gloss-kid" data-lang="zh">把「誰配誰」變成最佳配對問題。</div><div class="gloss-kid" data-lang="en">Cast 'who matches whom' as an optimal matching problem.</div><div class="gloss-tech" data-lang="zh">Kuhn-Munkres / Hungarian O(n³)；Jaqaman 2008 引入 cell tracking。</div><div class="gloss-tech" data-lang="en">Kuhn-Munkres / Hungarian O(n³); Jaqaman 2008 brought it to cell tracking.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Kalman filter <span class="en">Kalman filter</span></div><div class="gloss-kid" data-lang="zh">預測下一個位置 + 修正觀測誤差。</div><div class="gloss-kid" data-lang="en">Predict next position + correct with measurement.</div><div class="gloss-tech" data-lang="zh">線性運動 + Gaussian noise 假設；對 mitosis 不友善。</div><div class="gloss-tech" data-lang="en">Linear motion + Gaussian noise; not friendly to mitosis.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Gap closing <span class="en">Gap closing</span></div><div class="gloss-kid" data-lang="zh">短暫消失的細胞「重新接回」原軌跡。</div><div class="gloss-kid" data-lang="en">Reconnect a track when the cell briefly disappears.</div><div class="gloss-tech" data-lang="zh">允許跨 N 幀重連；對 segmentation 漏失寬容。</div><div class="gloss-tech" data-lang="en">Allow reconnections across N frames; tolerates detection misses.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Mitosis detection <span class="en">Mitosis detection</span></div><div class="gloss-kid" data-lang="zh">一個細胞變兩個，要在譜系樹開叉。</div><div class="gloss-kid" data-lang="en">One cell becomes two — fork the lineage tree.</div><div class="gloss-tech" data-lang="zh">btrack / TrackMate / Trackastra 顯式建模；純 Kalman 失敗。</div><div class="gloss-tech" data-lang="en">btrack / TrackMate / Trackastra model this explicitly; pure Kalman fails.</div></div>
+  <div class="gloss-card"><div class="gloss-term">MOTA / IDF1 <span class="en">MOTA / IDF1</span></div><div class="gloss-kid" data-lang="zh">追蹤的兩個總分數。</div><div class="gloss-kid" data-lang="en">Two overall tracking scores.</div><div class="gloss-tech" data-lang="zh">MOTA 重 FN/FP/IDsw；IDF1 重 ID 一致性。</div><div class="gloss-tech" data-lang="en">MOTA weights FN/FP/IDsw; IDF1 weights ID consistency.</div></div>
+  <div class="gloss-card"><div class="gloss-term">TRA / DET / SEG <span class="en">TRA / DET / SEG</span></div><div class="gloss-kid" data-lang="zh">Cell Tracking Challenge 三大指標。</div><div class="gloss-kid" data-lang="en">The three Cell Tracking Challenge metrics.</div><div class="gloss-tech" data-lang="zh">DET=偵測準度；SEG=分割 IoU；TRA=拓撲（節點+邊）。</div><div class="gloss-tech" data-lang="en">DET=detection accuracy; SEG=segmentation IoU; TRA=topology (nodes+edges).</div></div>
+  <div class="gloss-card"><div class="gloss-term">Lineage tree <span class="en">Lineage tree</span></div><div class="gloss-kid" data-lang="zh">細胞家譜樹，分裂處開叉。</div><div class="gloss-kid" data-lang="en">A cell family tree, branching at each division.</div><div class="gloss-tech" data-lang="zh">節點 = cell-frame；邊 = 同細胞或 mother-daughter。</div><div class="gloss-tech" data-lang="en">Nodes = cell-frames; edges = same cell or mother-daughter.</div></div>
+  <div class="gloss-card"><div class="gloss-term">ID switch <span class="en">ID switch</span></div><div class="gloss-kid" data-lang="zh">原本是 cell #5，下一幀卻被誤認為 cell #12。</div><div class="gloss-kid" data-lang="en">Was cell #5; next frame it's mistakenly cell #12.</div><div class="gloss-tech" data-lang="zh">追蹤致命錯誤，譜系樹分析全毀。</div><div class="gloss-tech" data-lang="en">A fatal tracking error; ruins lineage analysis.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Trackastra <span class="en">Trackastra</span></div><div class="gloss-kid" data-lang="zh">Transformer 學跨幀關聯的新一代 tracker。</div><div class="gloss-kid" data-lang="en">A new tracker where a Transformer learns cross-frame associations.</div><div class="gloss-tech" data-lang="zh">Gallusser 2024 ECCV；2024 CTC 冠軍。</div><div class="gloss-tech" data-lang="en">Gallusser 2024 ECCV; 2024 CTC winner.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="細胞追蹤 60 年" data-en="60 Years of Cell Tracking">細胞追蹤 60 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item milestone"><span class="tl-year">1965</span><span class="tl-title" data-zh="Kuhn-Munkres Hungarian" data-en="Kuhn-Munkres Hungarian">Kuhn-Munkres Hungarian</span><div class="tl-body" data-lang="zh">Kuhn / Munkres 解 LAP 的 O(n³) 演算法。</div><div class="tl-body" data-lang="en">Kuhn / Munkres O(n³) algorithm for the LAP.</div></div>
+<div class="tl-item"><span class="tl-year">1979</span><span class="tl-title" data-zh="MHT Reid" data-en="MHT Reid">MHT Reid</span><div class="tl-body" data-lang="zh">Multiple Hypothesis Tracking 提出。</div><div class="tl-body" data-lang="en">Multiple Hypothesis Tracking proposed.</div></div>
+<div class="tl-item"><span class="tl-year">1996</span><span class="tl-title" data-zh="Crocker-Weeks SPT" data-en="Crocker-Weeks SPT">Crocker-Weeks SPT</span><div class="tl-body" data-lang="zh">TrackPy 前身；膠體 particle tracking。</div><div class="tl-body" data-lang="en">Predecessor of TrackPy; colloidal SPT.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2008</span><span class="tl-title" data-zh="Jaqaman LAP Nat Methods" data-en="Jaqaman LAP Nat Methods">Jaqaman LAP Nat Methods</span><div class="tl-body" data-lang="zh">Khuloud Jaqaman — LAP 進入 cell tracking。</div><div class="tl-body" data-lang="en">Khuloud Jaqaman — LAP enters cell tracking.</div></div>
+<div class="tl-item"><span class="tl-year">2014</span><span class="tl-title" data-zh="Cell Tracking Challenge" data-en="Cell Tracking Challenge">Cell Tracking Challenge</span><div class="tl-body" data-lang="zh">Ulman 等發起 CTC，建立 benchmark。</div><div class="tl-body" data-lang="en">Ulman et al. launch the CTC benchmark.</div></div>
+<div class="tl-item"><span class="tl-year">2017</span><span class="tl-title" data-zh="TrackMate Methods" data-en="TrackMate Methods">TrackMate Methods</span><div class="tl-body" data-lang="zh">Tinevez Methods 115:80 — Fiji 最普及 tracker。</div><div class="tl-body" data-lang="en">Tinevez Methods 115:80 — the most popular Fiji tracker.</div></div>
+<div class="tl-item"><span class="tl-year">2021</span><span class="tl-title" data-zh="btrack Front. Comput. Sci." data-en="btrack Front. Comput. Sci.">btrack Front. Comput. Sci.</span><div class="tl-body" data-lang="zh">Ulicna — Bayesian + lineage tree。</div><div class="tl-body" data-lang="en">Ulicna — Bayesian + lineage tree.</div></div>
+<div class="tl-item"><span class="tl-year">2022</span><span class="tl-title" data-zh="TrackMate 7" data-en="TrackMate 7">TrackMate 7</span><div class="tl-body" data-lang="zh">Ershov Nat Methods — 整合 Cellpose / StarDist 為 detector。</div><div class="tl-body" data-lang="en">Ershov Nat Methods — integrates Cellpose / StarDist as detectors.</div></div>
+<div class="tl-item"><span class="tl-year">2023</span><span class="tl-title" data-zh="CTC retrospective" data-en="CTC retrospective">CTC retrospective</span><div class="tl-body" data-lang="zh">Maška Nat Methods — 十年 CTC 全面回顧。</div><div class="tl-body" data-lang="en">Maška Nat Methods — ten-year CTC retrospective.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2024</span><span class="tl-title" data-zh="Trackastra ECCV" data-en="Trackastra ECCV">Trackastra ECCV</span><div class="tl-body" data-lang="zh">Gallusser Weigert — Transformer 拿下 CTC 冠軍。</div><div class="tl-body" data-lang="en">Gallusser Weigert — Transformer wins CTC.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="EmbedTrack v2 / SAMURAI" data-en="EmbedTrack v2 / SAMURAI">EmbedTrack v2 / SAMURAI</span><div class="tl-body" data-lang="zh">SAM2 + tracker 結合；多模態追蹤。</div><div class="tl-body" data-lang="en">SAM2 + tracker integration; multimodal tracking.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="LAP 最佳配對" data-en="Optimal Matching via LAP">LAP 最佳配對</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">minimize Σ<sub>ij</sub> c<sub>ij</sub> x<sub>ij</sub>  s.t.  Σ<sub>j</sub> x<sub>ij</sub> = 1, Σ<sub>i</sub> x<sub>ij</sub> = 1, x<sub>ij</sub> ∈ {0,1}</div>
+<div class="sw-step"><strong>① <span data-lang='zh'>cost 矩陣</span><span data-lang='en'>Cost matrix</span></strong> <span data-lang="zh">c_ij = 第 t 幀第 i 細胞與第 t+1 幀第 j 細胞的「成本」（歐氏距離 + intensity diff）。</span><span data-lang="en">c_ij = the 'cost' of matching cell i in frame t to cell j in frame t+1 (Euclidean distance + intensity diff).</span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>約束</span><span data-lang='en'>Constraints</span></strong> <span data-lang="zh">每個細胞最多配 1 個下家；每個下家最多收 1 個上家。</span><span data-lang="en">Each cell links to at most one next; each next receives at most one predecessor.</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>Hungarian 解</span><span data-lang='en'>Hungarian solution</span></strong> <span data-lang="zh">O(n³) 解出全域最佳配對；遠優於 nearest-neighbour 的 greedy。</span><span data-lang="en">O(n³) solves the global optimum; far better than greedy nearest-neighbour.</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>Gap closing 擴展</span><span data-lang='en'>Gap closing extension</span></strong> <span data-lang="zh">容許跨多幀的「擴展節點」，把短暫漏偵測接回。</span><span data-lang="en">Allow multi-frame 'extended nodes' to reconnect short detection gaps.</span></div>
+
+<div class="sw-note" data-lang="zh">推論：5% detection FN 為何爆 30% ID switch — 每個漏偵測都讓 t-1 與 t+1 之間找不到對應，被迫各自起新軌跡。Gap closing 可以救一半，但根源仍是 detection。</div>
+<div class="sw-note" data-lang="en">Implication: a 5% detection FN explodes into 30% ID switches because every missed detection breaks the t-1 ↔ t+1 link, forcing both sides to start new tracks. Gap closing rescues some, but the root cause is detection.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="細胞追蹤三大爭論" data-en="Three Debates in Cell Tracking">細胞追蹤三大爭論</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. Detection FN 為何放大成 ID switch？" data-en="A. Why does detection FN amplify into ID switches?">A. Detection FN 為何放大成 ID switch？</h5><div class="disc-q" data-lang="zh">5% miss 怎麼會變 30% ID switch？這背後的組合數學告訴你什麼？</div><div class="disc-q" data-lang="en">How does 5% miss become 30% switch? What does the combinatorics tell you?</div><div class="disc-hint" data-lang="zh">提示：每個漏偵測都讓「上下家」失聯，兩邊各自起新 ID。Gap closing 可救一半；分割優化才是根源。</div><div class="disc-hint" data-lang="en">Hint: every miss disconnects 'predecessor' and 'successor,' each starts a fresh ID. Gap closing rescues half; segmentation optimization addresses the root.</div></div>
+  <div class="discussion-card"><h5 data-zh="B. 分裂事件為何特別難？" data-en="B. Why is mitosis especially hard?">B. 分裂事件為何特別難？</h5><div class="disc-q" data-lang="zh">你發現 TrackMate 在 mitosis 處錯誤率高，為什麼？</div><div class="disc-q" data-lang="en">TrackMate's error rate spikes around mitosis — why?</div><div class="disc-hint" data-lang="zh">提示：純 Kalman 假設「一細胞 → 一細胞」；分裂打破此假設。需 mitosis-aware tracker (btrack / TrackMate 7 / Trackastra)。</div><div class="disc-hint" data-lang="en">Hint: pure Kalman assumes 'one cell → one cell'; division breaks the assumption. Use a mitosis-aware tracker (btrack / TrackMate 7 / Trackastra).</div></div>
+  <div class="discussion-card"><h5 data-zh="C. 'looks right' 為何永遠樂觀？" data-en="C. Why is 'looks right' always optimistic?">C. 'looks right' 為何永遠樂觀？</h5><div class="disc-q" data-lang="zh">你看影片覺得追蹤完美，但實際算 TRA 只有 0.85。差距怎麼來？</div><div class="disc-q" data-lang="en">Movie looks perfect but TRA is only 0.85 — where's the gap?</div><div class="disc-hint" data-lang="zh">提示：眼睛只能看「大方向對」；無法捕捉短暫 ID swap 與 mitosis 漏接。量化指標暴露細節錯誤。</div><div class="disc-hint" data-lang="en">Hint: the eye catches the 'general direction'; it misses brief ID swaps and missed mitoses. Metrics expose the fine errors.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個追蹤領域的傳奇" data-en="Two Legendary Tracking Stories">兩個追蹤領域的傳奇</h2>
+<div class="spotlight">
+  <h5 data-zh="① TrackMate 7：Fiji 上的整合 tracker" data-en="① TrackMate 7: the integrated tracker on Fiji">① TrackMate 7：Fiji 上的整合 tracker</h5>
+  <div class="spot-meta">Ershov et al., Nat Methods 19:829 (2022) · imagej.net/plugins/trackmate</div>
+  <p data-lang="zh">Jean-Yves Tinevez (Institut Pasteur) 等 2017 在 Methods 推出 TrackMate；2022 TrackMate 7 在 Nat Methods 升級：<strong>整合 Cellpose、StarDist、Weka classifier 為 detector</strong>，並保留原有 GUI。一個 Fiji plugin 從 detector 到 LAP linker 到 lineage 視覺化全部搞定。Fiji 教學首選的同時，也是 reproducible：所有設定可存成 XML 給下次或審稿。</p>
+  <p data-lang="en">Jean-Yves Tinevez (Institut Pasteur) released TrackMate (Methods 2017); TrackMate 7 in Nat Methods 2022 upgraded it: <strong>integrating Cellpose, StarDist, and Weka classifiers as detectors</strong> while keeping the GUI. A single Fiji plugin handles detector → LAP linker → lineage visualization. The Fiji teaching default — and reproducible: settings save as XML for reuse or peer review.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：好的工具讓互動式探索與可重現分析「無縫接軌」。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: a great tool makes interactive exploration and reproducible analysis 'seamless.'</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② Trackastra：Transformer 重塑 cell tracking" data-en="② Trackastra: the Transformer that reshaped cell tracking">② Trackastra：Transformer 重塑 cell tracking</h5>
+  <div class="spot-meta">Gallusser & Weigert, ECCV 2024 · 2024 Cell Tracking Challenge winner</div>
+  <p data-lang="zh">Benjamin Gallusser 與 Martin Weigert 在 EPFL 發表 Trackastra：<strong>用 Transformer 學 pair-wise association</strong>，端到端訓練。在 2024 Cell Tracking Challenge 第七屆奪冠，特別在「相黏細胞」與「快速移動」情境刷掉所有傳統 LAP 方法。Trackastra 也率先公開 napari plugin，讓使用者直接拖放 dataset。</p>
+  <p data-lang="en">Benjamin Gallusser and Martin Weigert (EPFL) published Trackastra: <strong>a Transformer learning pairwise associations</strong>, end-to-end trained. It won the 7th Cell Tracking Challenge in 2024, beating all classical LAP methods on touching cells and fast motion. Trackastra also shipped an early napari plugin for drag-and-drop datasets.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：transformer 不只是 LLM 的工具，<em>序列關聯</em>本就是它的強項——追蹤=時間序列關聯，完美吻合。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: transformers aren't just for LLMs — <em>sequence association</em> is their strength, and tracking = temporal association, a perfect fit.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="細胞追蹤六大陷阱" data-en="Six Pitfalls of Cell Tracking">細胞追蹤六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="Detection 漏失放大成 ID switch" data-en="Detection misses balloon into ID switches">Detection 漏失放大成 ID switch</span><div class="pf-body" data-lang="zh">5% miss → 30% switch；segmenter 必須先優化。</div><div class="pf-body" data-lang="en">5% miss → 30% switch; tune the segmenter first.</div><div class="pf-fix" data-lang="zh">Optimize segmentation；用 gap closing 容忍短暫漏失。</div><div class="pf-fix" data-lang="en">Optimize segmentation; allow short gap closing.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="純 Kalman 處理 mitosis" data-en="Pure Kalman for mitosis">純 Kalman 處理 mitosis</span><div class="pf-body" data-lang="zh">分裂處 Kalman 預測失敗，造成 ID switch 或 lineage 斷裂。</div><div class="pf-body" data-lang="en">Kalman fails at division — ID switch or broken lineage.</div><div class="pf-fix" data-lang="zh">用 btrack / TrackMate 7 / Trackastra 等 mitosis-aware tracker。</div><div class="pf-fix" data-lang="en">Use mitosis-aware trackers: btrack / TrackMate 7 / Trackastra.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="Gap closing 太寬產生跨細胞連結" data-en="Overly permissive gap closing">Gap closing 太寬產生跨細胞連結</span><div class="pf-body" data-lang="zh">距離 / 幀數設太大 → 不同細胞被誤連。</div><div class="pf-body" data-lang="en">Distance / frame gap too large → different cells get linked.</div><div class="pf-fix" data-lang="zh">限制 max gap = 2–5 幀；max distance ~10 px。</div><div class="pf-fix" data-lang="en">Cap max gap at 2–5 frames; max distance ~10 px.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="未做 mitosis-aware tracker" data-en="No mitosis-aware tracker">未做 mitosis-aware tracker</span><div class="pf-body" data-lang="zh">譜系研究使用純 NN，分裂處全錯。</div><div class="pf-body" data-lang="en">Lineage studies using pure NN — divisions all wrong.</div><div class="pf-fix" data-lang="zh">選 mitosis-modeling tracker，並驗證 mitosis F1。</div><div class="pf-fix" data-lang="en">Pick a mitosis-modelling tracker and validate the mitosis F1.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="視覺驗證代替量化" data-en="Visual validation instead of metrics">視覺驗證代替量化</span><div class="pf-body" data-lang="zh">眼睛只能抓「大方向」，細微錯誤被忽略。</div><div class="pf-body" data-lang="en">The eye sees 'general direction'; subtle errors slip by.</div><div class="pf-fix" data-lang="zh">在 GT 標註集算 TRA / DET / SEG。</div><div class="pf-fix" data-lang="en">Compute TRA / DET / SEG on a GT-annotated set.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="CTC 指標未報告" data-en="Not reporting CTC metrics">CTC 指標未報告</span><div class="pf-body" data-lang="zh">論文沒寫 TRA / DET 就送審。</div><div class="pf-body" data-lang="en">Submit without TRA / DET in the methods.</div><div class="pf-fix" data-lang="zh">Methods 必須報告 CTC 指標 + tracker 版本。</div><div class="pf-fix" data-lang="en">Always report CTC metrics and tracker version.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種追蹤哲學" data-en="Two Tracking Philosophies">兩種追蹤哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="「最近鄰快速跑」" data-en=""Quick nearest-neighbour"">「最近鄰快速跑」</span></h5>
+    <ul>
+      <li data-lang="zh">Greedy NN linker</li>
+      <li data-lang="zh">不開 gap closing</li>
+      <li data-lang="zh">不處理 mitosis</li>
+      <li data-lang="zh">只看影片驗證</li>
+      <li data-lang="zh">Methods 寫「tracked with X」</li>
+      <li data-lang="en">Greedy nearest-neighbour linker</li>
+      <li data-lang="en">No gap closing</li>
+      <li data-lang="en">No mitosis handling</li>
+      <li data-lang="en">Verify by watching the movie</li>
+      <li data-lang="en">Methods says 'tracked with X'</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="「LAP / Bayesian / Transformer aware of biology」" data-en=""LAP / Bayesian / Transformer aware of biology"">「LAP / Bayesian / Transformer aware of biology」</span></h5>
+    <ul>
+      <li data-lang="zh">先優化 detection 到 IoU > 0.85</li>
+      <li data-lang="zh">LAP linker + gap closing 2–5 frames</li>
+      <li data-lang="zh">Mitosis-aware tracker（btrack/Trackastra）</li>
+      <li data-lang="zh">在 GT 上量化 TRA/DET/SEG/mitosis F1</li>
+      <li data-lang="zh">Methods 寫明 tracker / parameters / metrics</li>
+      <li data-lang="en">Optimize detection until IoU > 0.85</li>
+      <li data-lang="en">LAP linker + 2–5 frame gap closing</li>
+      <li data-lang="en">Mitosis-aware tracker (btrack/Trackastra)</li>
+      <li data-lang="en">Quantify TRA/DET/SEG/mitosis F1 on GT</li>
+      <li data-lang="en">Methods documents tracker / parameters / metrics</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 追蹤 SOTA" data-en="2024–2026 Tracking SOTA">2024–2026 追蹤 SOTA</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="Tracking 走向 Transformer + foundation model" data-en="Tracking goes Transformer + foundation model">Tracking 走向 Transformer + foundation model</h5>
+<p data-lang="zh">2024–2026 追蹤領域急速進化：</p>
+<p data-lang="en">Tracking evolved rapidly in 2024–2026:</p>
+<ul>
+  <li><strong>Trackastra (2024 ECCV)</strong> <span data-lang="zh">Gallusser-Weigert — 2024 CTC 冠軍。</span><span data-lang="en">Gallusser-Weigert — 2024 CTC winner.</span></li>
+  <li><strong>Trackastra-Refine (2025)</strong> <span data-lang="zh">加入 refinement head 提升相黏細胞表現。</span><span data-lang="en">Adds a refinement head for touching cells.</span></li>
+  <li><strong>SAMURAI (2025)</strong> <span data-lang="zh">SAM2 + tracker；多模態通用追蹤。</span><span data-lang="en">SAM2 + tracker; multimodal general tracking.</span></li>
+  <li><strong>EmbedTrack v3 (2025)</strong> <span data-lang="zh">與 mitosis-aware 整合，譜系研究 SOTA。</span><span data-lang="en">Integrated with mitosis-aware logic; lineage SOTA.</span></li>
+  <li><strong>tracking-anything-v2 (2025)</strong> <span data-lang="zh">通用 video tracking；無需訓練。</span><span data-lang="en">General video tracking; no training required.</span></li>
+  <li><strong>CellTracksColab (2024)</strong> <span data-lang="zh">Google Colab 平台讓 PI 與學生協作 review。</span><span data-lang="en">A Google Colab platform for PI–student collaborative review.</span></li>
+  <li><strong>Hyperion (2025)</strong> <span data-lang="zh">多 omics 整合追蹤；單細胞 + 影像關聯。</span><span data-lang="en">Multi-omics tracking; single-cell + image linkage.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Kuhn 1965 LAP · Jaqaman 2008 Nat Methods · Tinevez 2017 Methods 115:80 · Ershov 2022 Nat Methods · Gallusser 2024 ECCV</div>
+<div class="an-cite" data-lang="en">Key refs: Kuhn 1965 LAP · Jaqaman 2008 Nat Methods · Tinevez 2017 Methods 115:80 · Ershov 2022 Nat Methods · Gallusser 2024 ECCV</div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Khuloud Jaqaman 2008 在 NIH 寫的 u-track Nat Methods 論文，整篇博士論文就是「把 LAP 應用到生物追蹤」。引用 4,000+ 次，現為 UT Southwestern 教授。<em>把 1965 的數學變成 2008 的工具，再被 2024 的 Transformer 超越</em>——這就是計算科學的傳承曲線。每個世代的工具都建立在前代的數學基礎之上。</span>
+<span data-lang="en">Khuloud Jaqaman's 2008 u-track Nat Methods paper — essentially her entire thesis — was 'applying LAP to biological tracking.' 4,000+ citations; she's now a professor at UT Southwestern. <em>1965 maths → 2008 tool → 2024 Transformer overtake</em> — that's the relay curve of computational science. Every generation's tool builds on the previous generation's math.</span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>你研究的細胞會分裂嗎？目前怎麼處理 mitosis？是否需要改用 mitosis-aware tracker？</li>
+    <li>跨日跨星期的長時間 tracker stability 你怎麼驗證？哪些 metric 最關鍵？</li>
+    <li>你會把 segmentation 與 tracking 視為「兩步」還是「一個」optimization 問題？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>Do the cells you study divide? How do you handle mitosis now? Should you switch to a mitosis-aware tracker?</li>
+    <li>How do you validate long-term tracker stability (days to weeks)? Which metrics matter most?</li>
+    <li>Do you treat segmentation and tracking as 'two steps' or 'one' joint optimization problem?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">Tracking 的真正困難不是「連起來」而是「在正確的時刻分叉」。</div>
+  <div class="rq-hint" data-lang="en">The real challenge in tracking is not 'linking' but 'branching at the right moment.'</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

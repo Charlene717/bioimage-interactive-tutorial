@@ -16,6 +16,17 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="一個像素能說多少生物學？" data-en="How much biology can a single pixel tell?">一個像素能說多少生物學？</h3>
+  <div data-lang="zh"><p>1873 年，蔡司公司的光學家 Ernst Abbe 寫下著名的繞射極限公式 d = λ/(2·NA)——告訴我們即使有完美的鏡頭，兩個點靠得太近就會「糊在一起」。一百五十年後，現代顯微鏡仍受這條公式束縛，但我們發明了更聰明的方法：用<strong>多張影像、多波長、多時間、多視角</strong>來重建生物的真相。</p>
+  <p>於是每一張顯微影像不再是「一張圖」，而是有著時間、通道、Z、Y、X 五個維度的<strong>多維陣列</strong>，外加雷射功率、像素大小、物鏡資訊等元資料。讀錯任何一個維度，你的「奈米級結論」其實可能是讀檔時把通道順序搞反了。</p></div>
+  <div data-lang="en"><p>In 1873, Zeiss optician Ernst Abbe wrote down the famous diffraction limit d = λ/(2·NA), telling us that two points too close together will always "blur into one." A hundred and fifty years later, we are still bound by his formula — but we've invented smarter tricks: <strong>multi-image, multi-wavelength, multi-time, multi-view</strong> reconstruction.</p>
+  <p>So a microscopy image is no longer "a picture" but a 5-D array with time, channels, Z, Y, X — plus laser power, pixel size, objective info. Read any dimension wrong and your "nanometre conclusion" might just be a channel swap on disk.</p></div>
+  <div class="story-question" data-lang="zh">🤔 想一想：如果同一張 confocal Z-stack 在 ImageJ 看是 (T,Z,C,Y,X)，在 numpy 看是 (Z,Y,X,C)，誰才對？答案是——兩個都對，因為它們是同一個 5D 陣列的不同投影方式。重點在 <em>你</em> 必須知道自己在哪個視角。</div>
+  <div class="story-question" data-lang="en">🤔 Think about it: if the same confocal Z-stack reads as (T,Z,C,Y,X) in ImageJ but (Z,Y,X,C) in numpy, which is "correct"? — Both, actually. They're different projections of the same 5-D array. What matters is that <em>you</em> know which view you're in.</div>
+</div>
+
 <section class="section">
 <div class="section-label" data-zh="概覽" data-en="OVERVIEW">概覽</div>
 <h2 data-zh="為什麼從影像基礎開始？" data-en="Why start with fundamentals?">為什麼從影像基礎開始？</h2>
@@ -211,6 +222,209 @@ run(<span class="str">"Bio-Formats Exporter"</span>, <span class="str">"save=[/p
 <span data-lang="zh"><strong>實用建議：</strong>專案啟動時建一個 <code>data_manifest.csv</code>，每一列記錄一張影像、檔案路徑、物種、組織、染色、顯微鏡、像素大小、Z 間距、拍攝者、日期。這張表會在三年後救你的命。</span>
 <span data-lang="en"><strong>Practical tip:</strong> At project start, create a <code>data_manifest.csv</code> — one row per image with path, species, tissue, staining, microscope, pixel size, Z step, operator, date. This table will save you three years from now.</span>
 </div></div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="關鍵術語雙語對照：兒童版 + 技術版" data-en="Key Terms Glossary: Kid + Tech version">關鍵術語雙語對照</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">像素 <span class="en">Pixel</span></div><div class="gloss-kid" data-lang="zh">影像的最小方格，像馬賽克的一片。</div><div class="gloss-kid" data-lang="en">The smallest square in an image — one mosaic tile.</div><div class="gloss-tech" data-lang="zh">2D 取樣單元，攜帶強度值與隱含的物理大小（μm/px）。</div><div class="gloss-tech" data-lang="en">A 2-D sampling unit carrying an intensity value and an implicit physical size (μm/px).</div></div>
+  <div class="gloss-card"><div class="gloss-term">體素 <span class="en">Voxel</span></div><div class="gloss-kid" data-lang="zh">像素的 3D 版本——立方體。</div><div class="gloss-kid" data-lang="en">A pixel's 3-D cousin — a cube.</div><div class="gloss-tech" data-lang="zh">3D 取樣單元，常為各向異性（dz ≠ dx ≠ dy）。</div><div class="gloss-tech" data-lang="en">A 3-D sampling unit, usually anisotropic (dz ≠ dx ≠ dy).</div></div>
+  <div class="gloss-card"><div class="gloss-term">位元深度 <span class="en">Bit depth</span></div><div class="gloss-kid" data-lang="zh">每個像素可以記住多少不同的亮度。</div><div class="gloss-kid" data-lang="en">How many distinct brightness levels each pixel can remember.</div><div class="gloss-tech" data-lang="zh">8-bit=256 階；16-bit=65,536 階（科學相機常見）；float32 用於濾波後。</div><div class="gloss-tech" data-lang="en">8-bit=256 levels; 16-bit=65,536 (typical scientific cameras); float32 after filtering.</div></div>
+  <div class="gloss-card"><div class="gloss-term">通道 <span class="en">Channel</span></div><div class="gloss-kid" data-lang="zh">不同顏色螢光各拍一張，疊起來就是多通道。</div><div class="gloss-kid" data-lang="en">One stack per fluorescence colour — stacked together = multi-channel.</div><div class="gloss-tech" data-lang="zh">獨立的螢光標誌維度（DAPI / GFP / Cy5）。Mesmer 要求 ch0=核，ch1=膜。</div><div class="gloss-tech" data-lang="en">Independent fluorophore dimensions (DAPI / GFP / Cy5). Mesmer requires ch0=nucleus, ch1=membrane.</div></div>
+  <div class="gloss-card"><div class="gloss-term">各向異性 <span class="en">Anisotropy</span></div><div class="gloss-kid" data-lang="zh">立方體的長寬高不一樣。</div><div class="gloss-kid" data-lang="en">A "cube" that isn't really cubic.</div><div class="gloss-tech" data-lang="zh">Z spacing / XY spacing 通常 3–10×，3D segmentation 必須處理。</div><div class="gloss-tech" data-lang="en">Z spacing / XY spacing is typically 3–10× — 3-D segmentation must handle this.</div></div>
+  <div class="gloss-card"><div class="gloss-term">數值孔徑 <span class="en">NA</span></div><div class="gloss-kid" data-lang="zh">物鏡能「抓多少光」的能力。</div><div class="gloss-kid" data-lang="en">How much light an objective can "grab."</div><div class="gloss-tech" data-lang="zh">Numerical aperture = n·sin(θ)；決定解析度上限（Abbe 公式）。油鏡 NA 可達 1.4。</div><div class="gloss-tech" data-lang="en">Numerical aperture = n·sin(θ); sets the resolution limit (Abbe). Oil objectives reach NA 1.4.</div></div>
+  <div class="gloss-card"><div class="gloss-term">奈奎斯特取樣 <span class="en">Nyquist sampling</span></div><div class="gloss-kid" data-lang="zh">想記住一個小細節，至少要拍它 2 倍細的格子。</div><div class="gloss-kid" data-lang="en">To capture a fine detail, sample twice as finely.</div><div class="gloss-tech" data-lang="zh">像素大小 ≤ d_Abbe / 2.3，是顯微取樣的黃金規則。</div><div class="gloss-tech" data-lang="en">Pixel size ≤ d_Abbe / 2.3 — the golden microscopy sampling rule.</div></div>
+  <div class="gloss-card"><div class="gloss-term">動態範圍 <span class="en">Dynamic range</span></div><div class="gloss-kid" data-lang="zh">影像中最暗到最亮的差距。</div><div class="gloss-kid" data-lang="en">Difference between the darkest and brightest pixel.</div><div class="gloss-tech" data-lang="zh">影響量化準確度，16-bit 常只填到 12-bit (4096) 有效值。</div><div class="gloss-tech" data-lang="en">Drives quantification accuracy; 16-bit often only fills 12 useful bits (4096).</div></div>
+  <div class="gloss-card"><div class="gloss-term">OME-TIFF <span class="en">OME-TIFF</span></div><div class="gloss-kid" data-lang="zh">影像 + 它的「身分證」(OME-XML metadata) 同檔保存。</div><div class="gloss-kid" data-lang="en">An image plus its "ID card" (OME-XML metadata) in one file.</div><div class="gloss-tech" data-lang="zh">標準化 5D 容器，內嵌 OME-XML，相容於 Bio-Formats。</div><div class="gloss-tech" data-lang="en">A standardized 5-D container with embedded OME-XML, Bio-Formats compatible.</div></div>
+  <div class="gloss-card"><div class="gloss-term">OME-Zarr <span class="en">NGFF</span></div><div class="gloss-kid" data-lang="zh">把大影像切成小積木，雲端就能一塊塊拿來看。</div><div class="gloss-kid" data-lang="en">A big image broken into bricks — the cloud streams just what you need.</div><div class="gloss-tech" data-lang="zh">NGFF spec 的雲端原生分塊金字塔格式（2021–）。</div><div class="gloss-tech" data-lang="en">Cloud-native chunked pyramidal format implementing the NGFF spec (2021–).</div></div>
+  <div class="gloss-card"><div class="gloss-term">Bio-Formats <span class="en">Bio-Formats</span></div><div class="gloss-kid" data-lang="zh">能讀懂幾乎所有顯微鏡專有格式的萬能翻譯機。</div><div class="gloss-kid" data-lang="en">The universal translator that reads almost any proprietary microscopy format.</div><div class="gloss-tech" data-lang="zh">OME 出品的 Java lib，支援 ~150 廠商格式；Linkert 2010 JCB。</div><div class="gloss-tech" data-lang="en">OME's Java library supporting ~150 vendor formats; Linkert 2010 JCB.</div></div>
+  <div class="gloss-card"><div class="gloss-term">MPP <span class="en">Microns Per Pixel</span></div><div class="gloss-kid" data-lang="zh">每個像素代表幾微米，是病理片最重要的「比例尺」。</div><div class="gloss-kid" data-lang="en">How many microns one pixel covers — the most important scale bar for WSI.</div><div class="gloss-tech" data-lang="zh">20× 物鏡 ≈ 0.5 μm/px；40× ≈ 0.25。pretrained 模型常綁定特定 MPP。</div><div class="gloss-tech" data-lang="en">20× ≈ 0.5 μm/px; 40× ≈ 0.25. Pretrained models often expect a specific MPP.</div></div>
+  <div class="gloss-card"><div class="gloss-term">軸序 <span class="en">Axis order</span></div><div class="gloss-kid" data-lang="zh">5D 資料每個維度的順序，誰先誰後。</div><div class="gloss-kid" data-lang="en">The order of dimensions in a 5-D array — who comes first.</div><div class="gloss-tech" data-lang="zh">OME 約定 TCZYX；Fiji 預設 XYCZT；numpy 慣 (Z,Y,X) 或 (Y,X,C)。</div><div class="gloss-tech" data-lang="en">OME uses TCZYX; Fiji defaults to XYCZT; numpy prefers (Z,Y,X) or (Y,X,C).</div></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="從繞射極限到雲端原生：顯微影像 150 年" data-en="From Abbe to Cloud-Native: 150 Years of Microscopy Imaging">從繞射極限到雲端原生：150 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="顯微影像里程碑" data-en="Microscopy Imaging Milestones">顯微影像里程碑</span></h4>
+<div class="tl-item milestone"><span class="tl-year">1873</span><span class="tl-title" data-zh="Abbe 繞射極限" data-en="Abbe's diffraction limit">Abbe 繞射極限</span><div class="tl-body" data-lang="zh">Ernst Abbe 推導 d = λ/(2·NA)，奠定光學顯微鏡解析度上限。</div><div class="tl-body" data-lang="en">Ernst Abbe derives d = λ/(2·NA), setting the ceiling for light-microscope resolution.</div></div>
+<div class="tl-item"><span class="tl-year">1934</span><span class="tl-title" data-zh="相位差顯微鏡 (Zernike)" data-en="Phase contrast (Zernike)">相位差顯微鏡</span><div class="tl-body" data-lang="zh">Frits Zernike 發明相位差，讓無染色透明細胞變得可見（1953 諾貝爾物理）。</div><div class="tl-body" data-lang="en">Frits Zernike invents phase contrast, making transparent unstained cells visible (1953 Nobel).</div></div>
+<div class="tl-item"><span class="tl-year">1957</span><span class="tl-title" data-zh="共軛焦顯微鏡 (Minsky)" data-en="Confocal microscopy (Minsky)">共軛焦顯微鏡</span><div class="tl-body" data-lang="zh">Marvin Minsky 申請 confocal 專利，光學切片讓 3D 重建成為可能。</div><div class="tl-body" data-lang="en">Marvin Minsky patents the confocal principle — optical sectioning unlocks 3-D reconstruction.</div></div>
+<div class="tl-item"><span class="tl-year">1986</span><span class="tl-title" data-zh="TIFF 6.0 規格" data-en="TIFF 6.0 spec">TIFF 6.0 規格</span><div class="tl-body" data-lang="zh">Aldus / Adobe 制定 TIFF 6.0，成為日後科學影像的事實儲存格式。</div><div class="tl-body" data-lang="en">Aldus / Adobe finalize TIFF 6.0 — the de facto storage format for scientific imaging.</div></div>
+<div class="tl-item"><span class="tl-year">1994</span><span class="tl-title" data-zh="GFP 革命 (Chalfie)" data-en="GFP revolution (Chalfie)">GFP 革命</span><div class="tl-body" data-lang="zh">Martin Chalfie 等將 GFP 異源表達於 <em>C. elegans</em>，活細胞螢光分析時代開啟（2008 諾貝爾化學）。</div><div class="tl-body" data-lang="en">Martin Chalfie expresses GFP in <em>C. elegans</em> — heterologous fluorescent labels become possible (2008 Nobel).</div></div>
+<div class="tl-item milestone"><span class="tl-year">2006</span><span class="tl-title" data-zh="OME 模型 + Bio-Formats" data-en="OME model + Bio-Formats">OME + Bio-Formats</span><div class="tl-body" data-lang="zh">OME consortium 推出標準化 OME-XML metadata + Bio-Formats Java library。</div><div class="tl-body" data-lang="en">The OME consortium releases standardized OME-XML metadata and the Bio-Formats Java library.</div></div>
+<div class="tl-item"><span class="tl-year">2010</span><span class="tl-title" data-zh="Bio-Formats JCB 論文" data-en="Bio-Formats JCB paper">Bio-Formats JCB paper</span><div class="tl-body" data-lang="zh">Linkert <em>et al.</em> 在 J. Cell Biol. 發表 Bio-Formats，奠定影像 IO 標準。</div><div class="tl-body" data-lang="en">Linkert <em>et al.</em> publish Bio-Formats in J. Cell Biol., setting the imaging I/O standard.</div></div>
+<div class="tl-item"><span class="tl-year">2014</span><span class="tl-title" data-zh="格狀光片顯微鏡" data-en="Lattice light-sheet">格狀光片顯微鏡</span><div class="tl-body" data-lang="zh">Eric Betzig 等於 <em>Science</em> 發表 lattice LSFM，TB 級資料時代來臨。</div><div class="tl-body" data-lang="en">Betzig <em>et al.</em> publish lattice light-sheet in <em>Science</em> — the TB-scale data era begins.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2021</span><span class="tl-title" data-zh="OME-NGFF / OME-Zarr" data-en="OME-NGFF / OME-Zarr">OME-NGFF / OME-Zarr</span><div class="tl-body" data-lang="zh">Moore <em>et al.</em> Nature Methods，雲端原生分塊金字塔成為新標準。</div><div class="tl-body" data-lang="en">Moore <em>et al.</em>, Nature Methods — cloud-native chunked pyramidal format becomes the new standard.</div></div>
+<div class="tl-item recent"><span class="tl-year">2023</span><span class="tl-title" data-zh="OME-Zarr 國際協作" data-en="OME-Zarr international consortium">OME-Zarr 國際協作</span><div class="tl-body" data-lang="zh">Moore <em>et al.</em> Histochem. Cell Biol. 160:223，39 機構共同推動 NGFF 採用。</div><div class="tl-body" data-lang="en">Moore <em>et al.</em>, Histochem. Cell Biol. 160:223 — 39 institutions co-author NGFF adoption.</div></div>
+<div class="tl-item recent"><span class="tl-year">2024</span><span class="tl-title" data-zh="BIDS-Microscopy" data-en="BIDS-Microscopy extension">BIDS-Microscopy 延伸</span><div class="tl-body" data-lang="zh">BIDS 規範延伸至顯微影像，定義可重現的目錄結構與 metadata schema。</div><div class="tl-body" data-lang="en">BIDS extends to microscopy with a reproducible directory structure and metadata schema.</div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="Abbe 與 Nyquist：兩個改變一切的公式" data-en="Abbe and Nyquist: Two formulas that change everything">Abbe 與 Nyquist：兩個改變一切的公式</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">d<sub>Abbe</sub> = λ / (2 · NA)</div>
+<div class="sw-step"><strong>① λ</strong> <span data-lang="zh">：螢光發射波長。DAPI ≈ 461 nm, GFP ≈ 510 nm, Cy5 ≈ 670 nm。短波長 → 更高解析度（這就是為什麼 STORM 喜歡用 405 雷射）。</span><span data-lang="en">: emission wavelength. DAPI ≈ 461 nm, GFP ≈ 510 nm, Cy5 ≈ 670 nm. Shorter λ → higher resolution (why STORM loves 405 nm lasers).</span></div>
+<div class="sw-step"><strong>② NA</strong> <span data-lang="zh">：數值孔徑 = n·sin θ。氣鏡 NA ≤ 0.95；油鏡 NA 可達 1.4–1.49（n=1.515）。NA 加倍 → 解析度減半（更好）。</span><span data-lang="en">: numerical aperture = n·sin θ. Air ≤ 0.95; oil reaches 1.4–1.49 (n=1.515). Doubling NA halves d (better).</span></div>
+<div class="sw-step"><strong>③ <span data-lang="zh">範例</span><span data-lang="en">Example</span></strong> <span data-lang="zh">：GFP + 60× 油鏡 → d = 510 / (2 × 1.4) ≈ <strong>182 nm</strong>。這是 widefield 的解析度極限。</span><span data-lang="en">: GFP + 60× oil → d = 510 / (2 × 1.4) ≈ <strong>182 nm</strong>. The widefield limit.</span></div>
+<div class="sw-eq" style="margin-top:14px">pixel size ≤ d<sub>Abbe</sub> / 2.3 &nbsp;&nbsp;<span style="color:#7dd3fc">(Nyquist)</span></div>
+<div class="sw-step"><strong>④ Nyquist</strong> <span data-lang="zh">：要保留訊息，像素必須夠細。182 / 2.3 ≈ <strong>79 nm/px</strong>。比 d_Abbe 大 → aliasing；比 d_Abbe 小太多 → 過取樣浪費 SNR。</span><span data-lang="en">: pixels must be small enough. 182 / 2.3 ≈ <strong>79 nm/px</strong>. Larger than d_Abbe → aliasing; much smaller → wastes SNR with oversampling.</span></div>
+<div class="sw-note" data-lang="zh">所以 confocal 60× 油鏡 GFP 通道的像素大小設 ~80 nm/px 是 Nyquist 黃金值。低於這個值的「高放大率」其實是空轉，只會降低 SNR 而沒有取得新訊息。</div>
+<div class="sw-note" data-lang="en">So ~80 nm/px is the Nyquist sweet spot for confocal 60× oil GFP. "Higher magnification" below this is empty zoom — lowers SNR without adding information.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="引人深思的三個問題" data-en="Three Thought-Provoking Questions">三個引人深思的問題</h2>
+<div class="discussion-row">
+  <div class="discussion-card">
+    <h5 data-zh="A. 8-bit 真的「夠用」嗎？" data-en="A. Is 8-bit ever 'good enough'?">A. 8-bit 真的「夠用」嗎？</h5>
+    <div class="disc-q" data-lang="zh">你的螢光定量論文圖片在投稿前被審稿人問：「為什麼把 16-bit 原圖轉成 8-bit 顯示？是不是犧牲了動態範圍？」你會怎麼回答？</div>
+    <div class="disc-q" data-lang="en">A reviewer asks: "Why did you display your 16-bit data as 8-bit? Did you sacrifice dynamic range?" How do you respond?</div>
+    <div class="disc-hint" data-lang="zh">提示：顯示 ≠ 分析。先確認所有<em>定量</em>步驟都在 16-bit 上完成；<em>顯示</em>用 8-bit 配 percentile-based contrast（如 0.1–99.9%）是普遍實踐，記得在 methods 寫明。</div>
+    <div class="disc-hint" data-lang="en">Hint: display ≠ analysis. Confirm all <em>quantitation</em> happened in 16-bit; 8-bit display with percentile contrast (0.1–99.9%) is standard. Document it in methods.</div>
+  </div>
+  <div class="discussion-card">
+    <h5 data-zh="B. Pixel size 為何決定論文結論？" data-en="B. How does pixel size shape conclusions?">B. Pixel size 為何決定論文結論？</h5>
+    <div class="disc-q" data-lang="zh">同一張 confocal 影像，A 實驗室寫 0.21 μm/px、B 寫 0.42 μm/px。後續測量的「細胞直徑」會差多少？這對 cell-cycle 統計推論影響為何？</div>
+    <div class="disc-q" data-lang="en">Two labs report the same confocal image as 0.21 μm/px vs. 0.42 μm/px. How different are their "cell diameters"? What does that do to cell-cycle statistics?</div>
+    <div class="disc-hint" data-lang="zh">提示：所有以 μm 表示的形態值都會差 2×。建議：每篇論文必須記錄 acquisition log 與 ome-tiff metadata 雙保險，並在 methods 寫出 pixel size。</div>
+    <div class="disc-hint" data-lang="en">Hint: every micron-based morphology value would differ by 2×. Record both acquisition logs and OME-TIFF metadata, and report pixel size in methods.</div>
+  </div>
+  <div class="discussion-card">
+    <h5 data-zh="C. OME-Zarr 會淘汰 TIFF 嗎？" data-en="C. Will OME-Zarr replace TIFF?">C. OME-Zarr 會淘汰 TIFF 嗎？</h5>
+    <div class="disc-q" data-lang="zh">你的單位仍用 TIFF 為主，但同事推薦 OME-Zarr。在何種情境下換格式的「邊際效益」最高？哪些情境暫時不必？</div>
+    <div class="disc-q" data-lang="en">Your lab still uses TIFF, but a colleague pushes OME-Zarr. When does switching pay off most? When is it not worth it yet?</div>
+    <div class="disc-hint" data-lang="zh">提示：&gt;5–10 GB 與 cloud / remote 場景受益最大（可只下載 ROI 而非整檔）；&lt;1 GB 單檔案桌面工作流，TIFF 仍很合理。</div>
+    <div class="disc-hint" data-lang="en">Hint: &gt;5–10 GB or cloud workflows gain most (stream ROIs without downloading the file). For &lt;1 GB local workflows, TIFF is still reasonable.</div>
+  </div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個影響深遠的故事" data-en="Two Stories That Shaped the Field">兩個影響深遠的故事</h2>
+<div class="spotlight">
+  <h5 data-zh="① Bio-Formats 如何拯救了顯微影像分析" data-en="① How Bio-Formats Saved Microscopy Analysis">① Bio-Formats 如何拯救了顯微影像分析</h5>
+  <div class="spot-meta">Linkert et al., J. Cell Biol. 2010 · DOI: 10.1083/jcb.201004104 · 1,000+ citations</div>
+  <p data-lang="zh">2000 年代初，每家顯微鏡廠商都用自家格式（CZI、LIF、ND2、OIB…），分析者必須轉檔、丟元資料。OME (Open Microscopy Environment) 在 2006 年發布 Bio-Formats Java library，<strong>支援 ~150 種廠商格式並保留 OME-XML metadata</strong>，徹底改變生態：Fiji、QuPath、CellProfiler、napari 全部建立在它之上。如今 Bio-Formats 被引用超過 1,000 次，是顯微影像分析的「水電」。</p>
+  <p data-lang="en">In the early 2000s, every vendor used its own format (CZI, LIF, ND2, OIB…) — analysts had to convert and lose metadata. OME released Bio-Formats in 2006 — a Java library <strong>supporting ~150 vendor formats while preserving OME-XML metadata</strong> — and changed everything. Fiji, QuPath, CellProfiler, napari all build on it. Bio-Formats has &gt;1,000 citations and is microscopy's plumbing.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：標準化看似乏味，卻是讓整個社群可以累積知識的關鍵基礎建設。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: standardization looks boring but is the infrastructure that lets a community accumulate knowledge.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② Allen Cell Explorer 的 6 TB 細胞地圖" data-en="② The 6 TB Cell Map of Allen Cell Explorer">② Allen Cell Explorer 的 6 TB 細胞地圖</h5>
+  <div class="spot-meta">Allen Institute for Cell Science · allencell.org · OME-Zarr on AWS S3</div>
+  <p data-lang="zh">Allen Institute 公開了 200,000+ 張人類 iPSC 的 3D 共軛焦影像 + AI 推論結果（每個胞器一個 channel），整體 6 TB。為了讓全球研究者能在瀏覽器即時瀏覽，他們<strong>全部轉成 OME-Zarr 並架在 S3 上</strong>。任何人 <code>napari --plugin napari-ome-zarr "s3://..."</code> 就能秒開。這正是 OME-Zarr 設計初衷的最佳範例。</p>
+  <p data-lang="en">The Allen Institute publishes 200,000+ 3-D confocal stacks of human iPSCs with per-organelle AI inference channels — 6 TB total. To let anyone stream them in a browser, they <strong>converted everything to OME-Zarr on S3</strong>. <code>napari --plugin napari-ome-zarr "s3://..."</code> opens any cell in seconds. The poster child for cloud-native bioimage data.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：當資料大到無法下載，「不必下載」的格式設計才是解方。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: when data is too big to download, the right answer is a "no download needed" format design.</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="影像基礎六大陷阱" data-en="Six Pitfalls of Image Fundamentals">影像基礎六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="通道順序顛倒" data-en="Channel order swap">通道順序顛倒</span><div class="pf-body" data-lang="zh">Mesmer 規定 ch0=核、ch1=膜；順序錯不會報錯，但分割完全錯誤。</div><div class="pf-body" data-lang="en">Mesmer requires ch0=nucleus, ch1=membrane; swapping silently breaks segmentation.</div><div class="pf-fix" data-lang="zh">讀檔後立刻列印 channel_names 並肉眼對照預期。</div><div class="pf-fix" data-lang="en">Always print channel_names and visually verify right after loading.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="無腦 astype(uint8)" data-en="Mindless astype(uint8)">無腦 astype(uint8)</span><div class="pf-body" data-lang="zh">把 16-bit 直接降成 8-bit，99% 動態範圍消失。</div><div class="pf-body" data-lang="en">Casting 16-bit to 8-bit destroys 99% of dynamic range.</div><div class="pf-fix" data-lang="zh">分析保留原 dtype；顯示用 percentile contrast stretch。</div><div class="pf-fix" data-lang="en">Keep native dtype for analysis; use percentile contrast for display.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="忽略各向異性" data-en="Ignoring anisotropy">忽略各向異性</span><div class="pf-body" data-lang="zh">Z spacing 比 XY 大 5× 卻不告訴模型 → 3D 形狀「壓扁」。</div><div class="pf-body" data-lang="en">Z is 5× coarser than XY but you don't say so → 3-D cells get "flattened."</div><div class="pf-fix" data-lang="zh">傳 anisotropy=5 給 segmenter 或先 resample 到 isotropic。</div><div class="pf-fix" data-lang="en">Pass anisotropy=5 to the segmenter or resample to isotropic first.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="WSI 用 tifffile 整檔載入" data-en="Loading WSI with tifffile">WSI 用 tifffile 整檔載入</span><div class="pf-body" data-lang="zh">.svs / .ndpi 是 giga-pixel 金字塔，整檔讀入直接 OOM。</div><div class="pf-body" data-lang="en">.svs / .ndpi are gigapixel pyramids; loading whole = OOM.</div><div class="pf-fix" data-lang="zh">改用 OpenSlide / TiffSlide tile 級存取。</div><div class="pf-fix" data-lang="en">Use OpenSlide / TiffSlide tile-level access.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="不記錄 pixel size" data-en="No pixel size">不記錄 pixel size</span><div class="pf-body" data-lang="zh">TIFF 沒寫 μm/px，論文裡所有 μm 數字都是猜的。</div><div class="pf-body" data-lang="en">TIFF lacking μm/px → every "μm" in the paper is a guess.</div><div class="pf-fix" data-lang="zh">儲存時保留 OME-XML metadata；用 OME-TIFF。</div><div class="pf-fix" data-lang="en">Preserve OME-XML metadata; save as OME-TIFF.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="過取樣假高解析" data-en="Empty over-sampling">過取樣假高解析</span><div class="pf-body" data-lang="zh">像素大小遠小於 d_Abbe/2.3，看起來「更細」但其實只有 SNR 變差。</div><div class="pf-body" data-lang="en">Pixel ≪ d_Abbe/2.3 "looks sharper" but is just worse SNR — empty zoom.</div><div class="pf-fix" data-lang="zh">先算 Nyquist 上限再設 acquisition pixel size。</div><div class="pf-fix" data-lang="en">Compute the Nyquist limit and set acquisition pixel size to match.</div></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種讀檔哲學：原始 vs. OME-aware" data-en="Two Loading Philosophies: Raw vs. OME-aware">兩種讀檔哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="原始陣列導向" data-en="Raw-array thinking">原始陣列導向</span></h5>
+    <ul>
+      <li data-lang="zh">numpy / PIL 直接讀，把影像當「一塊 RGB」</li>
+      <li data-lang="zh">通道順序靠經驗，pixel size 從 ImageJ 寫死</li>
+      <li data-lang="zh">3D stack 用 imread 整檔 + slicing</li>
+      <li data-lang="zh">元資料丟失，跨平台分享前必須重新填表</li>
+      <li data-lang="zh">同事拿到檔案 = 重新猜 channel / px size / Z step</li>
+      <li data-lang="en">numpy / PIL load, treats image as one "RGB blob"</li>
+      <li data-lang="en">Channel order assumed, pixel size hard-coded</li>
+      <li data-lang="en">3-D stacks via imread + slicing</li>
+      <li data-lang="en">Metadata discarded; cross-site sharing needs re-entry</li>
+      <li data-lang="en">Colleagues reuse file = re-guess channel / px size / Z step</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="OME-aware 工作流" data-en="OME-aware workflow">OME-aware 工作流</span></h5>
+    <ul>
+      <li data-lang="zh">bioio / aicsimageio / tifffile，回傳 5D xarray 並保留 dims</li>
+      <li data-lang="zh">channel_names、physical_pixel_sizes 直接從檔案讀</li>
+      <li data-lang="zh">大資料 → OME-Zarr + dask 惰性處理</li>
+      <li data-lang="zh">原始 metadata 跟著資料走，論文可重現</li>
+      <li data-lang="zh">三年後同事重跑你的分析仍能得到相同數字</li>
+      <li data-lang="en">bioio / aicsimageio / tifffile return 5-D xarray with dims preserved</li>
+      <li data-lang="en">channel_names, physical_pixel_sizes read straight from file</li>
+      <li data-lang="en">Big data → OME-Zarr + dask lazy processing</li>
+      <li data-lang="en">Metadata travels with the data — papers are reproducible</li>
+      <li data-lang="en">Three years later a colleague reruns your analysis and gets the same numbers</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 顯微影像基礎建設趨勢" data-en="2024–2026 Trends in Microscopy Infrastructure">2024–2026 最新趨勢</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="雲端原生 + AI-ready：影像格式的下一步" data-en="Cloud-native + AI-ready: where image formats are heading">雲端原生 + AI-ready</h5>
+<p data-lang="zh">2024–2026 最重要的進展不是分割演算法，而是<strong>影像資料層</strong>本身的革命：</p>
+<p data-lang="en">The most important advance of 2024–2026 isn't a segmentation algorithm — it's the revolution of the <strong>image data layer</strong> itself:</p>
+<ul>
+  <li><strong>OME-Zarr v0.5 (2024)</strong> <span data-lang="zh">支援 multiscale + plate-layout + labels，正式成為 HCS / spatial omics 的事實標準。</span><span data-lang="en">adds multiscale + plate-layout + labels; now the de facto standard for HCS / spatial omics.</span></li>
+  <li><strong>BIDS-Microscopy (2024)</strong> <span data-lang="zh">將 fMRI BIDS 規範延伸至光學顯微，建立可重現目錄結構與 JSON sidecar。</span><span data-lang="en">extends fMRI BIDS to light microscopy with reproducible folder structures and JSON sidecars.</span></li>
+  <li><strong>DICOM-WSI 2.0 (2025)</strong> <span data-lang="zh">臨床病理走向 DICOM 整合，TCGA、CPTAC 等公開資料皆已上 DICOM。</span><span data-lang="en">clinical pathology embraces DICOM; TCGA / CPTAC have migrated.</span></li>
+  <li><strong>NWB-Image 整合 (2025)</strong> <span data-lang="zh">神經影像 + 行為資料 + 電生理共存於一個 NWB 檔。</span><span data-lang="en">Neural imaging + behaviour + ephys cohabit a single NWB file.</span></li>
+  <li><strong>BioImage Archive 5 PB 里程碑 (2026)</strong> <span data-lang="zh">EMBL-EBI 影像庫突破 5 PB，相當於 NCBI SRA 之於序列。</span><span data-lang="en">EMBL-EBI image repository passes 5 PB — the SRA-equivalent for images.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Moore <em>et al.</em>, Histochem. Cell Biol. 160:223 (2023) · <a href="https://ngff.openmicroscopy.org">ngff.openmicroscopy.org</a></div>
+<div class="an-cite" data-lang="en">Key refs: Moore <em>et al.</em>, Histochem. Cell Biol. 160:223 (2023) · <a href="https://ngff.openmicroscopy.org">ngff.openmicroscopy.org</a></div>
+</div>
+
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Ernst Abbe 在 1873 年提出繞射極限後，光學家以為這是「永遠」的天花板。但 2014 年諾貝爾化學獎頒給 Eric Betzig、Stefan Hell、William Moerner 的「超解析顯微鏡」(STED, STORM, PALM)——他們用單分子定位、刺激發射等技巧<em>繞過</em>了 Abbe 限制，將解析度推進到 20 nm。Abbe 本人說過：「未來可能會有什麼新方法...」一語成讖。</span>
+<span data-lang="en">When Abbe formulated the diffraction limit in 1873, opticians thought it was a "permanent" ceiling. Then in 2014 the Nobel Prize went to Eric Betzig, Stefan Hell, and William Moerner for super-resolution (STED, STORM, PALM) — they <em>went around</em> the limit using single-molecule localization and stimulated emission, reaching 20 nm. Abbe himself once wrote: "Maybe some future method will..." — prophetic words.</span>
+</div>
+</section>
+
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>下次拿到一份新 confocal 資料，<strong>讀檔後三件事</strong>你會做哪三件？為什麼？</li>
+    <li>你的實驗室現在用什麼格式儲存影像？切換到 OME-TIFF 或 OME-Zarr 的成本與收益分別是什麼？</li>
+    <li>如果你要教生物學系大一新生「影像分析」三句話，哪三句最重要？為什麼？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>Next time you receive a new confocal dataset, what are the <strong>three things you'll do right after loading</strong>? Why?</li>
+    <li>What format does your lab currently use? What is the cost / benefit of switching to OME-TIFF or OME-Zarr?</li>
+    <li>If you had to teach freshman biology students "image analysis" in three sentences, what would those three sentences be?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">把答案寫在你的研究筆記裡——三個月後回來看，你會驚訝。</div>
+  <div class="rq-hint" data-lang="en">Write your answers in your research notebook — come back in three months and you'll be surprised.</div>
+</div>
 </section>
 
 <section class="quiz-section">

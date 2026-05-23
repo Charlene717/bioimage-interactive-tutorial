@@ -16,6 +16,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="從 ImageJ 1997 到 BioImage.IO Chatbot 2024：工具生態 30 年" data-en="From ImageJ 1997 to BioImage.IO Chatbot 2024: 30 years of tooling">從 ImageJ 1997 到 BioImage.IO Chatbot 2024：工具生態 30 年</h3>
+  <div data-lang="zh"><p>1997 年 Wayne Rasband 在 NIH 發布 ImageJ 1.0；2012 Pavel Tomančák 等發起 Fiji 「Is just ImageJ」分發版；2017 Nick Sofroniew 在 Janelia 為 Python 寫 napari N-D viewer；同時 Anne Carpenter 在 Broad 發展 CellProfiler。</p><p>20 年間 bioimage 工具從「個人英雄」走向「社群協作」。今天選 Fiji vs napari vs CellProfiler vs QuPath vs ilastik，常常不是「哪個比較強」，而是「哪個比較符合你的工作流」。2024 BioImage.IO Chatbot 進一步出現，AI 助你選工具找模型。</p></div>
+  <div data-lang="en"><p>Wayne Rasband released ImageJ 1.0 at NIH in 1997; Pavel Tomančák and team launched Fiji 'Is just ImageJ' in 2012; Nick Sofroniew at Janelia wrote napari for Python in 2017; meanwhile Anne Carpenter at Broad built CellProfiler.</p><p>In 20 years bioimage tooling moved from 'individual heroes' to 'community collaboration.' Today the choice among Fiji / napari / CellProfiler / QuPath / ilastik is rarely 'which is stronger' but 'which fits your workflow.' By 2024 the BioImage.IO Chatbot arrived — AI helping you pick tools and find models.</p></div>
+  <div class="story-question" data-lang="zh">🤔 為什麼一個 lab 同時需要 Fiji + Python + Snakemake + 容器？這個 layered approach 反映 reproducibility 的層次本質。</div>
+  <div class="story-question" data-lang="en">🤔 Why does one lab need Fiji + Python + Snakemake + containers all at once? This layered approach reflects reproducibility's intrinsic structure.</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="工具地圖" data-en="MAP">工具地圖</div>
 <h2 data-zh="一、五大工具角色定位" data-en="I. Five Tool Roles">一、五大工具角色</h2>
@@ -127,6 +137,188 @@
 </div>
 </div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="工具與整合核心詞彙" data-en="Core Vocabulary for Tooling & Integration">工具與整合核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">Fiji <span class="en">Fiji (Is just ImageJ)</span></div><div class="gloss-kid" data-lang="zh">預裝插件的 ImageJ 分發版。</div><div class="gloss-kid" data-lang="en">An ImageJ distribution with bundled plugins.</div><div class="gloss-tech" data-lang="zh">Schindelin 2012 Nat Methods；社群維護的 update site。</div><div class="gloss-tech" data-lang="en">Schindelin 2012 Nat Methods; community-maintained update sites.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Macro / Jython / Groovy <span class="en">Macro / Jython / Groovy</span></div><div class="gloss-kid" data-lang="zh">Fiji 三種腳本語言。</div><div class="gloss-kid" data-lang="en">Fiji's three scripting languages.</div><div class="gloss-tech" data-lang="zh">Macro 簡易；Jython=Python on JVM；Groovy 現代化。</div><div class="gloss-tech" data-lang="en">Macro is simple; Jython = Python on JVM; Groovy is modern.</div></div>
+  <div class="gloss-card"><div class="gloss-term">napari <span class="en">napari</span></div><div class="gloss-kid" data-lang="zh">Python 原生的 N 維影像 viewer。</div><div class="gloss-kid" data-lang="en">A Python-native N-dimensional image viewer.</div><div class="gloss-tech" data-lang="zh">image / labels / points / shapes / tracks layers；plugin 易寫。</div><div class="gloss-tech" data-lang="en">image / labels / points / shapes / tracks layers; easy plugin authoring.</div></div>
+  <div class="gloss-card"><div class="gloss-term">CellProfiler <span class="en">CellProfiler</span></div><div class="gloss-kid" data-lang="zh">無需寫程式的 HCS pipeline 工具。</div><div class="gloss-kid" data-lang="en">A no-code HCS pipeline tool.</div><div class="gloss-tech" data-lang="zh">GUI .cppipe；可 headless 上叢集。</div><div class="gloss-tech" data-lang="en">GUI .cppipe; headless runs on a cluster.</div></div>
+  <div class="gloss-card"><div class="gloss-term">QuPath <span class="en">QuPath</span></div><div class="gloss-kid" data-lang="zh">病理 WSI 的 GUI + Groovy 腳本。</div><div class="gloss-kid" data-lang="en">GUI + Groovy scripting for pathology WSI.</div><div class="gloss-tech" data-lang="zh">Bankhead 2017 Sci Rep；病理研究標配。</div><div class="gloss-tech" data-lang="en">Bankhead 2017 Sci Rep; the pathology workhorse.</div></div>
+  <div class="gloss-card"><div class="gloss-term">ilastik <span class="en">ilastik</span></div><div class="gloss-kid" data-lang="zh">用畫畫的方式訓練 Random Forest 分類器。</div><div class="gloss-kid" data-lang="en">Train a Random Forest classifier by painting.</div><div class="gloss-tech" data-lang="zh">Berg 2019 Nat Methods；稀疏標註 + RF。</div><div class="gloss-tech" data-lang="en">Berg 2019 Nat Methods; sparse annotation + RF.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Snakemake <span class="en">Snakemake</span></div><div class="gloss-kid" data-lang="zh">Python 風格的工作流引擎。</div><div class="gloss-kid" data-lang="en">A Python-style workflow engine.</div><div class="gloss-tech" data-lang="zh">Mölder 2021 F1000；DAG 自動並行。</div><div class="gloss-tech" data-lang="en">Mölder 2021 F1000; auto-parallel DAG.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Nextflow <span class="en">Nextflow</span></div><div class="gloss-kid" data-lang="zh">DSL 風格、雲端友善的工作流。</div><div class="gloss-kid" data-lang="en">A DSL-style, cloud-friendly workflow engine.</div><div class="gloss-tech" data-lang="zh">DSL2 + Tower 平台；nf-core 模板。</div><div class="gloss-tech" data-lang="en">DSL2 + Tower platform; nf-core templates.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Container <span class="en">Docker / Apptainer</span></div><div class="gloss-kid" data-lang="zh">把整個環境包進「軟體膠囊」。</div><div class="gloss-kid" data-lang="en">Package the whole environment into a 'software capsule.'</div><div class="gloss-tech" data-lang="zh">Docker 普及；Apptainer (Singularity) 為 HPC 設計。</div><div class="gloss-tech" data-lang="en">Docker is universal; Apptainer (Singularity) is built for HPC.</div></div>
+  <div class="gloss-card"><div class="gloss-term">conda / pixi / uv <span class="en">conda / pixi / uv</span></div><div class="gloss-kid" data-lang="zh">管理 Python 環境的三代工具。</div><div class="gloss-kid" data-lang="en">Three generations of Python-env managers.</div><div class="gloss-tech" data-lang="zh">conda 老牌；pixi 2024 重寫；uv 2024 ultrafast。</div><div class="gloss-tech" data-lang="en">conda is classic; pixi is a 2024 rewrite; uv is 2024 ultrafast.</div></div>
+  <div class="gloss-card"><div class="gloss-term">BioImage Model Zoo <span class="en">BioImage Model Zoo</span></div><div class="gloss-kid" data-lang="zh">跨工具共享 AI 模型的中央庫。</div><div class="gloss-kid" data-lang="en">A central registry of cross-tool shareable AI models.</div><div class="gloss-tech" data-lang="zh">統一 .bioimage.io 格式；Fiji / ilastik / QuPath / napari 通用。</div><div class="gloss-tech" data-lang="en">Unified .bioimage.io format; works across Fiji / ilastik / QuPath / napari.</div></div>
+  <div class="gloss-card"><div class="gloss-term">BAND <span class="en">BAND</span></div><div class="gloss-kid" data-lang="zh">瀏覽器啟動的 bioimage 桌面。</div><div class="gloss-kid" data-lang="en">A browser-launched bioimage desktop.</div><div class="gloss-tech" data-lang="zh">EMBL-EBI；無需安裝，雲端 GPU。</div><div class="gloss-tech" data-lang="en">EMBL-EBI; no install, cloud GPU.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="工具生態 30 年" data-en="30 Years of Tooling Ecology">工具生態 30 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item milestone"><span class="tl-year">1997</span><span class="tl-title" data-zh="NIH Image (Mac)" data-en="NIH Image (Mac)">NIH Image (Mac)</span><div class="tl-body" data-lang="zh">Wayne Rasband NIH 內部工具。</div><div class="tl-body" data-lang="en">Wayne Rasband's internal NIH tool.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2002</span><span class="tl-title" data-zh="ImageJ 1.0" data-en="ImageJ 1.0">ImageJ 1.0</span><div class="tl-body" data-lang="zh">Wayne Rasband 跨平台開源版。</div><div class="tl-body" data-lang="en">Wayne Rasband — cross-platform open-source release.</div></div>
+<div class="tl-item"><span class="tl-year">2006</span><span class="tl-title" data-zh="OME / Bio-Formats" data-en="OME / Bio-Formats">OME / Bio-Formats</span><div class="tl-body" data-lang="zh">顯微影像 IO 標準化。</div><div class="tl-body" data-lang="en">Microscopy I/O standardization.</div></div>
+<div class="tl-item"><span class="tl-year">2009</span><span class="tl-title" data-zh="Schindelin Fiji manifesto" data-en="Schindelin Fiji manifesto">Schindelin Fiji manifesto</span><div class="tl-body" data-lang="zh">Fiji 構想正式提出。</div><div class="tl-body" data-lang="en">The Fiji idea formally announced.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2012</span><span class="tl-title" data-zh="Schindelin Fiji Nat Methods" data-en="Schindelin Fiji Nat Methods">Schindelin Fiji Nat Methods</span><div class="tl-body" data-lang="zh">Nat. Methods 9:676 — 30,000+ 引用。</div><div class="tl-body" data-lang="en">Nat. Methods 9:676 — 30,000+ citations.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2017</span><span class="tl-title" data-zh="Bankhead QuPath" data-en="Bankhead QuPath">Bankhead QuPath</span><div class="tl-body" data-lang="zh">Sci. Rep. — 病理 GUI 標配誕生。</div><div class="tl-body" data-lang="en">Sci. Rep. — the pathology GUI workhorse is born.</div></div>
+<div class="tl-item"><span class="tl-year">2017</span><span class="tl-title" data-zh="Sofroniew napari v0.1" data-en="Sofroniew napari v0.1">Sofroniew napari v0.1</span><div class="tl-body" data-lang="zh">Janelia Python N-D viewer。</div><div class="tl-body" data-lang="en">Janelia's Python N-D viewer.</div></div>
+<div class="tl-item"><span class="tl-year">2019</span><span class="tl-title" data-zh="Berg ilastik Nat Methods" data-en="Berg ilastik Nat Methods">Berg ilastik Nat Methods</span><div class="tl-body" data-lang="zh">互動式 ML for bioimage 正式化。</div><div class="tl-body" data-lang="en">Interactive ML for bioimage formalized.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2021</span><span class="tl-title" data-zh="Snakemake F1000" data-en="Snakemake F1000">Snakemake F1000</span><div class="tl-body" data-lang="zh">Mölder — workflow engine 進入 bioimage。</div><div class="tl-body" data-lang="en">Mölder — workflow engine enters bioimage.</div></div>
+<div class="tl-item"><span class="tl-year">2021</span><span class="tl-title" data-zh="BioImage Model Zoo" data-en="BioImage Model Zoo">BioImage Model Zoo</span><div class="tl-body" data-lang="zh">跨工具模型分享平台上線。</div><div class="tl-body" data-lang="en">Cross-tool model sharing platform launches.</div></div>
+<div class="tl-item"><span class="tl-year">2023</span><span class="tl-title" data-zh="BAND EMBL-EBI cloud" data-en="BAND EMBL-EBI cloud">BAND EMBL-EBI cloud</span><div class="tl-body" data-lang="zh">雲端啟動 bioimage 桌面。</div><div class="tl-body" data-lang="en">Cloud-launched bioimage desktop.</div></div>
+<div class="tl-item recent"><span class="tl-year">2024</span><span class="tl-title" data-zh="BioImage.IO Chatbot" data-en="BioImage.IO Chatbot">BioImage.IO Chatbot</span><div class="tl-body" data-lang="zh">Ouyang Nat Methods 21:1325 — AI 助手選工具找模型。</div><div class="tl-body" data-lang="en">Ouyang Nat Methods 21:1325 — AI helps pick tools and models.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="napari 0.5 web rendering" data-en="napari 0.5 web rendering">napari 0.5 web rendering</span><div class="tl-body" data-lang="zh">WebGL renderer 上線。</div><div class="tl-body" data-lang="en">WebGL renderer goes live.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="Reproducibility 5 層模型" data-en="The 5-Layer Reproducibility Model">Reproducibility 5 層模型</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">Reproducibility = env + container + workflow + data + DOI</div>
+<div class="sw-step"><strong>① <span data-lang='zh'>Layer 1：pinned environment</span><span data-lang='en'>Layer 1: pinned environment</span></strong> <span data-lang="zh">conda.lock / pixi.lock / uv.lock 把版本鎖死。</span><span data-lang="en">conda.lock / pixi.lock / uv.lock pin every version.</span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>Layer 2：container</span><span data-lang='en'>Layer 2: container</span></strong> <span data-lang="zh">Docker / Apptainer image hash 確保 OS + lib 完全相同。</span><span data-lang="en">Docker / Apptainer image hash guarantees identical OS + libs.</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>Layer 3：workflow engine</span><span data-lang='en'>Layer 3: workflow engine</span></strong> <span data-lang="zh">Snakemake / Nextflow DAG 自動記錄 step 依賴。</span><span data-lang="en">Snakemake / Nextflow DAG auto-records step dependencies.</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>Layer 4：example data</span><span data-lang='en'>Layer 4: example data</span></strong> <span data-lang="zh">附 example dataset + expected output 給審稿驗證。</span><span data-lang="en">Bundle an example dataset + expected output for reviewer verification.</span></div>
+<div class="sw-step"><strong>⑤ <span data-lang='zh'>Layer 5：persistent DOI</span><span data-lang='en'>Layer 5: persistent DOI</span></strong> <span data-lang="zh">Zenodo DOI 永久保存；論文連結直接到此。</span><span data-lang="en">Zenodo DOI permanently archives; papers link directly to it.</span></div>
+
+<div class="sw-note" data-lang="zh">做到 Layer 1 = 最低限度；做到 Layer 5 = gold-standard reproducibility。多數 bioimage 論文目前在 Layer 2–3 之間。Layer 5 是 2025 之後 nature 系列期刊愈來愈高的標準。</div>
+<div class="sw-note" data-lang="en">Layer 1 is the minimum; Layer 5 is gold-standard reproducibility. Most bioimage papers sit between Layers 2 and 3 today. Layer 5 is increasingly required by Nature journals from 2025 onward.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="工具選擇三大爭論" data-en="Three Debates on Tool Choice">工具選擇三大爭論</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. Fiji macro 何時該轉 Python？" data-en="A. When to leave Fiji macros for Python?">A. Fiji macro 何時該轉 Python？</h5><div class="disc-q" data-lang="zh">你 lab 都用 Fiji macro，最近想做 ML pipeline。何時轉 Python 划算？</div><div class="disc-q" data-lang="en">Your lab lives in Fiji macros; you want to do ML. When does switching to Python pay off?</div><div class="disc-hint" data-lang="zh">提示：需要 cluster、git、ML 訓練、與表達資料整合、reproducibility 時。Fiji 仍好為「探索與 demo」用。</div><div class="disc-hint" data-lang="en">Hint: when you need cluster, git, ML training, multi-data integration, or reproducibility. Fiji is still great for exploration and demos.</div></div>
+  <div class="discussion-card"><h5 data-zh="B. CellProfiler vs napari + scikit-image 何時選哪個？" data-en="B. CellProfiler vs napari + scikit-image — when?">B. CellProfiler vs napari + scikit-image 何時選哪個？</h5><div class="disc-q" data-lang="zh">都能做 HCS pipeline，差異在哪？</div><div class="disc-q" data-lang="en">Both can build HCS pipelines — what differs?</div><div class="disc-hint" data-lang="zh">提示：CP 為「無需寫碼」(GUI .cppipe) + plate-scale 批次；napari 為「Python ML 整合」+ 互動探索。團隊有 coder → napari；沒有 → CP。</div><div class="disc-hint" data-lang="en">Hint: CP is 'no-code (GUI .cppipe) + plate-scale batch'; napari is 'Python ML integration + interactive exploration.' With coders → napari; without → CP.</div></div>
+  <div class="discussion-card"><h5 data-zh="C. BioImage Model Zoo 與 HuggingFace 角色差別？" data-en="C. BioImage Model Zoo vs HuggingFace — what's different?">C. BioImage Model Zoo 與 HuggingFace 角色差別？</h5><div class="disc-q" data-lang="zh">兩者都分享模型，但用戶體驗很不同？</div><div class="disc-q" data-lang="en">Both share models — why is the UX so different?</div><div class="disc-hint" data-lang="zh">提示：Model Zoo 設計給 GUI 工具（Fiji / ilastik / QuPath / napari）直接 load；HuggingFace 設計給 Python coder。Bioimage 社群更需前者。</div><div class="disc-hint" data-lang="en">Hint: Model Zoo is designed for GUI tools (Fiji / ilastik / QuPath / napari) to load directly; HuggingFace is for Python coders. Bioimage needs the former more.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個工具生態的傳奇" data-en="Two Tooling-Ecology Legends">兩個工具生態的傳奇</h2>
+<div class="spotlight">
+  <h5 data-zh="① Wayne Rasband：30 年免費 ImageJ" data-en="① Wayne Rasband: 30 years of free ImageJ">① Wayne Rasband：30 年免費 ImageJ</h5>
+  <div class="spot-meta">NIH 1997–2027 · ImageJ / Fiji 引用 100,000+ 次</div>
+  <p data-lang="zh">Wayne Rasband 1997 在 NIH 開始寫 ImageJ。<strong>從未收一分錢</strong>，從未發 startup。他 2024 退休前最後一次 commit 是 fix 一個 macro bug。30 年累積：ImageJ + Fiji 被引用 100,000+ 次，Schindelin 2012 Fiji Nat Methods 一篇就 30,000+ 引用。Rasband 是計算生物學最沉默卻最重要的英雄之一。</p>
+  <p data-lang="en">Wayne Rasband started writing ImageJ at NIH in 1997. <strong>Never charged a cent</strong>; never founded a startup. His last commit before retiring in 2024 was a macro bug fix. Thirty years: ImageJ + Fiji garnered 100,000+ citations; the Fiji 2012 Nat Methods paper alone has 30,000+. Rasband is computational biology's quietest yet most important hero.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：open-source 的真實成本不是 money，是「持續維護 30 年」。這值得社會制度去保護。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: the real cost of open-source isn't money — it's 30 years of sustained maintenance. Society must protect that.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② BioImage.IO Chatbot：AI 助你選工具" data-en="② BioImage.IO Chatbot: AI helps you pick tools">② BioImage.IO Chatbot：AI 助你選工具</h5>
+  <div class="spot-meta">Ouyang et al., Nat Methods 21:1325 (2024) · chat.bioimage.io</div>
+  <p data-lang="zh">Wei Ouyang 等 2024 在 Nat Methods 發表 BioImage.IO Chatbot：<strong>community-driven AI 助手</strong>，問它「我有 confocal Z-stack 想做 cell tracking 該用什麼？」會給工具建議 + 模型推薦 + 範例 code。背後整合 BioImage Model Zoo + image.sc 知識庫。是 LLM 應用到 bioimage 教學的重要里程碑。</p>
+  <p data-lang="en">Wei Ouyang et al. published the BioImage.IO Chatbot in Nat Methods 2024: a <strong>community-driven AI assistant</strong>. Ask 'I have a confocal Z-stack and want to do cell tracking, what should I use?' and it suggests tools + recommends models + provides example code. It integrates the BioImage Model Zoo + the image.sc knowledge base — a landmark for LLM-in-bioimage education.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：當工具生態複雜到沒人能全會，社群 + AI 助手成為新的「介面」。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: when tooling becomes too complex for any one person, community + AI assistants become the new interface.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="工具選擇六大陷阱" data-en="Six Pitfalls of Tool Choice">工具選擇六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="Fiji macro 沒寫版本" data-en="Fiji macro without version pinning">Fiji macro 沒寫版本</span><div class="pf-body" data-lang="zh">Fiji 更新後 macro 默默失效。</div><div class="pf-body" data-lang="en">After a Fiji update, the macro silently breaks.</div><div class="pf-fix" data-lang="zh">在 macro 第一行寫 Fiji 版本 + 必要 plugin update sites。</div><div class="pf-fix" data-lang="en">Document Fiji version + required plugin update sites in the macro header.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="CellProfiler GUI 跑 384-well" data-en="CellProfiler GUI on 384-well">CellProfiler GUI 跑 384-well</span><div class="pf-body" data-lang="zh">GUI 慢且常 crash。</div><div class="pf-body" data-lang="en">GUI is slow and crash-prone.</div><div class="pf-fix" data-lang="zh">headless CLI + Snakemake / Nextflow。</div><div class="pf-fix" data-lang="en">Use the headless CLI + Snakemake / Nextflow.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="Notebook 為主沒環境鎖" data-en="Notebook-only with no env lock">Notebook 為主沒環境鎖</span><div class="pf-body" data-lang="zh">Reviewer 跑不出來 → silent rejection。</div><div class="pf-body" data-lang="en">Reviewer can't reproduce → silent rejection.</div><div class="pf-fix" data-lang="zh">加 conda.lock / pixi.lock / uv.lock + Docker image。</div><div class="pf-fix" data-lang="en">Add conda.lock / pixi.lock / uv.lock + a Docker image.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="Docker container 沒 tag" data-en="Docker container without a tag">Docker container 沒 tag</span><div class="pf-body" data-lang="zh">用 :latest 變數時間炸彈。</div><div class="pf-body" data-lang="en">Using :latest is a time bomb.</div><div class="pf-fix" data-lang="zh">固定 image digest 或 specific version tag。</div><div class="pf-fix" data-lang="en">Pin to the image digest or a specific version tag.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="Model Zoo 上傳 modelfile 不完整" data-en="Incomplete Model Zoo upload">Model Zoo 上傳 modelfile 不完整</span><div class="pf-body" data-lang="zh">沒有 example data → 別人載不會跑。</div><div class="pf-body" data-lang="en">No example data → others can't run it.</div><div class="pf-fix" data-lang="zh">必須附 example input + expected output + spec.bioimage.yaml。</div><div class="pf-fix" data-lang="en">Always include example input + expected output + spec.bioimage.yaml.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="Reviewer 沒 example data" data-en="No example data for reviewers">Reviewer 沒 example data</span><div class="pf-body" data-lang="zh">審稿人無法快速驗證 method。</div><div class="pf-body" data-lang="en">Reviewers can't verify the method quickly.</div><div class="pf-fix" data-lang="zh">Zenodo 發 example dataset；論文 figure 用此 dataset。</div><div class="pf-fix" data-lang="en">Publish an example dataset to Zenodo; cite it in the figure.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種工作流哲學" data-en="Two Workflow Philosophies">兩種工作流哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="「散落 notebook + 隨手 macro」" data-en=""Scattered notebooks + ad-hoc macros"">「散落 notebook + 隨手 macro」</span></h5>
+    <ul>
+      <li data-lang="zh">Jupyter notebook 散在 lab Google Drive</li>
+      <li data-lang="zh">Fiji macro 沒寫版本</li>
+      <li data-lang="zh">沒 conda lockfile</li>
+      <li data-lang="zh">無 example data</li>
+      <li data-lang="zh">Methods 寫「analyzed using Fiji / Python」一句</li>
+      <li data-lang="en">Jupyter notebooks scattered on lab Google Drive</li>
+      <li data-lang="en">Fiji macros without versioning</li>
+      <li data-lang="en">No conda lockfile</li>
+      <li data-lang="en">No example data</li>
+      <li data-lang="en">Methods says 'analyzed using Fiji / Python'</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="「Snakemake + container + Zenodo DOI」 黃金標準" data-en=""Snakemake + container + Zenodo DOI" gold standard">「Snakemake + container + Zenodo DOI」 黃金標準</span></h5>
+    <ul>
+      <li data-lang="zh">Snakemake / Nextflow pipeline DAG 公開</li>
+      <li data-lang="zh">conda lock + Docker image with digest</li>
+      <li data-lang="zh">Example dataset 附 expected output</li>
+      <li data-lang="zh">Zenodo DOI 永久存檔</li>
+      <li data-lang="zh">README + LICENSE + tests</li>
+      <li data-lang="en">Snakemake / Nextflow pipeline DAG public</li>
+      <li data-lang="en">conda lock + Docker image with digest</li>
+      <li data-lang="en">Example dataset + expected output included</li>
+      <li data-lang="en">Zenodo DOI for permanent archive</li>
+      <li data-lang="en">README + LICENSE + tests</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 工具 SOTA" data-en="2024–2026 Tooling SOTA">2024–2026 工具 SOTA</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="AI assistant + cloud-native workflow" data-en="AI assistants + cloud-native workflows">AI assistant + cloud-native workflow</h5>
+<p data-lang="zh">2024–2026 工具生態急速進化：</p>
+<p data-lang="en">Tooling evolved fast in 2024–2026:</p>
+<ul>
+  <li><strong>BioImage.IO Chatbot (2024)</strong> <span data-lang="zh">Ouyang Nat Methods 21:1325 — AI 助手選工具找模型。</span><span data-lang="en">Ouyang Nat Methods 21:1325 — AI assistant for tool/model selection.</span></li>
+  <li><strong>Pixi (2024)</strong> <span data-lang="zh">conda 改寫的 lockfile next-gen。</span><span data-lang="en">Lockfile next-gen, a conda rewrite.</span></li>
+  <li><strong>uv (2024)</strong> <span data-lang="zh">Astral 出品 ultrafast Python env。</span><span data-lang="en">Astral's ultrafast Python env manager.</span></li>
+  <li><strong>Snakemake 8.x (2024)</strong> <span data-lang="zh">Cloud executors + plugin 化。</span><span data-lang="en">Cloud executors + plugin architecture.</span></li>
+  <li><strong>Nextflow 24 + Tower (2024)</strong> <span data-lang="zh">商業 platform 與 nf-core 共生。</span><span data-lang="en">Commercial platform + nf-core symbiosis.</span></li>
+  <li><strong>BAND 2.0 (2025)</strong> <span data-lang="zh">雲端 bioimage 桌面升級。</span><span data-lang="en">Cloud bioimage desktop upgrade.</span></li>
+  <li><strong>napari hub + ImageJ.JS (2025)</strong> <span data-lang="zh">跨工具 plugin discovery。</span><span data-lang="en">Cross-tool plugin discovery.</span></li>
+  <li><strong>Quarto for bioimage reports (2024)</strong> <span data-lang="zh">reproducible reports 新標準。</span><span data-lang="en">New standard for reproducible reports.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Schindelin 2012 Nat Methods 9:676 · Berg 2019 Nat Methods · Mölder 2021 F1000 10:33 · Ouyang 2024 Nat Methods 21:1325</div>
+<div class="an-cite" data-lang="en">Key refs: Schindelin 2012 Nat Methods 9:676 · Berg 2019 Nat Methods · Mölder 2021 F1000 10:33 · Ouyang 2024 Nat Methods 21:1325</div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Wayne Rasband 1997 在 NIH 寫 ImageJ 至今免費 30 年——他從未收一分錢。Fiji 2012 paper 被引 30,000+ 次仍排得上 Nat Methods 史上最被引論文前 10。<em>2024 年 Rasband 退休前最後一次 commit 是 fix 一個 macro bug</em>。這是 open-science 最動人的故事之一：一個人，一個工具，三十年。我們所有 bioimage 工作者都欠他一個 thank you。</span>
+<span data-lang="en">Wayne Rasband wrote ImageJ at NIH starting in 1997, kept it free for 30 years — never charged a cent. The Fiji 2012 paper has 30,000+ citations and ranks in Nat Methods' all-time top 10. <em>His final commit before retiring in 2024 was a macro-bug fix.</em> One of the most moving stories in open science: one person, one tool, thirty years. Every bioimage worker owes him a thank-you.</span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>你 lab 目前用哪些工具？哪個是「核心」、哪個是「補強」？</li>
+    <li>最 painful 的 reproducibility 痛點是什麼？哪一個 layer 你最缺？</li>
+    <li>你會用 Snakemake 還是 Nextflow？BioImage Model Zoo 你貢獻過模型嗎？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>Which tools does your lab use? Which is the 'core' and which is 'supplementary'?</li>
+    <li>What's your most painful reproducibility pain point? Which reproducibility layer is missing?</li>
+    <li>Will you use Snakemake or Nextflow? Have you contributed to BioImage Model Zoo?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">工具選擇沒有絕對對錯，只有「適不適合你的 team」。Open-source 的價值在於可以隨時換工具不必重來。</div>
+  <div class="rq-hint" data-lang="en">There's no right answer in tool choice — only 'fits your team or not.' Open-source's value is the freedom to switch without starting over.</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

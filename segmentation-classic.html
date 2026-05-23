@@ -17,6 +17,16 @@
 </header>
 <main class="content-wrap">
 
+<div class="story-block">
+  <span class="story-tag" data-zh="開場故事 · STORY" data-en="OPENING STORY">開場故事 · STORY</span>
+  <h3 data-zh="Otsu 1979：一個 6 頁論文如何改寫影像分析" data-en="Otsu 1979: how a 6-page paper rewrote image analysis">Otsu 1979：一個 6 頁論文如何改寫影像分析</h3>
+  <div data-lang="zh"><p>1979 年 Nobuyuki Otsu 在 IEEE Trans. SMC 發表「最大化類間變異」的閾值法，只有 6 頁，沒有任何 DL。今天 Google Scholar 顯示這篇論文被引 <strong>67,000+ 次</strong>，是計算機視覺領域最被引論文之一。</p><p>1994 年 Fernand Meyer 的 marker-controlled watershed 加入後，「沒有 GPU 的時代」最強的細胞分割組合誕生：Otsu + morphology + watershed + regionprops。直到 2018 StarDist 才有後來者——但傳統流程在「乾淨 DAPI」依然 SOTA-comparable，且 100% 可重現。</p></div>
+  <div data-lang="en"><p>In 1979 Nobuyuki Otsu published a 6-page IEEE Trans. SMC paper on maximizing between-class variance. No DL. Google Scholar shows <strong>67,000+ citations</strong> today — among the most-cited papers in all of computer vision.</p><p>After Fernand Meyer added marker-controlled watershed in 1994, the strongest 'no-GPU' cell segmentation combo was born: Otsu + morphology + watershed + regionprops. StarDist (2018) was the first real successor — but on 'clean DAPI' the classical pipeline is still SOTA-comparable, and 100% reproducible.</p></div>
+  <div class="story-question" data-lang="zh">🤔 你的影像可以靠傳統流程做到多遠？哪些情況 DL 必要、哪些是 overkill？</div>
+  <div class="story-question" data-lang="en">🤔 How far can a classical pipeline go on your data? When is DL necessary vs overkill?</div>
+</div>
+
+
 <section class="section">
 <div class="section-label" data-zh="閾值" data-en="THRESHOLDING">閾值</div>
 <h2 data-zh="一、閾值法 (Thresholding)" data-en="I. Thresholding">一、閾值法</h2>
@@ -164,6 +174,182 @@ run(<span class="str">"Set Measurements..."</span>, <span class="str">"area mean
 run(<span class="str">"Analyze Particles..."</span>, <span class="str">"size=100-Infinity show=[Count Masks] display"</span>);</pre></div>
 </div>
 </section>
+
+<section class="section">
+<div class="section-label" data-zh="術語對照" data-en="GLOSSARY">術語對照</div>
+<h2 data-zh="傳統分割核心詞彙" data-en="Core Vocabulary for Classical Segmentation">傳統分割核心詞彙</h2>
+<div class="glossary">
+<h4>🐣 <span data-zh="兒童版" data-en="Kid version">兒童版</span> + 🔬 <span data-zh="技術版" data-en="Tech version">技術版</span></h4>
+<div class="glossary-grid">
+  <div class="gloss-card"><div class="gloss-term">Threshold <span class="en">Threshold</span></div><div class="gloss-kid" data-lang="zh">一條線，亮的當前景、暗的當背景。</div><div class="gloss-kid" data-lang="en">A line: brighter = foreground, darker = background.</div><div class="gloss-tech" data-lang="zh">二值化的灰階分界值。</div><div class="gloss-tech" data-lang="en">Grayscale cutoff for binarization.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Otsu <span class="en">Otsu</span></div><div class="gloss-kid" data-lang="zh">自動挑「最能分兩堆」的閾值。</div><div class="gloss-kid" data-lang="en">Auto-picks the threshold that best splits two groups.</div><div class="gloss-tech" data-lang="zh">最大化類間變異 σ²_B；雙峰直方圖最有效。</div><div class="gloss-tech" data-lang="en">Maximize between-class variance σ²_B; works best on bimodal histograms.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Li (cross-entropy) <span class="en">Li (cross-entropy)</span></div><div class="gloss-kid" data-lang="zh">用「資訊代價」挑閾值。</div><div class="gloss-kid" data-lang="en">Pick the threshold via 'information cost.'</div><div class="gloss-tech" data-lang="zh">最小化前景與背景的交叉熵；非對稱分佈好用。</div><div class="gloss-tech" data-lang="en">Minimize cross-entropy between foreground and background; good for asymmetric distributions.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Triangle <span class="en">Triangle</span></div><div class="gloss-kid" data-lang="zh">連最高峰與末端，找最遠點。</div><div class="gloss-kid" data-lang="en">Connect the peak to the histogram tail, find the most-distant point.</div><div class="gloss-tech" data-lang="zh">幾何法；前景小於 5% 時優於 Otsu。</div><div class="gloss-tech" data-lang="en">Geometric; outperforms Otsu when foreground &lt;5%.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Adaptive thresholding <span class="en">Adaptive thresholding</span></div><div class="gloss-kid" data-lang="zh">每個像素一個自己的閾值。</div><div class="gloss-kid" data-lang="en">Each pixel gets its own threshold.</div><div class="gloss-tech" data-lang="zh">Sauvola / Niblack；不均照明時必備。</div><div class="gloss-tech" data-lang="en">Sauvola / Niblack; essential under uneven illumination.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Erosion / Dilation <span class="en">Erosion / Dilation</span></div><div class="gloss-kid" data-lang="zh">前景縮小 / 擴大。</div><div class="gloss-kid" data-lang="en">Shrink / grow the foreground.</div><div class="gloss-tech" data-lang="zh">形態學基本運算；structuring element 決定形狀。</div><div class="gloss-tech" data-lang="en">Basic morphology; structuring element defines shape.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Opening / Closing <span class="en">Opening / Closing</span></div><div class="gloss-kid" data-lang="zh">Erosion 再 Dilation（小亮點消失）／ Dilation 再 Erosion（小洞填滿）。</div><div class="gloss-kid" data-lang="en">Erosion then Dilation (kill small bright spots) / Dilation then Erosion (fill small holes).</div><div class="gloss-tech" data-lang="zh">Opening 去 noise；Closing 補洞與連通。</div><div class="gloss-tech" data-lang="en">Opening removes noise; Closing fills holes and joins regions.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Top-hat <span class="en">Top-hat</span></div><div class="gloss-kid" data-lang="zh">突顯比鄰居亮的小點。</div><div class="gloss-kid" data-lang="en">Highlight small spots brighter than their neighbours.</div><div class="gloss-tech" data-lang="zh">image − opening；spot detection / puncta 常用。</div><div class="gloss-tech" data-lang="en">image − opening; common for spot detection / puncta.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Distance transform <span class="en">Distance transform</span></div><div class="gloss-kid" data-lang="zh">每個前景像素到最近背景的距離。</div><div class="gloss-kid" data-lang="en">Distance from each foreground pixel to the nearest background.</div><div class="gloss-tech" data-lang="zh">細胞中心 = 距離最大；watershed marker 用。</div><div class="gloss-tech" data-lang="en">Cell centres = maxima; used as watershed markers.</div></div>
+  <div class="gloss-card"><div class="gloss-term">Watershed <span class="en">Watershed</span></div><div class="gloss-kid" data-lang="zh">想像影像是地形，從低點往高處灌水。</div><div class="gloss-kid" data-lang="en">Treat the image as terrain; flood from the lows.</div><div class="gloss-tech" data-lang="zh">Meyer 1994 marker-controlled；分離相黏物件。</div><div class="gloss-tech" data-lang="en">Meyer 1994 marker-controlled; separates touching objects.</div></div>
+  <div class="gloss-card"><div class="gloss-term">h-minima suppression <span class="en">h-minima suppression</span></div><div class="gloss-kid" data-lang="zh">把太淺的「小盆地」填平，避免過分割。</div><div class="gloss-kid" data-lang="en">Flood very shallow 'basins' to prevent over-segmentation.</div><div class="gloss-tech" data-lang="zh">消除 depth &lt; h 的局部極小值；watershed 必備預處理。</div><div class="gloss-tech" data-lang="en">Suppress local minima shallower than h; standard pre-step for watershed.</div></div>
+  <div class="gloss-card"><div class="gloss-term">regionprops <span class="en">regionprops</span></div><div class="gloss-kid" data-lang="zh">算出每個物件的「面積、形狀、亮度」等資訊。</div><div class="gloss-kid" data-lang="en">Compute every object's 'area, shape, brightness' etc.</div><div class="gloss-tech" data-lang="zh">scikit-image 函式回傳 DataFrame；注意 (row,col) 慣例。</div><div class="gloss-tech" data-lang="en">scikit-image function returning a DataFrame; mind the (row,col) convention.</div></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="歷史時間軸" data-en="HISTORICAL TIMELINE">歷史時間軸</div>
+<h2 data-zh="傳統分割 50 年" data-en="50 Years of Classical Segmentation">傳統分割 50 年</h2>
+<div class="timeline">
+<h4>🕰️ <span data-zh="關鍵里程碑" data-en="Key milestones">關鍵里程碑</span></h4>
+<div class="tl-item milestone"><span class="tl-year">1979</span><span class="tl-title" data-zh="Otsu IEEE" data-en="Otsu IEEE">Otsu IEEE</span><div class="tl-body" data-lang="zh">Nobuyuki Otsu IEEE Trans. SMC — 67,000+ 引用。</div><div class="tl-body" data-lang="en">Nobuyuki Otsu, IEEE Trans. SMC — 67,000+ citations.</div></div>
+<div class="tl-item"><span class="tl-year">1985</span><span class="tl-title" data-zh="Sauvola adaptive" data-en="Sauvola adaptive">Sauvola adaptive</span><div class="tl-body" data-lang="zh">局部閾值處理不均照明文件。</div><div class="tl-body" data-lang="en">Local thresholding for non-uniformly lit documents.</div></div>
+<div class="tl-item milestone"><span class="tl-year">1994</span><span class="tl-title" data-zh="Meyer watershed" data-en="Meyer watershed">Meyer watershed</span><div class="tl-body" data-lang="zh">Signal Processing — marker-controlled watershed 進入主流。</div><div class="tl-body" data-lang="en">Signal Processing — marker-controlled watershed enters the mainstream.</div></div>
+<div class="tl-item"><span class="tl-year">1998</span><span class="tl-title" data-zh="Rosenfeld digital topology" data-en="Rosenfeld digital topology">Rosenfeld digital topology</span><div class="tl-body" data-lang="zh">奠定二值影像的連通性理論。</div><div class="tl-body" data-lang="en">Foundational work on connectivity in binary images.</div></div>
+<div class="tl-item"><span class="tl-year">2002</span><span class="tl-title" data-zh="Soille Morphology 教科書" data-en="Soille Morphology textbook">Soille Morphology 教科書</span><div class="tl-body" data-lang="zh">Mathematical Morphology and Its Applications。</div><div class="tl-body" data-lang="en">Mathematical Morphology and Its Applications.</div></div>
+<div class="tl-item"><span class="tl-year">2008</span><span class="tl-title" data-zh="ITK 4D segmentation" data-en="ITK 4D segmentation">ITK 4D segmentation</span><div class="tl-body" data-lang="zh">Kitware ITK 進入 4D 醫學影像。</div><div class="tl-body" data-lang="en">Kitware ITK reaches 4-D medical imaging.</div></div>
+<div class="tl-item milestone"><span class="tl-year">2014</span><span class="tl-title" data-zh="scikit-image PeerJ" data-en="scikit-image PeerJ">scikit-image PeerJ</span><div class="tl-body" data-lang="zh">van der Walt PeerJ 2:e453 — Python 影像處理的支柱。</div><div class="tl-body" data-lang="en">van der Walt PeerJ 2:e453 — Python's image-processing pillar.</div></div>
+<div class="tl-item"><span class="tl-year">2016</span><span class="tl-title" data-zh="MorphoLibJ for Fiji" data-en="MorphoLibJ for Fiji">MorphoLibJ for Fiji</span><div class="tl-body" data-lang="zh">Legland 將 3D 形態學帶入 Fiji。</div><div class="tl-body" data-lang="en">Legland brings 3-D morphology to Fiji.</div></div>
+<div class="tl-item"><span class="tl-year">2019</span><span class="tl-title" data-zh="ilastik (semi-classical)" data-en="ilastik (semi-classical)">ilastik (semi-classical)</span><div class="tl-body" data-lang="zh">Berg Nat Methods — 互動式 Random Forest 結合形態學。</div><div class="tl-body" data-lang="en">Berg Nat Methods — interactive Random Forest with morphology.</div></div>
+<div class="tl-item"><span class="tl-year">2023</span><span class="tl-title" data-zh="scikit-image 0.21 LTS" data-en="scikit-image 0.21 LTS">scikit-image 0.21 LTS</span><div class="tl-body" data-lang="zh">API 穩定化，長期支援。</div><div class="tl-body" data-lang="en">API stabilization, long-term support.</div></div>
+<div class="tl-item recent"><span class="tl-year">2025</span><span class="tl-title" data-zh="scikit-image v0.24 GPU" data-en="scikit-image v0.24 GPU">scikit-image v0.24 GPU</span><div class="tl-body" data-lang="zh">cupy / pyclesperanto 整合，傳統流程 GPU 加速。</div><div class="tl-body" data-lang="en">cupy / pyclesperanto integration — classical pipelines on GPU.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="公式拆解" data-en="FORMULA WALKTHROUGH">公式拆解</div>
+<h2 data-zh="Otsu 公式拆解" data-en="Walking Through the Otsu Formula">Otsu 公式拆解</h2>
+<div class="sigma-walk">
+<div class="sw-title">Σ <span data-zh="逐步推導" data-en="Step-by-step derivation">逐步推導</span></div>
+<div class="sw-eq">σ²<sub>B</sub>(t) = ω<sub>0</sub>(t) · ω<sub>1</sub>(t) · [μ<sub>0</sub>(t) − μ<sub>1</sub>(t)]²</div>
+<div class="sw-step"><strong>① <span data-lang='zh'>類別權重</span><span data-lang='en'>Class weights</span></strong> <span data-lang="zh">ω₀(t) = 閾值 t 以下像素比例；ω₁(t) = 1 − ω₀。</span><span data-lang="en">ω₀(t) = fraction of pixels ≤ t; ω₁(t) = 1 − ω₀.</span></div>
+<div class="sw-step"><strong>② <span data-lang='zh'>類別均值</span><span data-lang='en'>Class means</span></strong> <span data-lang="zh">μ₀(t) = 閾值以下像素平均；μ₁(t) = 閾值以上平均。</span><span data-lang="en">μ₀(t) = mean of pixels ≤ t; μ₁(t) = mean of pixels > t.</span></div>
+<div class="sw-step"><strong>③ <span data-lang='zh'>類間變異</span><span data-lang='en'>Between-class variance</span></strong> <span data-lang="zh">σ²_B 衡量兩類「差異有多大」乘上「兩類各佔多少」。</span><span data-lang="en">σ²_B measures 'how different the two classes are' weighted by their sizes.</span></div>
+<div class="sw-step"><strong>④ <span data-lang='zh'>最佳閾值</span><span data-lang='en'>Optimal threshold</span></strong> <span data-lang="zh">t* = argmax_t σ²_B(t)。對 256 級灰階就掃 256 次，O(N) 線性。</span><span data-lang="en">t* = argmax_t σ²_B(t). 256 grey levels = 256 scans; O(N) linear.</span></div>
+
+<div class="sw-note" data-lang="zh">失效情境：直方圖近單峰（前景 &lt;5%）時 Otsu 飄移；改用 Triangle 或 Li。Adaptive Otsu 可以滑窗局部執行。</div>
+<div class="sw-note" data-lang="en">Failure mode: nearly unimodal histogram (foreground &lt;5%) makes Otsu drift; switch to Triangle or Li. Adaptive Otsu can be applied with a sliding window.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="思辨討論" data-en="DISCUSSION">思辨討論</div>
+<h2 data-zh="傳統分割三大爭論" data-en="Three Debates in Classical Segmentation">傳統分割三大爭論</h2>
+<div class="discussion-row">
+  <div class="discussion-card"><h5 data-zh="A. Otsu vs Triangle vs Li 怎麼選？" data-en="A. Otsu vs Triangle vs Li — which?">A. Otsu vs Triangle vs Li 怎麼選？</h5><div class="disc-q" data-lang="zh">三個方法在你的影像給出三個不同閾值。如何系統性決定？</div><div class="disc-q" data-lang="en">All three give different thresholds — how do you decide systematically?</div><div class="disc-hint" data-lang="zh">提示：先用 scikit-image <code>try_all_threshold</code> 視覺比較；前景比例小用 Triangle，asymmetric 用 Li，雙峰用 Otsu。</div><div class="disc-hint" data-lang="en">Hint: use scikit-image's <code>try_all_threshold</code> for visual comparison; Triangle for small foreground, Li for asymmetric, Otsu for bimodal.</div></div>
+  <div class="discussion-card"><h5 data-zh="B. Watershed 過分割怎麼救？" data-en="B. Fixing watershed over-segmentation">B. Watershed 過分割怎麼救？</h5><div class="disc-q" data-lang="zh">你的細胞被切成三塊，問題在哪？</div><div class="disc-q" data-lang="en">Your cell got cut into three — what's wrong?</div><div class="disc-hint" data-lang="zh">提示：原因 = 過多 markers；對距離變換做 Gaussian smooth、加大 min_distance、用 h-minima 抑制淺極小值。</div><div class="disc-hint" data-lang="en">Hint: too many markers. Gaussian-smooth the distance map, increase min_distance, or use h-minima suppression.</div></div>
+  <div class="discussion-card"><h5 data-zh="C. regionprops (y, x) 為何坑人？" data-en="C. Why does regionprops trip people on (y, x)?">C. regionprops (y, x) 為何坑人？</h5><div class="disc-q" data-lang="zh">你用 centroid 座標畫圖，發現位置反了——這是什麼問題？</div><div class="disc-q" data-lang="en">You plot centroids and they're mirrored — what happened?</div><div class="disc-hint" data-lang="zh">提示：scikit-image 用 numpy (row, col) = (y, x) 慣例。畫 matplotlib scatter 需要 plt.scatter(x, y) 順序。</div><div class="disc-hint" data-lang="en">Hint: scikit-image uses numpy (row, col) = (y, x). matplotlib's plt.scatter expects (x, y) — swap them.</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="精選案例" data-en="SPOTLIGHTS">精選案例</div>
+<h2 data-zh="兩個改寫傳統分割的故事" data-en="Two Stories That Shaped Classical Segmentation">兩個改寫傳統分割的故事</h2>
+<div class="spotlight">
+  <h5 data-zh="① scikit-image：Python 影像處理的支柱" data-en="① scikit-image: the pillar of Python image processing">① scikit-image：Python 影像處理的支柱</h5>
+  <div class="spot-meta">van der Walt et al., PeerJ 2:e453 (2014) · 14 年社群開源故事</div>
+  <p data-lang="zh">Stéfan van der Walt 2009 在 Berkeley 寫了 scikit-image 第一版，2014 PeerJ 論文發表時已有 100+ 貢獻者。如今 scikit-image 是 Python 影像處理事實標準：<strong>regionprops / morphology / segmentation 模組支撐了上萬篇論文</strong>。0.24 (2025) 加入 GPU backend (cupy)，傳統流程仍在演進。</p>
+  <p data-lang="en">Stéfan van der Walt wrote scikit-image's first version at Berkeley in 2009. By the PeerJ paper (2014) it had 100+ contributors. It's now the Python image-processing standard: <strong>regionprops / morphology / segmentation modules underpin tens of thousands of papers</strong>. v0.24 (2025) added a GPU backend (cupy) — the classical pipeline keeps evolving.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：好工具不需要 DL；社群協作的開源是更持久的基礎建設。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: good tools don't need DL; community open-source is more durable infrastructure.</div>
+</div>
+<div class="spotlight">
+  <h5 data-zh="② MorphoLibJ：3D 形態學的 Swiss Army knife" data-en="② MorphoLibJ: the Swiss Army knife of 3-D morphology">② MorphoLibJ：3D 形態學的 Swiss Army knife</h5>
+  <div class="spot-meta">Legland et al., Bioinformatics 2016 · Fiji update site</div>
+  <p data-lang="zh">David Legland 在 INRAE 寫的 MorphoLibJ 把 3D 形態學運算帶入 Fiji：<strong>3D opening / closing / watershed / region adjacency graph</strong>。一直到 2024 Cellpose 3D 出現前，這是 3D 共軛焦 nucleus segmentation 的最強傳統流程。Plant biology、organoid 研究尤其受惠。</p>
+  <p data-lang="en">David Legland's MorphoLibJ (INRAE) brought 3-D morphology to Fiji: <strong>3-D opening / closing / watershed / region adjacency graph</strong>. Until Cellpose 3D (2024), it was the strongest classical pipeline for 3-D confocal nucleus segmentation — especially loved by plant biology and organoids.</p>
+  <div class="spot-takeaway" data-lang="zh">啟示：在「DL 一切」之前，傳統流程在某些子問題上仍未被超越。</div>
+  <div class="spot-takeaway" data-lang="en">Lesson: before 'DL everything,' classical pipelines remain unbeaten on some sub-problems.</div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="PITFALLS">常見陷阱</div>
+<h2 data-zh="傳統分割六大陷阱" data-en="Six Pitfalls of Classical Segmentation">傳統分割六大陷阱</h2>
+<div class="pitfall-grid">
+  <div class="pitfall-card"><span class="pf-num">P1</span><span class="pf-title" data-zh="Otsu 在前景 &lt;5%" data-en="Otsu when foreground &lt;5%">Otsu 在前景 &lt;5%</span><div class="pf-body" data-lang="zh">直方圖近單峰，閾值飄到背景中間。</div><div class="pf-body" data-lang="en">Histogram is nearly unimodal; threshold drifts into the middle of the background.</div><div class="pf-fix" data-lang="zh">改用 Triangle 或 Li；或先 mask 出 ROI 再 Otsu。</div><div class="pf-fix" data-lang="en">Switch to Triangle or Li; or mask an ROI first then Otsu.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P2</span><span class="pf-title" data-zh="全域閾值 + 不均照明" data-en="Global threshold + uneven illumination">全域閾值 + 不均照明</span><div class="pf-body" data-lang="zh">邊角太暗被誤判為背景；中央太亮被判前景。</div><div class="pf-body" data-lang="en">Dim corners are called background; bright centres are called foreground.</div><div class="pf-fix" data-lang="zh">先做 BaSiC 平場校正；或用 adaptive thresholding。</div><div class="pf-fix" data-lang="en">Run BaSiC flat-field first, or switch to adaptive thresholding.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P3</span><span class="pf-title" data-zh="Watershed 不加 markers" data-en="Watershed without markers">Watershed 不加 markers</span><div class="pf-body" data-lang="zh">每個 local minimum 都成一個 cell → 嚴重過分割。</div><div class="pf-body" data-lang="en">Every local minimum becomes a cell → severe over-segmentation.</div><div class="pf-fix" data-lang="zh">用 distance transform 找 markers + h-minima 抑制淺極小值。</div><div class="pf-fix" data-lang="en">Use a distance transform + h-minima to seed markers.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P4</span><span class="pf-title" data-zh="min_distance 太小" data-en="min_distance too small">min_distance 太小</span><div class="pf-body" data-lang="zh">Markers 過密，watershed 把每個細胞切成多塊。</div><div class="pf-body" data-lang="en">Markers are too dense; watershed slices each cell into pieces.</div><div class="pf-fix" data-lang="zh">設為「最小細胞半徑」；先 Gaussian smooth 距離變換。</div><div class="pf-fix" data-lang="en">Set to 'smallest cell radius'; pre-smooth the distance map.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P5</span><span class="pf-title" data-zh="沒做 binary_fill_holes" data-en="No binary_fill_holes">沒做 binary_fill_holes</span><div class="pf-body" data-lang="zh">核中央亮度低被誤刪，cell 變甜甜圈。</div><div class="pf-body" data-lang="en">Dim nucleus centres get dropped; cells become donuts.</div><div class="pf-fix" data-lang="zh">在 thresholding 之後加 ndi.binary_fill_holes。</div><div class="pf-fix" data-lang="en">Add ndi.binary_fill_holes after thresholding.</div></div>
+  <div class="pitfall-card"><span class="pf-num">P6</span><span class="pf-title" data-zh="regionprops (y, x) 順序" data-en="regionprops (y, x) order">regionprops (y, x) 順序</span><div class="pf-body" data-lang="zh">畫圖時 X / Y 反了，centroid 看起來「鏡像」。</div><div class="pf-body" data-lang="en">X / Y get flipped on plots; centroids look mirrored.</div><div class="pf-fix" data-lang="zh">scikit-image 用 (row, col) = (y, x)；plt.scatter 要 (x, y)。</div><div class="pf-fix" data-lang="en">scikit-image uses (row, col) = (y, x); plt.scatter expects (x, y).</div></div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="正反對比" data-en="CONTRAST">正反對比</div>
+<h2 data-zh="兩種傳統分割哲學" data-en="Two Classical-Segmentation Philosophies">兩種傳統分割哲學</h2>
+<div class="contrast-2col">
+  <div class="c2-col c2-left">
+    <h5>❌ <span data-zh="「Threshold 完事就拿去算」" data-en=""Just threshold and quantify"">「Threshold 完事就拿去算」</span></h5>
+    <ul>
+      <li data-lang="zh">Otsu 一行直接拿到結果</li>
+      <li data-lang="zh">沒加 morphological cleanup</li>
+      <li data-lang="zh">Watershed 不加 markers / fill holes</li>
+      <li data-lang="zh">regionprops 沒過濾極小物件</li>
+      <li data-lang="zh">方法沒寫參數</li>
+      <li data-lang="en">One-liner Otsu, done</li>
+      <li data-lang="en">No morphological cleanup</li>
+      <li data-lang="en">Watershed without markers or fill-holes</li>
+      <li data-lang="en">regionprops with no min-area filter</li>
+      <li data-lang="en">Methods omits parameters</li>
+    </ul>
+  </div>
+  <div class="c2-col c2-right">
+    <h5>✅ <span data-zh="「閾值 + 形態學 + watershed + 規模過濾」 5-step" data-en=""Threshold + morphology + watershed + filter" 5-step">「閾值 + 形態學 + watershed + 規模過濾」 5-step</span></h5>
+    <ul>
+      <li data-lang="zh">先 BaSiC 校正照明 + try_all_threshold 比較</li>
+      <li data-lang="zh">Opening 去 noise + binary_fill_holes</li>
+      <li data-lang="zh">距離變換 + Gaussian smooth + peak_local_max + watershed</li>
+      <li data-lang="zh">remove_small_objects + regionprops_table 輸出</li>
+      <li data-lang="zh">Methods 寫明每個 step 的參數 (radius, sigma, min_size)</li>
+      <li data-lang="en">BaSiC flat-field first + try_all_threshold to compare</li>
+      <li data-lang="en">Opening to denoise + binary_fill_holes</li>
+      <li data-lang="en">Distance transform + Gaussian smooth + peak_local_max + watershed</li>
+      <li data-lang="en">remove_small_objects + regionprops_table output</li>
+      <li data-lang="en">Methods documents every step's parameters (radius, sigma, min_size)</li>
+    </ul>
+  </div>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="最新進展" data-en="2024–2026 SOTA">最新進展</div>
+<h2 data-zh="2024–2026 傳統流程 SOTA" data-en="2024–2026 SOTA for Classical Pipelines">2024–2026 傳統流程 SOTA</h2>
+<div class="advanced-note">
+<span class="an-tag" data-zh="進階註記" data-en="ADVANCED NOTE">進階註記</span>
+<h5 data-zh="傳統流程 + GPU：再戰 DL 十年" data-en="Classical + GPU: another decade against DL">傳統流程 + GPU：再戰 DL 十年</h5>
+<p data-lang="zh">傳統演算法在 2024–2026 仍有顯著進展：</p>
+<p data-lang="en">Classical pipelines saw real progress in 2024–2026:</p>
+<ul>
+  <li><strong>scikit-image v0.24 (2025)</strong> <span data-lang="zh">GPU-aware cupyx.scipy.ndimage 整合，rolling-ball / watershed 全部加速。</span><span data-lang="en">GPU-aware cupyx.scipy.ndimage integration — rolling-ball / watershed all accelerated.</span></li>
+  <li><strong>pyclesperanto (2024)</strong> <span data-lang="zh">OpenCL 後端，napari plugin 化，互動式 GPU 影像處理。</span><span data-lang="en">OpenCL backend, napari plugin — interactive GPU image processing.</span></li>
+  <li><strong>napari-skimage-regionprops</strong> <span data-lang="zh">互動式量化：點 napari 圖層，立刻看每個物件統計。</span><span data-lang="en">Interactive quantitation: click a napari layer to see per-object stats.</span></li>
+  <li><strong>3D MorphoLibJ + Cellpose3D 整合</strong> <span data-lang="zh">Fiji-side 傳統 3D + DL 結果並列，互相驗證。</span><span data-lang="en">Fiji-side classical 3-D and DL results side by side for cross-checking.</span></li>
+  <li><strong>Sauvola GPU (2025)</strong> <span data-lang="zh">Adaptive thresholding 終於有 GPU 版，可用於 WSI tile 處理。</span><span data-lang="en">Adaptive thresholding finally has a GPU build — usable for WSI tile processing.</span></li>
+</ul>
+<div class="an-cite" data-lang="zh">主要參考：Otsu 1979 IEEE SMC · Meyer 1994 Signal Processing · van der Walt 2014 PeerJ 2:e453 · Legland 2016 Bioinformatics</div>
+<div class="an-cite" data-lang="en">Key refs: Otsu 1979 IEEE SMC · Meyer 1994 Signal Processing · van der Walt 2014 PeerJ 2:e453 · Legland 2016 Bioinformatics</div>
+</div>
+<div class="history-note">
+<strong data-zh="📜 歷史小教室：" data-en="📜 History note:">📜 歷史小教室：</strong>
+<span data-lang="zh">Otsu 1979 那篇 IEEE SMC 論文只有 6 頁，作者親自手繪雙峰直方圖示意。當年沒有任何「benchmark」或「ablation」，但因為演算法太優雅、實作太短（30 行 Fortran），全世界研究者一夜採用。今天 scikit-image 的 <code>filters.threshold_otsu</code> 不到 10 行 Python——半世紀的相對位元成本下降，但數學沒變。<strong>好的演算法永遠值得敬畏。</strong></span>
+<span data-lang="en">Otsu's 1979 IEEE SMC paper was 6 pages with a hand-drawn bimodal histogram. No benchmark, no ablation — but the algorithm was so elegant and implementation so short (30 lines of Fortran) that the world adopted it overnight. Today scikit-image's <code>filters.threshold_otsu</code> is &lt; 10 lines of Python. Compute cost has cratered; the math hasn't changed. <strong>Good algorithms always deserve respect.</strong></span>
+</div>
+</section>
+<section class="section">
+<div class="section-label" data-zh="反思題" data-en="REFLECTION">反思題</div>
+<h2 data-zh="反思：你剛學到的東西如何改變你？" data-en="Reflect: how does what you just learned change you?">反思題</h2>
+<div class="reflection-q">
+  <h5 data-zh="自我反思 · Self-Reflection" data-en="Self-Reflection">自我反思 · Self-Reflection</h5>
+  <ol data-lang="zh">
+    <li>你的影像可以靠傳統流程做到多遠？哪些情況下 DL 必要、哪些是 overkill？</li>
+    <li>傳統流程在 reproducibility 上有何優勢？（提示：沒有 GPU、沒有 model checkpoint）</li>
+    <li>你下次寫 methods 會列哪些參數讓人能 100% reproduce 你的分割結果？</li>
+  </ol>
+  <ol data-lang="en">
+    <li>How far can a classical pipeline take your imaging task? When is DL necessary vs overkill?</li>
+    <li>What reproducibility advantages do classical pipelines have? (Hint: no GPU, no model checkpoint)</li>
+    <li>What parameters will you list in your next methods section so others can reproduce 100%?</li>
+  </ol>
+  <div class="rq-hint" data-lang="zh">傳統演算法不會消失，因為它們的每個參數都「可解釋、可重現、可審稿」。</div>
+  <div class="rq-hint" data-lang="en">Classical algorithms aren't going away — every parameter is interpretable, reproducible, and reviewable.</div>
+</div>
+</section>
+
 
 <section class="quiz-section">
 <h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>

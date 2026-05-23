@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Bioimage Analysis Interactive Tutorial</title>
-<meta name="description" content="Complete bilingual interactive tutorial for bioimage analysis — from microscopy fundamentals to deep learning segmentation, tracking, and digital pathology.">
+<meta name="description" content="Complete bilingual interactive tutorial for bioimage analysis — from microscopy fundamentals to deep learning segmentation, tracking, foundation models, and digital pathology.">
 <link rel="stylesheet" href="styles.css"></head><body>
 <nav class="top-nav"><div class="top-nav-inner">
   <a href="index.html" class="top-nav-brand"><span>🔬</span> <span data-zh="Bioimage 教學" data-en="Bioimage Tutorial">Bioimage 教學</span></a>
@@ -8,37 +8,140 @@
 </div></nav>
 <header class="hub-hero"><div style="position:relative;z-index:1;">
 <h1 data-zh="Bioimage Analysis 互動式教學" data-en="Bioimage Analysis Interactive Tutorial">Bioimage Analysis 互動式教學</h1>
-<p data-lang="zh">從像素到生物學洞見——13 個主題帶你掌握生物影像分析的核心流程：從顯微影像基礎、預處理、分割、追蹤、量化，到深度學習與基礎模型的最新進展。</p>
-<p data-lang="en">From pixels to biological insights — master bioimage analysis in 13 modules: microscopy fundamentals, preprocessing, segmentation, tracking, quantification, and the latest deep-learning and foundation-model advances.</p>
+<p data-lang="zh">從像素到生物學洞見——13 個主題從顯微影像基礎、預處理、傳統與深度學習分割、追蹤、量化，到 AI 基礎模型、HCS、數位病理與可重現工具鏈，由淺入深、循循善誘。</p>
+<p data-lang="en">From pixels to biological insight — 13 modules covering microscopy fundamentals, preprocessing, classical &amp; deep-learning segmentation, tracking, quantification, AI foundation models, HCS, digital pathology, and reproducible toolchains. Beginner to advanced.</p>
 </div></header>
+
+<!-- Concept map / KPI -->
+<div class="concept-map">
+<h3 data-zh="🗺️ 概念地圖：教程一覽" data-en="🗺️ Concept Map: Tutorial at a Glance">🗺️ 概念地圖：教程一覽</h3>
+<div class="kpi-grid">
+  <div class="kpi"><div class="kpi-num">13</div><div class="kpi-label" data-zh="主題章節" data-en="Topic Modules">主題章節</div></div>
+  <div class="kpi"><div class="kpi-num">9 + 4</div><div class="kpi-label" data-zh="核心 + 進階" data-en="Core + Advanced">核心 + 進階</div></div>
+  <div class="kpi"><div class="kpi-num">75+</div><div class="kpi-label" data-zh="DOI 引用" data-en="DOI Citations">DOI 引用</div></div>
+  <div class="kpi"><div class="kpi-num">130</div><div class="kpi-label" data-zh="雙語考題" data-en="Bilingual Qs">雙語考題</div></div>
+  <div class="kpi"><div class="kpi-num">100%</div><div class="kpi-label" data-zh="中英對照" data-en="zh / EN">中英對照</div></div>
+  <div class="kpi"><div class="kpi-num">~20h</div><div class="kpi-label" data-zh="預計完成時數" data-en="Total time">預計完成時數</div></div>
+</div>
+<p style="text-align:center;color:var(--c-ink-light);font-size:.9rem;margin:6px 0 0" data-lang="zh">Python 為主軸 · Fiji/ImageJ 為次 · 每章含 story-block、術語卡、時間軸、決策樹、互動模擬、討論題、陷阱卡、進階註記與自我檢測。</p>
+<p style="text-align:center;color:var(--c-ink-light);font-size:.9rem;margin:6px 0 0" data-lang="en">Python primary · Fiji/ImageJ secondary · Each chapter ships with a story-block, glossary cards, timeline, decision tree, interactive simulator, discussion prompts, pitfall cards, advanced notes, and a self-check.</p>
+</div>
+
+<!-- Learning paths -->
+<div class="learning-paths">
+<h2 class="hub-section-title" style="margin-top:0"><span>0</span> <span data-zh="三條學習路徑" data-en="Three Learning Paths">三條學習路徑</span></h2>
+<div class="path-row">
+  <div class="path-card">
+    <span class="path-level" data-zh="🌱 入門 · BEGINNER" data-en="🌱 BEGINNER">🌱 入門</span>
+    <h4 data-zh="從零開始的生物學家" data-en="The biologist starting from zero">從零開始的生物學家</h4>
+    <span class="path-time" data-zh="預估 6–8 小時 · 不需 Python 基礎" data-en="6–8 hrs · no Python required">預估 6–8 小時 · 不需 Python 基礎</span>
+    <p data-lang="zh">從顯微影像「像素到底是什麼」開始，學會 QC、預處理、用 Fiji 與 Cellpose 完成第一份細胞計數。</p>
+    <p data-lang="en">Start from "what is a pixel?" Learn QC, preprocessing, and produce your first cell-count report with Fiji + Cellpose.</p>
+    <ol class="path-steps">
+      <li><a href="fundamentals.html">Step 1 · 影像基礎</a></li>
+      <li><a href="preprocessing.html">Step 2 · 預處理</a></li>
+      <li><a href="segmentation-classic.html">Step 5 · 傳統分割</a></li>
+      <li><a href="segmentation-dl.html">Step 6 · DL 分割 (Cellpose 入門)</a></li>
+      <li><a href="quantification.html">Step 9 · 量化基礎</a></li>
+      <li><a href="tools.html">Tools · Fiji workflow</a></li>
+    </ol>
+  </div>
+  <div class="path-card intermediate">
+    <span class="path-level" data-zh="🚀 進階 · INTERMEDIATE" data-en="🚀 INTERMEDIATE">🚀 進階</span>
+    <h4 data-zh="實驗室分析師、博班生" data-en="Lab analyst, grad student">實驗室分析師、博班生</h4>
+    <span class="path-time" data-zh="預估 10–14 小時 · 熟悉 Python/NumPy" data-en="10–14 hrs · Python/NumPy fluent">預估 10–14 小時 · 熟悉 Python/NumPy</span>
+    <p data-lang="zh">深入 3D 共軛焦/光片資料、追蹤、共定位分析、registration，能獨立設計 pipeline 並 debug 各種 silent failure。</p>
+    <p data-lang="en">Dive into 3D confocal / light-sheet, tracking, colocalization, registration. Design pipelines and debug silent failures.</p>
+    <ol class="path-steps">
+      <li><a href="deconvolution.html">Step 3 · 去卷積</a></li>
+      <li><a href="registration.html">Step 4 · 配準與拼接</a></li>
+      <li><a href="3d-multidim.html">Adv · 3D / Multi-Dim</a></li>
+      <li><a href="tracking.html">Step 8 · 細胞追蹤</a></li>
+      <li><a href="quantification.html">Step 9 · 共定位 + 紋理</a></li>
+      <li><a href="high-content.html">Adv · 高內涵 HCS</a></li>
+    </ol>
+  </div>
+  <div class="path-card advanced">
+    <span class="path-level" data-zh="🛰️ 研究員 · ADVANCED" data-en="🛰️ ADVANCED">🛰️ 研究員</span>
+    <h4 data-zh="ML 工程師、臨床 AI 開發者" data-en="ML engineer, clinical AI">ML 工程師、臨床 AI 開發者</h4>
+    <span class="path-time" data-zh="預估 10–12 小時 · 熟悉 PyTorch" data-en="10–12 hrs · PyTorch fluent">預估 10–12 小時 · 熟悉 PyTorch</span>
+    <p data-lang="zh">聚焦 2025 SOTA：Cellpose-SAM、Micro-SAM、MedSAM2、UNI / Virchow 病理 FM、Trackastra Transformer 追蹤，以及論文級可重現性。</p>
+    <p data-lang="en">Focus on 2025 SOTA: Cellpose-SAM, Micro-SAM, MedSAM2, UNI/Virchow pathology FMs, Trackastra trackers, paper-level reproducibility.</p>
+    <ol class="path-steps">
+      <li><a href="segmentation-dl.html">Step 6 · Cellpose 4 / nnU-Net</a></li>
+      <li><a href="foundation-models.html">Step 7 · SAM/Micro-SAM/MedSAM2</a></li>
+      <li><a href="pathology.html">Adv · UNI / Virchow / CLAM</a></li>
+      <li><a href="tracking.html">Step 8 · Trackastra</a></li>
+      <li><a href="tools.html">Adv · Snakemake + Model Zoo</a></li>
+      <li><a href="references/index.html">References · 75+ DOIs</a></li>
+    </ol>
+  </div>
+</div>
+</div>
 
 <h2 class="hub-section-title"><span>01</span> <span data-zh="核心分析流程" data-en="Core Analysis Pipeline">核心分析流程</span></h2>
 <div class="hub-steps-grid">
-  <a href="fundamentals.html" class="hub-card"><div class="hub-emoji">🖼️</div><span class="step-num">Step 1</span><h3 data-zh="影像基礎 (Fundamentals)" data-en="Image Fundamentals">影像基礎</h3><p data-lang="zh">像素 / 體素、bit depth、通道、顯微術式、TIFF / OME-TIFF / CZI / LIF、Bio-Formats、OME-Zarr。</p><p data-lang="en">Pixels/voxels, bit depth, channels, microscopy modalities, TIFF/OME-TIFF/CZI/LIF, Bio-Formats, OME-Zarr.</p></a>
-  <a href="preprocessing.html" class="hub-card"><div class="hub-emoji">🧽</div><span class="step-num">Step 2</span><h3 data-zh="預處理與去噪 (Preprocessing)" data-en="Preprocessing &amp; Denoising">預處理與去噪</h3><p data-lang="zh">Gaussian / median / BM3D、rolling-ball、BaSiC 平場校正、Noise2Void、Cellpose3 一鍵還原。</p><p data-lang="en">Gaussian/median/BM3D, rolling-ball, BaSiC shading, Noise2Void, Cellpose3 one-click restoration.</p></a>
-  <a href="deconvolution.html" class="hub-card"><div class="hub-emoji">🔍</div><span class="step-num">Step 3</span><h3 data-zh="去卷積 (Deconvolution)" data-en="Deconvolution">去卷積</h3><p data-lang="zh">PSF 模型、Richardson-Lucy、Wiener、CARE / DeepStorm 深度學習還原，反轉顯微鏡的光學模糊。</p><p data-lang="en">PSF models, Richardson-Lucy, Wiener, CARE/DeepStorm deep restoration — reverse optical blur.</p></a>
-  <a href="registration.html" class="hub-card"><div class="hub-emoji">🧭</div><span class="step-num">Step 4</span><h3 data-zh="配準與拼接 (Registration)" data-en="Registration &amp; Stitching">配準與拼接</h3><p data-lang="zh">剛體 / 仿射 / B-spline 變換、互資訊、BigStitcher 大樣本拼接、ANTs SyN 形變對齊。</p><p data-lang="en">Rigid/affine/B-spline transforms, mutual information, BigStitcher tile fusion, ANTs SyN.</p></a>
+  <a href="fundamentals.html" class="hub-card"><div class="hub-emoji">🖼️</div><span class="step-num">Step 1</span><h3 data-zh="影像基礎 (Fundamentals)" data-en="Image Fundamentals">影像基礎</h3><p data-lang="zh">像素 / 體素、bit depth、通道、顯微術式、TIFF / OME-TIFF / CZI / LIF、Bio-Formats、OME-Zarr 雲端原生標準。</p><p data-lang="en">Pixels/voxels, bit depth, channels, microscopy modalities, TIFF/OME-TIFF/CZI/LIF, Bio-Formats, the OME-Zarr cloud-native standard.</p></a>
+  <a href="preprocessing.html" class="hub-card"><div class="hub-emoji">🧽</div><span class="step-num">Step 2</span><h3 data-zh="預處理與去噪 (Preprocessing)" data-en="Preprocessing &amp; Denoising">預處理與去噪</h3><p data-lang="zh">Gaussian / median / NLM / BM3D、rolling-ball、BaSiC 平場校正、Noise2Void 自監督去噪、Cellpose3 一鍵還原。</p><p data-lang="en">Gaussian/median/NLM/BM3D, rolling-ball, BaSiC flat-field, Noise2Void self-supervised denoising, Cellpose3 one-click restoration.</p></a>
+  <a href="deconvolution.html" class="hub-card"><div class="hub-emoji">🔍</div><span class="step-num">Step 3</span><h3 data-zh="去卷積 (Deconvolution)" data-en="Deconvolution">去卷積</h3><p data-lang="zh">PSF 模型、Richardson-Lucy 迭代、Wiener 線性、CARE / DeepStorm 深度學習還原，反轉顯微鏡的光學模糊。</p><p data-lang="en">PSF models, Richardson-Lucy iteration, Wiener linear filter, CARE/DeepStorm DL restoration — reverse optical blur.</p></a>
+  <a href="registration.html" class="hub-card"><div class="hub-emoji">🧭</div><span class="step-num">Step 4</span><h3 data-zh="配準與拼接 (Registration)" data-en="Registration &amp; Stitching">配準與拼接</h3><p data-lang="zh">剛體 / 仿射 / B-spline 變換、Mutual Information、BigStitcher TB 級拼接、ANTs SyN 微分同胚形變。</p><p data-lang="en">Rigid/affine/B-spline transforms, mutual information, BigStitcher TB-scale stitching, ANTs SyN diffeomorphic deformation.</p></a>
   <a href="segmentation-classic.html" class="hub-card"><div class="hub-emoji">✂️</div><span class="step-num">Step 5</span><h3 data-zh="傳統分割 (Classical Segmentation)" data-en="Classical Segmentation">傳統分割</h3><p data-lang="zh">Otsu / Li / Triangle 閾值、形態學運算、距離變換、Watershed、regionprops，scikit-image 核心套件。</p><p data-lang="en">Otsu/Li/Triangle thresholding, morphology, distance transform, watershed, regionprops via scikit-image.</p></a>
-  <a href="segmentation-dl.html" class="hub-card"><div class="hub-emoji">🧠</div><span class="step-num">Step 6</span><h3 data-zh="深度學習分割 (DL Segmentation)" data-en="Deep Learning Segmentation">深度學習分割</h3><p data-lang="zh">U-Net、Cellpose 4 (Cellpose-SAM)、StarDist、nnU-Net、Mesmer、Omnipose，零訓練泛化模型。</p><p data-lang="en">U-Net, Cellpose 4 (Cellpose-SAM), StarDist, nnU-Net, Mesmer, Omnipose — generalist pretrained models.</p></a>
-  <a href="foundation-models.html" class="hub-card"><div class="hub-emoji">🌐</div><span class="step-num">Step 7</span><h3 data-zh="AI 基礎模型 (Foundation Models)" data-en="AI Foundation Models">AI 基礎模型</h3><p data-lang="zh">SAM / SAM 2、Micro-SAM、MedSAM2、CellSAM、UNI / Virchow 病理基礎模型，提示式分割新範式。</p><p data-lang="en">SAM/SAM 2, Micro-SAM, MedSAM2, CellSAM, UNI/Virchow pathology FMs — promptable segmentation.</p></a>
-  <a href="tracking.html" class="hub-card"><div class="hub-emoji">🛰️</div><span class="step-num">Step 8</span><h3 data-zh="細胞追蹤 (Tracking)" data-en="Cell / Particle Tracking">細胞追蹤</h3><p data-lang="zh">LAP / Kalman、TrackMate、btrack、Trackastra Transformer 追蹤、譜系樹、Cell Tracking Challenge 指標。</p><p data-lang="en">LAP/Kalman, TrackMate, btrack, Trackastra Transformer, lineage trees, CTC metrics.</p></a>
-  <a href="quantification.html" class="hub-card"><div class="hub-emoji">📐</div><span class="step-num">Step 9</span><h3 data-zh="量化與特徵 (Quantification)" data-en="Quantification &amp; Features">量化與特徵</h3><p data-lang="zh">強度統計、形態學、共定位 (Pearson / Manders / Costes)、Haralick 紋理、PyRadiomics、Cell Painting。</p><p data-lang="en">Intensity, morphology, colocalization (Pearson/Manders/Costes), Haralick texture, PyRadiomics.</p></a>
+  <a href="segmentation-dl.html" class="hub-card"><div class="hub-emoji">🧠</div><span class="step-num">Step 6</span><h3 data-zh="深度學習分割 (DL Segmentation)" data-en="Deep Learning Segmentation">深度學習分割</h3><p data-lang="zh">U-Net、Cellpose 4 (Cellpose-SAM)、StarDist、nnU-Net、Mesmer 多重染色、Omnipose 細菌，零訓練泛化模型。</p><p data-lang="en">U-Net, Cellpose 4 (Cellpose-SAM), StarDist, nnU-Net, Mesmer multiplex, Omnipose bacteria — generalist pretrained models.</p></a>
+  <a href="foundation-models.html" class="hub-card"><div class="hub-emoji">🌐</div><span class="step-num">Step 7</span><h3 data-zh="AI 基礎模型 (Foundation Models)" data-en="AI Foundation Models">AI 基礎模型</h3><p data-lang="zh">SAM / SAM 2、Micro-SAM、MedSAM2、CellSAM、UNI / Virchow / CONCH 病理基礎模型，提示式分割新範式。</p><p data-lang="en">SAM/SAM 2, Micro-SAM, MedSAM2, CellSAM, UNI/Virchow/CONCH pathology FMs — promptable segmentation.</p></a>
+  <a href="tracking.html" class="hub-card"><div class="hub-emoji">🛰️</div><span class="step-num">Step 8</span><h3 data-zh="細胞追蹤 (Tracking)" data-en="Cell / Particle Tracking">細胞追蹤</h3><p data-lang="zh">LAP / Kalman、TrackMate、btrack Bayesian、Trackastra Transformer 追蹤、譜系樹、Cell Tracking Challenge 指標。</p><p data-lang="en">LAP/Kalman, TrackMate, btrack Bayesian, Trackastra Transformer, lineage trees, Cell Tracking Challenge metrics.</p></a>
+  <a href="quantification.html" class="hub-card"><div class="hub-emoji">📐</div><span class="step-num">Step 9</span><h3 data-zh="量化與特徵 (Quantification)" data-en="Quantification &amp; Features">量化與特徵</h3><p data-lang="zh">強度統計、形態學、共定位 (Pearson / Manders / Costes)、Haralick 紋理、PyRadiomics、Cell Painting profile。</p><p data-lang="en">Intensity, morphology, colocalization (Pearson/Manders/Costes), Haralick texture, PyRadiomics, Cell Painting profiles.</p></a>
 </div>
 
 <h2 class="hub-section-title"><span>02</span> <span data-zh="進階主題" data-en="Advanced Topics">進階主題</span></h2>
 <div class="hub-steps-grid">
-  <a href="3d-multidim.html" class="hub-card"><div class="hub-emoji">🧊</div><span class="step-num">Advanced</span><h3 data-zh="3D 與多維分析" data-en="3D &amp; Multi-Dimensional">3D 與多維分析</h3><p data-lang="zh">各向異性體素、Cellpose 3D、StarDist 3D、PlantSeg、napari N-D viewer、dask 大資料流式處理。</p><p data-lang="en">Anisotropic voxels, Cellpose 3D, StarDist 3D, PlantSeg, napari N-D viewer, dask out-of-core.</p></a>
-  <a href="high-content.html" class="hub-card"><div class="hub-emoji">🧪</div><span class="step-num">Advanced</span><h3 data-zh="高內涵分析 (HCS)" data-en="High-Content Screening">高內涵分析</h3><p data-lang="zh">CellProfiler 4 / Analyst、Cell Painting、JUMP-CP、pycytominer 表型分佈正規化與配對。</p><p data-lang="en">CellProfiler 4/Analyst, Cell Painting, JUMP-CP, pycytominer normalization &amp; profile matching.</p></a>
-  <a href="pathology.html" class="hub-card"><div class="hub-emoji">🔬</div><span class="step-num">Advanced</span><h3 data-zh="數位病理 (Digital Pathology)" data-en="Digital Pathology">數位病理</h3><p data-lang="zh">QuPath、OpenSlide、Macenko 染色正規化、HoVer-Net、CLAM、UNI / Virchow / CONCH 病理基礎模型。</p><p data-lang="en">QuPath, OpenSlide, Macenko stain normalization, HoVer-Net, CLAM, UNI/Virchow/CONCH WSI FMs.</p></a>
-  <a href="tools.html" class="hub-card"><div class="hub-emoji">🧰</div><span class="step-num">Advanced</span><h3 data-zh="工具比較與整合" data-en="Tools Comparison">工具比較與整合</h3><p data-lang="zh">Fiji / napari / CellProfiler / QuPath / ilastik 選擇指南，Snakemake / Nextflow 再現性工作流。</p><p data-lang="en">Fiji/napari/CellProfiler/QuPath/ilastik selection guide, Snakemake/Nextflow reproducibility.</p></a>
+  <a href="3d-multidim.html" class="hub-card"><div class="hub-emoji">🧊</div><span class="step-num">Advanced</span><h3 data-zh="3D 與多維分析" data-en="3D &amp; Multi-Dimensional">3D 與多維分析</h3><p data-lang="zh">各向異性體素、Cellpose 3D、StarDist 3D、PlantSeg、napari N-D viewer、dask 大資料流式處理、OME-Zarr。</p><p data-lang="en">Anisotropic voxels, Cellpose 3D, StarDist 3D, PlantSeg, napari N-D viewer, dask out-of-core processing, OME-Zarr.</p></a>
+  <a href="high-content.html" class="hub-card"><div class="hub-emoji">🧪</div><span class="step-num">Advanced</span><h3 data-zh="高內涵分析 (HCS)" data-en="High-Content Screening">高內涵分析</h3><p data-lang="zh">CellProfiler 4 / Analyst、Cell Painting、JUMP-CP 3M+ 公開資料集、pycytominer 表型分佈正規化與配對。</p><p data-lang="en">CellProfiler 4/Analyst, Cell Painting, JUMP-CP's 3M+ public dataset, pycytominer normalization &amp; profile matching.</p></a>
+  <a href="pathology.html" class="hub-card"><div class="hub-emoji">🔬</div><span class="step-num">Advanced</span><h3 data-zh="數位病理 (Digital Pathology)" data-en="Digital Pathology">數位病理</h3><p data-lang="zh">QuPath、OpenSlide、Macenko 染色正規化、HoVer-Net、CLAM MIL、UNI / Virchow / CONCH 病理基礎模型。</p><p data-lang="en">QuPath, OpenSlide, Macenko stain normalization, HoVer-Net, CLAM MIL, UNI/Virchow/CONCH WSI FMs.</p></a>
+  <a href="tools.html" class="hub-card"><div class="hub-emoji">🧰</div><span class="step-num">Advanced</span><h3 data-zh="工具比較與整合" data-en="Tools Comparison">工具比較與整合</h3><p data-lang="zh">Fiji / napari / CellProfiler / QuPath / ilastik 選擇指南，Snakemake / Nextflow 工作流，BioImage Model Zoo。</p><p data-lang="en">Fiji/napari/CellProfiler/QuPath/ilastik selection guide, Snakemake/Nextflow workflows, BioImage Model Zoo.</p></a>
 </div>
 
-<h2 class="hub-section-title"><span>03</span> <span data-zh="延伸學習" data-en="Further Learning">延伸學習</span></h2>
+<!-- Featured spotlights -->
+<h2 class="hub-section-title"><span>03</span> <span data-zh="精選 spotlight：2025–2026 SOTA" data-en="Featured Spotlights: 2025–2026 SOTA">精選 spotlight：2025–2026 SOTA</span></h2>
+<div style="max-width:1100px;margin:0 auto;padding:0 24px;">
+<div class="featured-spotlight">
+  <span class="fs-tag">NEW 2025</span>
+  <h4>Cellpose 4 (Cellpose-SAM)</h4>
+  <p data-lang="zh">將 SAM transformer backbone 與 Cellpose 流場 head 結合，<strong>單一模型橫掃多種顯微術式</strong>，幾乎不需要再 fine-tune。Pachitariu et al., bioRxiv 2025。</p>
+  <p data-lang="en">Combines a SAM transformer backbone with the Cellpose flow-field head — <strong>one model across modalities</strong>, almost no fine-tuning needed. Pachitariu et al., bioRxiv 2025.</p>
+</div>
+<div class="featured-spotlight">
+  <span class="fs-tag">NEW 2024</span>
+  <h4>JUMP-CP: 3M Cell Painting Images</h4>
+  <p data-lang="zh">3,072,156 張影像 × 12,602 化合物 + 8,069 基因擾動，由 Broad 領導的 12 家機構聯盟發表，是迄今<strong>最大規模的公開表型篩選資料集</strong>。Chandrasekaran et al., Nature Methods 21:1114–1121。</p>
+  <p data-lang="en">3,072,156 images × 12,602 compounds + 8,069 genetic perturbations — the largest public phenotypic screen ever, from a 12-institution Broad-led consortium. Chandrasekaran et al., Nature Methods 21:1114–1121.</p>
+</div>
+<div class="featured-spotlight">
+  <span class="fs-tag">NEW 2025</span>
+  <h4>Micro-SAM (µSAM) for Microscopy</h4>
+  <p data-lang="zh">針對光學 + 電子顯微鏡 fine-tune 的 SAM 變體，<strong>napari plugin 提示式分割</strong>，2D / 3D / 影片皆可。Archit et al., Nature Methods 22:579–591。</p>
+  <p data-lang="en">SAM fine-tuned on light + EM microscopy, with a <strong>napari plugin for promptable segmentation</strong> — 2D / 3D / video. Archit et al., Nature Methods 22:579–591.</p>
+</div>
+</div>
+
+<!-- Usage tips -->
+<h2 class="hub-section-title"><span>04</span> <span data-zh="使用提示" data-en="Usage Tips">使用提示</span></h2>
+<div style="max-width:1100px;margin:0 auto;padding:0 24px;">
+<div class="tips-grid">
+  <div class="tip-card"><strong data-zh="💡 看圖先於設參數" data-en="💡 Visualize before tuning">💡 看圖先於設參數</strong><span data-lang="zh">所有的閾值、半徑、min_distance 都要先看 violin / scatter / histogram 再決定。沒有「放諸四海皆準」的數字。</span><span data-lang="en">Every threshold, radius, and min_distance starts with a violin / scatter / histogram. No magic numbers work universally.</span></div>
+  <div class="tip-card"><strong data-zh="💡 第一步永遠是 print shape" data-en="💡 First call: print shape">💡 第一步永遠是 print shape</strong><span data-lang="zh">讀檔後立刻 <code>print(img.shape, img.dtype, dims, pixel_size)</code>。90% bug 在這行被抓出來。</span><span data-lang="en">Right after loading: <code>print(img.shape, img.dtype, dims, pixel_size)</code>. 90% of bugs surface here.</span></div>
+  <div class="tip-card"><strong data-zh="💡 Pretrained 先試零訓練" data-en="💡 Try zero-shot first">💡 Pretrained 先試零訓練</strong><span data-lang="zh">Cellpose-SAM cyto3、StarDist versatile_fluo 通常零訓練就夠用。動手訓練前先讓 generalist 跑一遍。</span><span data-lang="en">Cellpose-SAM cyto3, StarDist versatile_fluo often suffice zero-shot. Run a generalist before training anything.</span></div>
+  <div class="tip-card"><strong data-zh="💡 Anisotropy 是 3D #1 陷阱" data-en="💡 Anisotropy = #1 3D trap">💡 Anisotropy 是 3D #1 陷阱</strong><span data-lang="zh">共軛焦 Z 通常比 XY 大 3–10 倍。不告訴模型 anisotropy = 細胞被「壓扁」的 silent failure。</span><span data-lang="en">Confocal Z is 3–10× coarser than XY. Without anisotropy=, cells get silently "flattened."</span></div>
+  <div class="tip-card"><strong data-zh="💡 量化前不要任意濾波" data-en="💡 Don't filter before quantification">💡 量化前不要任意濾波</strong><span data-lang="zh">Gaussian 會改變強度峰值與共定位係數。必要時記錄參數並一致套用於對照組。</span><span data-lang="en">Gaussian skews peaks &amp; colocalization. Document parameters and apply identically across conditions if you must.</span></div>
+  <div class="tip-card"><strong data-zh="💡 用獨立 test set 評估" data-en="💡 Use a held-out test set">💡 用獨立 test set 評估</strong><span data-lang="zh">「眼睛看訓練集」永遠樂觀。算 IoU / Dice / AP / TRA / DET 才有可信數字。</span><span data-lang="en">Eyeballing the training set is always optimistic. Quantify IoU/Dice/AP/TRA/DET on a held-out test set.</span></div>
+</div>
+</div>
+
+<h2 class="hub-section-title"><span>05</span> <span data-zh="延伸學習" data-en="Further Learning">延伸學習</span></h2>
 <div class="hub-steps-grid">
-  <a href="references/index.html" class="hub-card"><div class="hub-emoji">📚</div><span class="step-num">References</span><h3 data-zh="參考資料佐證" data-en="References &amp; Citations">參考資料佐證</h3><p data-lang="zh">13 主題的學術論文、官方文件、Best Practices 綜述與資料庫整理，附 DOI 連結與工具版本注記。</p><p data-lang="en">Academic papers, official docs, best-practice reviews, and databases for all 13 topics — with DOI links and tool-version notes.</p></a>
-  <a href="bioimage-quiz/index.html" class="hub-card" target="_blank" rel="noopener"><div class="hub-emoji">📝</div><span class="step-num">Quiz</span><h3 data-zh="互動式考題" data-en="Interactive Quiz">互動式考題</h3><p data-lang="zh">涵蓋 13 主題的單選 / 多選 / 是非題，雙語題目、解析、錯題複習、多使用者進度。</p><p data-lang="en">Single-choice, multi-select, and true/false questions covering all 13 topics — bilingual stems &amp; explanations, wrong-answer review.</p></a>
+  <a href="references/index.html" class="hub-card"><div class="hub-emoji">📚</div><span class="step-num">References</span><h3 data-zh="參考資料佐證" data-en="References &amp; Citations">參考資料佐證</h3><p data-lang="zh">13 主題的 75+ 學術論文、官方文件、Best Practices 綜述與資料庫整理，附 DOI 連結與工具版本注記（2026 年 5 月驗證）。</p><p data-lang="en">75+ academic papers, official docs, best-practice reviews, and databases across 13 topics — with DOI links and tool-version notes (verified May 2026).</p></a>
+  <a href="bioimage-quiz/index.html" class="hub-card" target="_blank" rel="noopener"><div class="hub-emoji">📝</div><span class="step-num">Quiz</span><h3 data-zh="互動式考題（130 題）" data-en="Interactive Quiz (130 Qs)">互動式考題</h3><p data-lang="zh">涵蓋 13 主題的單選 / 多選 / 是非題，雙語題目、解析、錯題複習、多使用者進度。</p><p data-lang="en">Single-choice, multi-select, and true/false questions covering all 13 topics — bilingual stems &amp; explanations, wrong-answer review, multi-user progress.</p></a>
 </div>
 <div style="height:60px"></div>
-<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial</footer>
+<footer class="site-footer">© Charlene — Bioimage Analysis Interactive Tutorial · enriched 2026-05-22</footer>
 <script src="i18n.js"></script>
 </body></html>
